@@ -3,18 +3,29 @@ set(CMAKE_CXX_STANDARD 17)
 
 
 # set the source files!
-set(macOS_SRCS src/wrapper/CoreBluetoothObjC.mm src/model/central.cpp)
+set(macOS_SRCS
+        src/wrapper/CoreBluetoothObjC.mm
+        src/model/central.cpp
+        src/model/CentralEventHandler.cpp)
 
 # set the public headers you want the client to user!
 set(macOS_PUBLIC_HEADERS
-        ./include/model
+        include/model
+        include/wrapper
         )
 
 # set the include directories so source files can find them
-include_directories(./include/wrapper
-                    ./include/model)
+include_directories(include/wrapper
+        include/model)
 
 add_library(feeling-blue SHARED ${macOS_SRCS})
+
+#set(CMAKE_EXE_LINKER_FLAGS "-framework CoreBluetooth")
+#set(CMAKE_EXE_LINKER_FLAGS "-framework Foundation")
+target_link_libraries(feeling-blue PUBLIC
+        "-framework Foundation"
+        "-framework CoreBluetooth")
+#set_target_properties(feeling-blue PROPERTIES LINK_FLAGS "-Wl,-F/Library/Frameworks")
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
