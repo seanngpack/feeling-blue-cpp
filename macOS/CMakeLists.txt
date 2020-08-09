@@ -4,18 +4,18 @@ set(CMAKE_CXX_STANDARD 17)
 
 # set the source files!
 set(macOS_SRCS
-        src/wrapper/CoreBluetoothObjC.mm
-        src/model/central.cpp
-        src/model/CentralEventHandler.cpp)
+        src/wrapper/bluetooth.mm
+        src/model/central_event_handler.cpp include/model/peripheral_mac.h
+        src/model/peripheral_mac.cpp include/model/central_mac.h src/model/central_mac.cpp ../include/feeling-blue.h)
 
 # set the public headers you want the client to user!
 set(macOS_PUBLIC_HEADERS
-        include/model
-        include/wrapper
+        ../include/feeling-blue.h
         )
 
 # set the include directories so source files can find them
-include_directories(include/wrapper
+include_directories(
+        include/wrapper
         include/model)
 
 add_library(feeling-blue SHARED ${macOS_SRCS})
@@ -34,7 +34,7 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 install(TARGETS ${PROJECT_NAME}
         EXPORT feeling-blueConfig
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
-install(DIRECTORY ${macOS_PUBLIC_HEADERS}
+install(FILES ${macOS_PUBLIC_HEADERS}
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 install(EXPORT feeling-blueConfig DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/feeling-blue/cmake)
 

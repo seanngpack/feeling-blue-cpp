@@ -1,6 +1,7 @@
-#ifndef FEELING_BLUE_CENTRALEVENTHANDLER_H
-#define FEELING_BLUE_CENTRALEVENTHANDLER_H
+#ifndef FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
+#define FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
 
+#include "wrapper.h"
 #include <condition_variable>
 #include <future>
 #include <iostream>
@@ -13,18 +14,12 @@ namespace handler {
     class CentralEventHandler {
     public:
 
-        /**
-         * On initialization, will search for settings.json and set the current position
-         * from that file.
-         * Might be bad design because arduino is kinda taking responsibility from the
-         * filehandler class.
-         */
-        CentralEventHandler();
+
+        CentralEventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth);
 
         void rotate_by(int degs);
 
-
-        void connect_bluetooth();
+        void start_bluetooth();
 
         void set_is_bt_connected(bool is_connected);
 
@@ -39,7 +34,7 @@ namespace handler {
         std::condition_variable table_cv;
 
     private:
-        void *bluetooth_object;
+        std::shared_ptr<wrapper::Wrapper> bluetooth;
         bool is_bt_connected;
         bool is_table_rotating;
 
@@ -48,4 +43,4 @@ namespace handler {
 }
 
 
-#endif //FEELING_BLUE_CENTRALEVENTHANDLER_H
+#endif //FEELING_BLUE_CENTRAL_EVENT_HANDLER_H

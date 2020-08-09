@@ -1,31 +1,57 @@
-#import "CoreBluetoothObjC.h"
+#import "bluetooth.h"
+#import "wrapper.h"
 
-
-#include <iostream>
+#include <vector>
+#include <string>
 
 /*-------------------------------------------------------
-                 C++ Wrapper functions here
+                 C++ Wrapper implementation here
 
 ---------------------------------------------------------*/
-void *get_bluetooth_obj() {
-    void *obj_ptr = [[CoreBluetoothWrapped alloc] init];
-    return obj_ptr;
-}
+namespace wrapper {
+    struct WrapperImpl {
+        CBluetooth *wrapped;
+    };
 
-void start_bluetooth(void *obj) {
-    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [(id) obj performSelectorInBackground:@selector(startBluetooth) withObject:nil];
-    [pool release];
-}
+    Wrapper::Wrapper() :
+            impl(new WrapperImpl()) {
+        impl->wrapped = [[CBluetooth alloc] init];
+    }
 
-void rotate(void *obj, int deg) {
-    [(id) obj rotateTable:deg];
-}
+    void Wrapper::start_bluetooth() {
+        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+        [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
+        [pool release];
+    }
+
+    void Wrapper::find_peripheral(std::vector<std::string> uuids) {
+        NSMutableArray *arr = [[NSMutableArray alloc] init];
+        for (int i = 0; i < uuids.size(); i++) {
+            NSString *uuid = [NSString stringWithUTF8String:uuids[i].c_str()];
+            [arr addObject:[CBUUID UUIDWithString:uuid]];
+        }
+        [impl->wrapped findPeripheralUUID:(arr)];
+        [arr release]; // WARNING: this might cause an issue
+    }
+
+    void Wrapper::find_peripheral(std::string name) {
+        NSString *n = [NSString stringWithUTF8String:name.c_str()];
+        [impl->wrapped findPeripheralName:(n)];
+    }
+
+    void Wrapper::set_handler(void *central_event_handler) {
+        auto *a = static_cast<handler::CentralEventHandler *>(central_event_handler);
+        [impl->wrapped setHandler:a];
+    }
+
+    Wrapper::~Wrapper() {
+        if (impl) {
+            [impl->wrapped release];
+        }
+        delete impl;
+    }
 
 
-void set_handler(void *arduino_event_handler, void *obj) {
-    auto *a = static_cast<handler::CentralEventHandler *>(arduino_event_handler);
-    [(id) obj setHandler:a];
 }
 
 
@@ -34,12 +60,24 @@ void set_handler(void *arduino_event_handler, void *obj) {
 
 ---------------------------------------------------------*/
 
-@implementation CoreBluetoothWrapped
+@implementation CBluetooth
+
+- (bluetooth::PeripheralMac)findPeripheralName:(NSString *)name {
+    _nameSearch = true;
+    [_centralManager scanForPeripheralsWithServices:nil
+                                            options:nil];
+}
+
+- (bluetooth::PeripheralMac)findPeripheralUUID:(NSArray<CBUUID *> *)uuids {
+    _nameSearch = false;
+    [_centralManager scanForPeripheralsWithServices:uuids
+                                            options:nil];
+}
 
 - (void)rotateTable:(int)degrees {
     _centralEventHandler->set_is_table_rotating(true);
     NSData *bytes = [NSData dataWithBytes:&degrees length:sizeof(degrees)];
-    [_swagScanner
+    [_peripheral
             writeValue:bytes
      forCharacteristic:_rotateTableChar
                   type:CBCharacteristicWriteWithResponse];
@@ -73,6 +111,7 @@ void set_handler(void *arduino_event_handler, void *obj) {
     };
 }
 
+
 - (void)dealloc {
     std::cout << "destructing this bluetooth object";
     [super dealloc];
@@ -98,11 +137,11 @@ void set_handler(void *arduino_event_handler, void *obj) {
             break;
         case CBManagerStatePoweredOn:
             state = @"Bluetooth LE is turned on and ready for communication.";
-            NSLog(@"%@", state);
-            NSLog(@"Scanning for Swag Scanenr now...");
+//            NSLog(@"%@", state);
+//            NSLog(@"Scanning for Swag Scanenr now...");
 
-            [_centralManager scanForPeripheralsWithServices:nil
-                                                    options:nil];
+//            [_centralManager scanForPeripheralsWithServices:nil
+//                                                    options:nil];
             break;
         case CBManagerStateUnknown:
             state = @"The state of the BLE Manager is unknown.";
@@ -112,27 +151,36 @@ void set_handler(void *arduino_event_handler, void *obj) {
     }
 }
 
-// call this during scanning when it finds a peripheral
+// call this during scanning when it finds a peripheral_mac
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
-    NSString *peripheralName = advertisementData[@"kCBAdvDataLocalName"];
-//    NSLog(@"NEXT PERIPHERAL: %@ (%@)", peripheralName, peripheral.identifier.UUIDString);
-//    NSLog(@"NAME: %@ ", peripheral.name);
-    if (peripheralName) {
-        if ([peripheralName isEqualToString:SWAG_SCANNER_NAME]) {
-            self.swagScanner = peripheral;
-            self.swagScanner.delegate = self;
-            [self.centralManager connectPeripheral:self.swagScanner options:nil];
+    NSString *pName = advertisementData[@"kCBAdvDataLocalName"];
+    NSLog(@"NEXT PERIPHERAL: %@ (%@)", pName, peripheral.identifier.UUIDString);
+    NSLog(@"NAME: %@ ", peripheral.name);
+
+    // search by name
+    if (_nameSearch) {
+        if (pName) {
+            if ([pName isEqualToString:_peripheralName]) {
+                _peripheral = peripheral;
+                _peripheral.delegate = self;
+                [_centralManager connectPeripheral:_peripheral options:nil];
+            }
         }
+    } else {
+        _peripheral = peripheral;
+        _peripheral.delegate = self;
+        [_centralManager connectPeripheral:_peripheral options:nil];
     }
 }
 
-// called after peripheral is connected
+// called after peripheral_mac is connected
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [_centralManager stopScan];
     NSLog(@"Scanning stopped");
-    NSLog(@"**** SUCCESSFULLY CONNECTED TO SWAG SCANNER");
-    NSLog(@"Now looking for services...");
-    [peripheral discoverServices:nil];
+    NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
+    NSLog(@"PERIPHERAL NAME: %@", peripheral.name);
+//    NSLog(@"Now looking for services...");
+//    [peripheral discoverServices:nil];
 }
 
 // called if didDiscoverPeripheral fails to connect
@@ -146,9 +194,10 @@ void set_handler(void *arduino_event_handler, void *obj) {
 
 #pragma mark - CBPeripheralDelegate methods
 
-// When the specified services are discovered, the peripheral calls the peripheral:didDiscoverServices: method of its delegate object.
+// When the specified services are discovered, this is called.
+// Can access the services throup peripheral.services
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
-    // Core Bluetooth creates an array of CBService objects —- one for each service that is discovered on the peripheral.
+    // Core Bluetooth creates an array of CBService objects —- one for each service that is discovered on the peripheral_mac.
     for (CBService *service in peripheral.services) {
         NSLog(@"Discovered service: %@", service);
         if (([service.UUID isEqual:[CBUUID UUIDWithString:UART_SERVICE_UUID]])) {
@@ -157,7 +206,7 @@ void set_handler(void *arduino_event_handler, void *obj) {
     }
 }
 
-// peripheral's response to discoverCharacteristics
+// peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
     for (CBCharacteristic *characteristic in service.characteristics) {
@@ -168,20 +217,20 @@ void set_handler(void *arduino_event_handler, void *obj) {
         if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:ROTATE_TABLE_CHAR_UUID]]) {
             NSLog(@"Enabled table rotation characteristic: %@", characteristic);
             _rotateTableChar = characteristic;
-            [self.swagScanner writeValue:enableBytes forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+            [self.peripheral writeValue:enableBytes forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
         }
 
         // table position
         if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
             NSLog(@"Enabled table position characteristic with notifications: %@", characteristic);
             _tablePosChar = characteristic;
-            [self.swagScanner setNotifyValue:YES forCharacteristic:characteristic];
+            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
         }
 
         // table rotation
         if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
             NSLog(@"Enabled is table rotation? characteristic with notifications: %@", characteristic);
-            [self.swagScanner setNotifyValue:YES forCharacteristic:characteristic];
+            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
         }
     }
 

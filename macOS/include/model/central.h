@@ -1,8 +1,0 @@
-#ifndef FEELING_BLUE_CENTRAL_H
-#define FEELING_BLUE_CENTRAL_H
-
-
-
-void sup();
-
-#endif //FEELING_BLUE_CENTRAL_H

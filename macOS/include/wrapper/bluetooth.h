@@ -1,22 +1,22 @@
-#include "CentralEventHandler.h"
+#include "central_event_handler.h"
+#include "peripheral_mac.h"
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
-#import "CoreBluetoothWrapper.h"
-
-/**
- * TODO: fix memory leak with holding void pointer references
- */
 
 // An Objective-C class that needs to be accessed from C++
-@interface CoreBluetoothWrapped : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
+@interface CBluetooth : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
 @property(nonatomic) handler::CentralEventHandler *centralEventHandler;
 @property(strong, nonatomic) CBCentralManager *centralManager;
-@property(strong, nonatomic) CBPeripheral *swagScanner;
+@property(strong, nonatomic) CBPeripheral *peripheral;
+@property(nonatomic, strong) NSString *peripheralName;
 @property(strong, nonatomic) CBCharacteristic *rotateTableChar;
 @property(strong, nonatomic) CBCharacteristic *tablePosChar;
 @property(strong, nonatomic) NSMutableData *data;
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
+@property(nonatomic, assign) BOOL nameSearch;
+
+
 
 #define SWAG_SCANNER_NAME @"SwagScanner"
 #define UART_SERVICE_UUID @"5ffba521-2363-41da-92f5-46adc56b2d37"
@@ -41,11 +41,25 @@
 - (void)startBluetooth;
 
 /**
+ * Scan for peripheral that matches given name. Store the peripheral into the
+ * class field and return a PeripheralMac.
+ * @param name name of peripheral.
+ * @return PeriphalMac.
+ */
+- (bluetooth::PeripheralMac)findPeripheralName:(NSString *)name;
+
+/**
+ * Scan for peripheral that advertises given uuids.
+ * @param uuids array of UUIDs
+ * @return PeripheralMac.
+ */
+- (bluetooth::PeripheralMac)findPeripheralUUID:(NSArray<CBUUID *> *)uuids;
+
+/**
  * Rotate the table with the given angle in degrees.
  * @param deg the angle you want to rotate the table in degrees.
  */
 - (void)rotateTable:(int)degrees;
-
 
 /**
  * Helper method to call setIsRotating on the Arduino.
@@ -60,11 +74,6 @@
  */
 - (void)displayRotInfo:(NSData *)dataBytes;
 
-/**
- * Display the current position of the table received from the notification.
- * @param dataBytes bytes from notification.
- */
-- (void)displayTablePosInfo:(NSData *)dataBytes;
 
 /**
  * Convert bytes to int.
