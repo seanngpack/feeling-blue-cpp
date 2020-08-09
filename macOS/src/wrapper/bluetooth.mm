@@ -1,3 +1,4 @@
+#include "peripheral_mac.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -39,6 +40,10 @@ namespace wrapper {
         [impl->wrapped findPeripheralName:(n)];
     }
 
+    bluetooth::PeripheralMac *Wrapper::get_peripheral() {
+        return [impl->wrapped getPeripheral];
+    }
+
     void Wrapper::set_handler(void *central_event_handler) {
         auto *a = static_cast<handler::CentralEventHandler *>(central_event_handler);
         [impl->wrapped setHandler:a];
@@ -62,25 +67,32 @@ namespace wrapper {
 
 @implementation CBluetooth
 
-- (bluetooth::PeripheralMac)findPeripheralName:(NSString *)name {
+- (void)findPeripheralName:(NSString *)name {
     _nameSearch = true;
     [_centralManager scanForPeripheralsWithServices:nil
                                             options:nil];
 }
 
-- (bluetooth::PeripheralMac)findPeripheralUUID:(NSArray<CBUUID *> *)uuids {
+- (void)findPeripheralUUID:(NSArray<CBUUID *> *)uuids {
     _nameSearch = false;
     [_centralManager scanForPeripheralsWithServices:uuids
                                             options:nil];
 }
 
 - (void)rotateTable:(int)degrees {
-    _centralEventHandler->set_is_table_rotating(true);
+    _centralEventHandler->set_is_peripheral_found(true);
     NSData *bytes = [NSData dataWithBytes:&degrees length:sizeof(degrees)];
     [_peripheral
             writeValue:bytes
      forCharacteristic:_rotateTableChar
                   type:CBCharacteristicWriteWithResponse];
+}
+
+- (bluetooth::PeripheralMac *)getPeripheral {
+    std::string name = std::string([_peripheral.name UTF8String]);
+    auto *p = new bluetooth::PeripheralMac();
+    p->set_name(name);
+    return p;
 }
 
 
@@ -113,7 +125,7 @@ namespace wrapper {
 
 
 - (void)dealloc {
-    std::cout << "destructing this bluetooth object";
+    std::cout << "destructing this bluetooth_object object";
     [super dealloc];
 }
 
@@ -135,14 +147,15 @@ namespace wrapper {
         case CBManagerStateResetting:
             state = @"The BLE Manager is resetting; a state update is pending.";
             break;
-        case CBManagerStatePoweredOn:
+        case CBManagerStatePoweredOn: {
             state = @"Bluetooth LE is turned on and ready for communication.";
-//            NSLog(@"%@", state);
-//            NSLog(@"Scanning for Swag Scanenr now...");
-
-//            [_centralManager scanForPeripheralsWithServices:nil
-//                                                    options:nil];
+            std::unique_lock<std::mutex> ul(_centralEventHandler->power_mutex);
+            _centralEventHandler->set_is_powered_on(true);
+            ul.unlock();
+            _centralEventHandler->power_cv.notify_one();
+            ul.lock();
             break;
+        }
         case CBManagerStateUnknown:
             state = @"The state of the BLE Manager is unknown.";
             break;
@@ -179,6 +192,11 @@ namespace wrapper {
     NSLog(@"Scanning stopped");
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
     NSLog(@"PERIPHERAL NAME: %@", peripheral.name);
+    std::unique_lock<std::mutex> ul(_centralEventHandler->peripheral_mutex);
+    _centralEventHandler->set_is_peripheral_found(true);
+    ul.unlock();
+    _centralEventHandler->peripheral_cv.notify_one();
+    ul.lock();
 //    NSLog(@"Now looking for services...");
 //    [peripheral discoverServices:nil];
 }
@@ -234,11 +252,7 @@ namespace wrapper {
         }
     }
 
-    std::unique_lock<std::mutex> ul(_centralEventHandler->bt_mutex);
-    _centralEventHandler->set_is_bt_connected(true);
-    ul.unlock();
-    _centralEventHandler->bt_cv.notify_one();
-    ul.lock();
+
 }
 
 // start receiving data from this method once we set up notifications. Also can be manually
@@ -261,11 +275,11 @@ namespace wrapper {
 - (void)setIsRotating:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-    std::unique_lock<std::mutex> ul(_centralEventHandler->table_mutex);
-    _centralEventHandler->set_is_table_rotating(theInteger == 1);
-    ul.unlock();
-    _centralEventHandler->table_cv.notify_one();
-    ul.lock();
+//    std::unique_lock<std::mutex> ul(_centralEventHandler->peripheral_mutex);
+//    _centralEventHandler->set_is_peripheral_found(theInteger == 1);
+//    ul.unlock();
+//    _centralEventHandler->peripheral_cv.notify_one();
+//    ul.lock();
 }
 
 

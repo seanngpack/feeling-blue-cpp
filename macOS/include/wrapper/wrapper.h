@@ -1,8 +1,14 @@
 #ifndef FEELING_BLUE_WRAPPER_H
 #define FEELING_BLUE_WRAPPER_H
 
+
 #include <vector>
 #include <string>
+
+namespace bluetooth {
+    class PeripheralMac;
+}
+
 
 namespace wrapper {
     struct WrapperImpl;
@@ -14,7 +20,7 @@ namespace wrapper {
         virtual ~Wrapper();
 
         /**
-         * Initialize the central manager in a separate thread. Powers on bluetooth
+         * Initialize the central manager in a separate thread. Powers on bluetooth_object
          * central device. After this, you should scan for a peripheral device.
          */
         void start_bluetooth();
@@ -28,6 +34,12 @@ namespace wrapper {
          * See Central method.
          */
         void find_peripheral(std::string name);
+
+        /**
+         * Return the peripheral. This also sets the name of the peripheral.
+         * @return pointer to peripheral.
+         */
+        bluetooth::PeripheralMac *get_peripheral();
 
         /**
          * Calls on objective c function to set the callback to the arduino handler object.

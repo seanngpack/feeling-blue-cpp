@@ -1,7 +1,9 @@
 #include "central_event_handler.h"
-#include "peripheral_mac.h"
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
+#include "peripheral_mac.h"
+
+//class PeripheralMac;
 
 // An Objective-C class that needs to be accessed from C++
 @interface CBluetooth : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
@@ -15,7 +17,6 @@
 @property(strong, nonatomic) NSMutableData *data;
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
 @property(nonatomic, assign) BOOL nameSearch;
-
 
 
 #define SWAG_SCANNER_NAME @"SwagScanner"
@@ -35,8 +36,8 @@
 - (void)setHandler:(handler::CentralEventHandler *)arduinoEventHandler;
 
 /**
- * Start the bluetooth discovery and initialization process. Will create a CBCentralManager and
- * actively scan for Swag Scanner's bluetooth service. Then it will subscribe to notifications.
+ * Start the bluetooth_object discovery and initialization process. Will create a CBCentralManager and
+ * actively scan for Swag Scanner's bluetooth_object service. Then it will subscribe to notifications.
  */
 - (void)startBluetooth;
 
@@ -44,16 +45,23 @@
  * Scan for peripheral that matches given name. Store the peripheral into the
  * class field and return a PeripheralMac.
  * @param name name of peripheral.
- * @return PeriphalMac.
  */
-- (bluetooth::PeripheralMac)findPeripheralName:(NSString *)name;
+- (void)findPeripheralName:(NSString *)name;
 
 /**
  * Scan for peripheral that advertises given uuids.
  * @param uuids array of UUIDs
- * @return PeripheralMac.
  */
-- (bluetooth::PeripheralMac)findPeripheralUUID:(NSArray<CBUUID *> *)uuids;
+- (void)findPeripheralUUID:(NSArray<CBUUID *> *)uuids;
+
+/**
+ * Call this method after findPeripheral. This returns the found peripheral converted
+ * to the C++ object PeripheralMac.
+ * This method exists because we need to wait for the peripheral to be connected which
+ * occurs in the didConnectPeripheral method.
+ * @return the peripheral.
+ */
+- (bluetooth::PeripheralMac *)getPeripheral;
 
 /**
  * Rotate the table with the given angle in degrees.

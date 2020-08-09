@@ -9,7 +9,7 @@
 namespace bluetooth {
     class CentralMac {
     public:
-        CentralMac() = default;
+        CentralMac();
 
 
         /**
@@ -26,7 +26,7 @@ namespace bluetooth {
 
 
     private:
-        void *bluetooth_object;
+        std::shared_ptr<wrapper::Wrapper> bluetooth_object;
         handler::CentralEventHandler *event_handler;
     };
 }

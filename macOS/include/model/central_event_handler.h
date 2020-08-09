@@ -2,6 +2,7 @@
 #define FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
 
 #include "wrapper.h"
+#include "peripheral_mac.h"
 #include <condition_variable>
 #include <future>
 #include <iostream>
@@ -11,9 +12,10 @@
 
 namespace handler {
 
+    // TODO: Reduce number of mutexes and conditional variables to just one.
+    // mux & ready
     class CentralEventHandler {
     public:
-
 
         CentralEventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth);
 
@@ -21,24 +23,25 @@ namespace handler {
 
         void start_bluetooth();
 
-        void set_is_bt_connected(bool is_connected);
+        bluetooth::PeripheralMac find_peripheral(std::vector<std::string> uuids);
 
-        void set_is_table_rotating(bool is_rotating);
+        bluetooth::PeripheralMac find_peripheral(std::string name);
 
+        void set_is_powered_on(bool connected);
+
+        void set_is_peripheral_found(bool found);
 
         ~CentralEventHandler();
 
-        std::mutex bt_mutex;
-        std::mutex table_mutex;
-        std::condition_variable bt_cv;
-        std::condition_variable table_cv;
+        std::mutex power_mutex;
+        std::mutex peripheral_mutex;
+        std::condition_variable power_cv;
+        std::condition_variable peripheral_cv;
 
     private:
-        std::shared_ptr<wrapper::Wrapper> bluetooth;
-        bool is_bt_connected;
-        bool is_table_rotating;
-
-
+        std::shared_ptr<wrapper::Wrapper> bluetooth_object;
+        bool is_powered_on;
+        bool is_peripheral_found;
     };
 }
 
