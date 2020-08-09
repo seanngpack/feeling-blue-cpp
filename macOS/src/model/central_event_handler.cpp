@@ -1,5 +1,5 @@
 #include "wrapper.h"
-#include "peripheral_mac.h"
+#include "peripheral_impl.h"
 #include "central_event_handler.h"
 
 handler::CentralEventHandler::CentralEventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth) :

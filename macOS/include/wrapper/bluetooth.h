@@ -1,9 +1,9 @@
 #include "central_event_handler.h"
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
-#include "peripheral_mac.h"
+#include "peripheral_impl.h"
 
-//class PeripheralMac;
+//class PeripheralImpl;
 
 // An Objective-C class that needs to be accessed from C++
 @interface CBluetooth : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
@@ -43,7 +43,7 @@
 
 /**
  * Scan for peripheral that matches given name. Store the peripheral into the
- * class field and return a PeripheralMac.
+ * class field and return a PeripheralImpl.
  * @param name name of peripheral.
  */
 - (void)findPeripheralName:(NSString *)name;
@@ -56,7 +56,7 @@
 
 /**
  * Call this method after findPeripheral. This returns the found peripheral converted
- * to the C++ object PeripheralMac.
+ * to the C++ object PeripheralImpl.
  * This method exists because we need to wait for the peripheral to be connected which
  * occurs in the didConnectPeripheral method.
  * @return the peripheral.

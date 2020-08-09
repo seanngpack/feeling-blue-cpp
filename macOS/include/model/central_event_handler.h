@@ -2,7 +2,7 @@
 #define FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
 
 #include "wrapper.h"
-#include "peripheral_mac.h"
+#include "peripheral_impl.h"
 #include <condition_variable>
 #include <future>
 #include <iostream>

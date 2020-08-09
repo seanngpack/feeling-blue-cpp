@@ -4,7 +4,7 @@
 #if __APPLE__
 
 #include "central_mac.h"
-#include "peripheral_mac.h"
+#include "peripheral_impl.h"
 
 namespace bluetooth {
     typedef bluetooth::CentralMac Central;

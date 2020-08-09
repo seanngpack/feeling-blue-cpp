@@ -1,4 +1,4 @@
-#include "peripheral_mac.h"
+#include "peripheral_impl.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -55,8 +55,6 @@ namespace wrapper {
         }
         delete impl;
     }
-
-
 }
 
 

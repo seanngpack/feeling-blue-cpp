@@ -5,8 +5,8 @@ set(CMAKE_CXX_STANDARD 17)
 # set the source files!
 set(macOS_SRCS
         src/wrapper/bluetooth.mm
-        src/model/central_event_handler.cpp include/model/peripheral_mac.h
-        src/model/peripheral_mac.cpp include/model/central_mac.h src/model/central_mac.cpp ../include/feeling-blue.h)
+        src/model/central_event_handler.cpp
+        src/model/peripheral_impl.cpp include/model/central_mac.h src/model/central_mac.cpp ../include/feeling-blue.h ../include/peripheral.h)
 
 
 
