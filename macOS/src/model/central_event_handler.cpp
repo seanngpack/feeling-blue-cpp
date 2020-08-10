@@ -30,10 +30,8 @@ bluetooth::Peripheral bluetooth::handler::CentralEventHandler::find_peripheral(c
 
 bluetooth::Peripheral bluetooth::handler::CentralEventHandler::find_peripheral(const std::string &name) {
     std::unique_lock<std::mutex> ul(central_mutex);
-    std::cout << "thread " << std::this_thread::get_id() << std::endl;
     bluetooth_object->find_peripheral(name);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
-    std::cout << "proceeding!!!" << std::endl;
     proceed = false;
     bluetooth::Peripheral *p = bluetooth_object->get_peripheral();
     p->set_bluetooth(bluetooth_object);

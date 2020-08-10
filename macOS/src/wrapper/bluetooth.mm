@@ -73,7 +73,6 @@ namespace bluetooth {
 - (void)findPeripheralName:(NSString *)name {
     _nameSearch = true;
     _peripheralName = name;
-    std::cout << "we bout to call the method to search" << std::endl;
     [_centralManager scanForPeripheralsWithServices:nil
                                             options:nil];
 }
@@ -176,22 +175,14 @@ namespace bluetooth {
           peripheral.identifier.UUIDString); // cannot predict UUIDSTRING, it is seeded
     NSLog(@"NAME: %@ ", peripheral.name);
 
-    // search by name
+
     if (_nameSearch) {
         if (pName) {
-            if ([pName isEqualToString:_peripheralName]) {
-                _peripheral = peripheral;
-                _peripheral.delegate = self;
-                [_centralManager stopScan];
-                std::cout << "found your peripheral, stopping scan and connecting..." << std::endl;
-                std::cout << "thread " << std::this_thread::get_id() << std::endl;
-//                dispatch_queue_t swag = dispatch_queue_create("swag", DISPATCH_QUEUE_SERIAL);
-//                dispatch_sync(swag, ^{
-//                    std::cout << "threadd " << std::this_thread::get_id() << std::endl;
-//                    [_centralManager connectPeripheral:_peripheral options:nil];
-//                });
-                [_centralManager connectPeripheral:_peripheral options:nil];
+            if ([pName isEqualToString:@"SwagScanner"]) {
 
+                self.peripheral = peripheral;
+                self.peripheral.delegate = self;
+                [self.centralManager connectPeripheral:self.peripheral options:nil];
             }
         }
     } else {
@@ -203,8 +194,10 @@ namespace bluetooth {
 }
 
 // called after peripheral_mac is connected
-- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
-
+- (void)centralManager:(CBCentralManager *)central
+  didConnectPeripheral:
+          (CBPeripheral *)peripheral {
+    [_centralManager stopScan];
     NSLog(@"Scanning stopped");
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
     NSLog(@"PERIPHERAL NAME: %@", peripheral.name);
@@ -218,11 +211,19 @@ namespace bluetooth {
 }
 
 // called if didDiscoverPeripheral fails to connect
-- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+- (void)    centralManager:(CBCentralManager *)central
+didFailToConnectPeripheral:
+        (CBPeripheral *)peripheral
+                     error:
+                             (NSError *)error {
     NSLog(@"**** CONNECTION FAILED!!!");
 }
 
-- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+- (void) centralManager:(CBCentralManager *)central
+didDisconnectPeripheral:
+        (CBPeripheral *)peripheral
+                  error:
+                          (NSError *)error {
     NSLog(@"**** DISCONNECTED FROM SWAG SCANNER");
 }
 
@@ -230,7 +231,9 @@ namespace bluetooth {
 
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
-- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
+- (void) peripheral:(CBPeripheral *)peripheral
+didDiscoverServices:
+        (NSError *)error {
     // Core Bluetooth creates an array of CBService objects —- one for each service that is discovered on the peripheral_mac.
     for (CBService *service in peripheral.services) {
         NSLog(@"Discovered service: %@", service);
@@ -242,7 +245,11 @@ namespace bluetooth {
 
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
-- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
+- (void)                  peripheral:(CBPeripheral *)peripheral
+didDiscoverCharacteristicsForService:
+        (CBService *)service
+                               error:
+                                       (NSError *)error {
     for (CBCharacteristic *characteristic in service.characteristics) {
         uint8_t enableValue = 0;
         NSData *enableBytes = [NSData dataWithBytes:&enableValue length:sizeof(uint8_t)];
@@ -273,7 +280,11 @@ namespace bluetooth {
 
 // start receiving data from this method once we set up notifications. Also can be manually
 // called with readValueForCharacteristic
-- (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+- (void)             peripheral:(CBPeripheral *)peripheral
+didUpdateValueForCharacteristic:
+        (CBCharacteristic *)characteristic
+                          error:
+                                  (NSError *)error {
     if (error) {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
     } else {
