@@ -7,48 +7,47 @@
 #include <mutex>
 #include <thread>
 #include <functional>
-#include "wrapper.h"
 
 
 namespace bluetooth {
     class Peripheral;
 }
 
-namespace handler {
+namespace bluetooth {
+    namespace wrapper {
+        class Wrapper;
+    }
 
-    // TODO: Reduce number of mutexes and conditional variables to just one.
-    // mux & ready
+    namespace handler {
 
-    class CentralEventHandler {
-    public:
+        // TODO: Reduce number of mutexes and conditional variables to just one.
+        // mux & ready
 
-        CentralEventHandler(std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth);
+        class CentralEventHandler {
+        public:
 
-        void rotate_by(int degs);
+            CentralEventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth);
 
-        void start_bluetooth();
+            void rotate_by(int degs);
 
-        bluetooth::Peripheral find_peripheral(const std::vector<std::string> &uuids);
+            void start_bluetooth();
 
-        bluetooth::Peripheral find_peripheral(const std::string &name);
+            Peripheral find_peripheral(const std::vector<std::string> &uuids);
 
-        void set_is_powered_on(bool connected);
+            Peripheral find_peripheral(const std::string &name);
 
-        void set_is_peripheral_found(bool found);
+            void set_proceed(bool connected);
 
-        ~CentralEventHandler();
+            ~CentralEventHandler();
 
-        std::mutex power_mutex;
-        std::mutex peripheral_mutex;
-        std::condition_variable power_cv;
-        std::condition_variable peripheral_cv;
+            std::mutex central_mutex;
+            std::condition_variable cv;
 
-    private:
-        std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;
-        bool is_powered_on;
-        bool is_peripheral_found;
-    };
+        private:
+            std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;
+            bool proceed;
+        };
+    }
 }
-
 
 #endif //FEELING_BLUE_CENTRAL_EVENT_HANDLER_H

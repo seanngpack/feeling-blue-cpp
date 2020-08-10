@@ -1,4 +1,5 @@
 #include "peripheral.h"
+#include "central_event_handler.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -71,6 +72,8 @@ namespace bluetooth {
 
 - (void)findPeripheralName:(NSString *)name {
     _nameSearch = true;
+    _peripheralName = name;
+    std::cout << "we bout to call the method to search" << std::endl;
     [_centralManager scanForPeripheralsWithServices:nil
                                             options:nil];
 }
@@ -82,7 +85,7 @@ namespace bluetooth {
 }
 
 - (void)rotateTable:(int)degrees {
-    _centralEventHandler->set_is_peripheral_found(true);
+    _centralEventHandler->set_proceed(true);
     NSData *bytes = [NSData dataWithBytes:&degrees length:sizeof(degrees)];
     [_peripheral
             writeValue:bytes
@@ -98,8 +101,8 @@ namespace bluetooth {
 }
 
 
-- (void)setHandler:(handler::CentralEventHandler *)CentralEventHandler {
-    _centralEventHandler = CentralEventHandler;
+- (void)setHandler:(bluetooth::handler::CentralEventHandler *)centralEventHandler {
+    _centralEventHandler = centralEventHandler;
 }
 
 
@@ -151,10 +154,10 @@ namespace bluetooth {
             break;
         case CBManagerStatePoweredOn: {
             state = @"Bluetooth LE is turned on and ready for communication.";
-            std::unique_lock<std::mutex> ul(_centralEventHandler->power_mutex);
-            _centralEventHandler->set_is_powered_on(true);
+            std::unique_lock<std::mutex> ul(_centralEventHandler->central_mutex);
+            _centralEventHandler->set_proceed(true);
             ul.unlock();
-            _centralEventHandler->power_cv.notify_one();
+            _centralEventHandler->cv.notify_one();
             ul.lock();
             break;
         }
@@ -169,7 +172,8 @@ namespace bluetooth {
 // call this during scanning when it finds a peripheral_mac
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     NSString *pName = advertisementData[@"kCBAdvDataLocalName"];
-    NSLog(@"NEXT PERIPHERAL: %@ (%@)", pName, peripheral.identifier.UUIDString);
+    NSLog(@"NEXT PERIPHERAL: %@ (%@)", pName,
+          peripheral.identifier.UUIDString); // cannot predict UUIDSTRING, it is seeded
     NSLog(@"NAME: %@ ", peripheral.name);
 
     // search by name
@@ -178,26 +182,36 @@ namespace bluetooth {
             if ([pName isEqualToString:_peripheralName]) {
                 _peripheral = peripheral;
                 _peripheral.delegate = self;
+                [_centralManager stopScan];
+                std::cout << "found your peripheral, stopping scan and connecting..." << std::endl;
+                std::cout << "thread " << std::this_thread::get_id() << std::endl;
+//                dispatch_queue_t swag = dispatch_queue_create("swag", DISPATCH_QUEUE_SERIAL);
+//                dispatch_sync(swag, ^{
+//                    std::cout << "threadd " << std::this_thread::get_id() << std::endl;
+//                    [_centralManager connectPeripheral:_peripheral options:nil];
+//                });
                 [_centralManager connectPeripheral:_peripheral options:nil];
+
             }
         }
     } else {
         _peripheral = peripheral;
         _peripheral.delegate = self;
+        [_centralManager stopScan];
         [_centralManager connectPeripheral:_peripheral options:nil];
     }
 }
 
 // called after peripheral_mac is connected
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
-    [_centralManager stopScan];
+
     NSLog(@"Scanning stopped");
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
     NSLog(@"PERIPHERAL NAME: %@", peripheral.name);
-    std::unique_lock<std::mutex> ul(_centralEventHandler->peripheral_mutex);
-    _centralEventHandler->set_is_peripheral_found(true);
+    std::unique_lock<std::mutex> ul(_centralEventHandler->central_mutex);
+    _centralEventHandler->set_proceed(true);
     ul.unlock();
-    _centralEventHandler->peripheral_cv.notify_one();
+    _centralEventHandler->cv.notify_one();
     ul.lock();
 //    NSLog(@"Now looking for services...");
 //    [peripheral discoverServices:nil];
@@ -243,7 +257,7 @@ namespace bluetooth {
         // table position
         if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
             NSLog(@"Enabled table position characteristic with notifications: %@", characteristic);
-            _tablePosChar = characteristic;
+//            _tablePosChar = characteristic;
             [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
         }
 

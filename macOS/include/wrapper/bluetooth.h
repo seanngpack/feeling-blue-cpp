@@ -1,20 +1,22 @@
-#include "central_event_handler.h"
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 
 namespace bluetooth {
     class Peripheral;
+
+    namespace handler {
+        class CentralEventHandler;
+    }
 }
 
 // An Objective-C class that needs to be accessed from C++
 @interface CBluetooth : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
-@property(nonatomic) handler::CentralEventHandler *centralEventHandler;
+@property(nonatomic) bluetooth::handler::CentralEventHandler *centralEventHandler;
 @property(strong, nonatomic) CBCentralManager *centralManager;
 @property(strong, nonatomic) CBPeripheral *peripheral;
 @property(nonatomic, strong) NSString *peripheralName;
 @property(strong, nonatomic) CBCharacteristic *rotateTableChar;
-@property(strong, nonatomic) CBCharacteristic *tablePosChar;
 @property(strong, nonatomic) NSMutableData *data;
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
 @property(nonatomic, assign) BOOL nameSearch;
@@ -34,7 +36,7 @@ namespace bluetooth {
 - (void)dealloc;
 
 
-- (void)setHandler:(handler::CentralEventHandler *)arduinoEventHandler;
+- (void)setHandler:(bluetooth::handler::CentralEventHandler *)centralEventHandler;
 
 /**
  * Start the bluetooth_object discovery and initialization process. Will create a CBCentralManager and

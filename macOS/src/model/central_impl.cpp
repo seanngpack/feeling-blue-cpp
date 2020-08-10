@@ -18,7 +18,7 @@ namespace bluetooth {
         }
 
         void start_bluetooth() {
-            bluetooth_object->start_bluetooth();
+            event_handler->start_bluetooth();
         }
 
 

@@ -4,55 +4,57 @@
 
 #include <utility>
 
-handler::CentralEventHandler::CentralEventHandler(std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth) :
+bluetooth::handler::CentralEventHandler::CentralEventHandler(std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth) :
         bluetooth_object(std::move(bluetooth)),
-        is_powered_on(false),
-        is_peripheral_found(false) {
+        proceed(false) {
     bluetooth_object->set_handler(this);
 }
 
-void handler::CentralEventHandler::start_bluetooth() {
-    std::unique_lock<std::mutex> ul(power_mutex);
+void bluetooth::handler::CentralEventHandler::start_bluetooth() {
+    std::unique_lock<std::mutex> ul(central_mutex);
     bluetooth_object->start_bluetooth();
-    power_cv.wait(ul, [this]() { return is_powered_on; }); // wait until is_powered_on is true
-
+    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     std::cout << "Finally powered on, unblocking thread" << std::endl;
-//    is_powered_on = false; // this will be needed when I refactor to one mutex
+    proceed = false;
 }
 
-bluetooth::Peripheral handler::CentralEventHandler::find_peripheral(const std::vector<std::string> &uuids) {
+bluetooth::Peripheral bluetooth::handler::CentralEventHandler::find_peripheral(const std::vector<std::string> &uuids) {
+    std::unique_lock<std::mutex> ul(central_mutex);
     bluetooth_object->find_peripheral(uuids);
+    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+    proceed = false;
     bluetooth::Peripheral *p = bluetooth_object->get_peripheral();
     p->set_bluetooth(bluetooth_object);
     return *p;
 }
 
-bluetooth::Peripheral handler::CentralEventHandler::find_peripheral(const std::string &name) {
+bluetooth::Peripheral bluetooth::handler::CentralEventHandler::find_peripheral(const std::string &name) {
+    std::unique_lock<std::mutex> ul(central_mutex);
+    std::cout << "thread " << std::this_thread::get_id() << std::endl;
     bluetooth_object->find_peripheral(name);
+    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+    std::cout << "proceeding!!!" << std::endl;
+    proceed = false;
     bluetooth::Peripheral *p = bluetooth_object->get_peripheral();
     p->set_bluetooth(bluetooth_object);
     return *p;
 }
 
-void handler::CentralEventHandler::rotate_by(int degs) {
+void bluetooth::handler::CentralEventHandler::rotate_by(int degs) {
     using namespace std::literals::chrono_literals;
-    std::unique_lock<std::mutex> ul(peripheral_mutex);
+    std::unique_lock<std::mutex> ul(central_mutex);
 //    rotate(bluetooth_object, degs);
 
-    peripheral_cv.wait(ul, [this]() { return !is_peripheral_found; });
+    cv.wait(ul, [this]() { return !proceed; });
     std::this_thread::sleep_for(.5s);
 }
 
 
-void handler::CentralEventHandler::set_is_powered_on(bool connected) {
-    is_powered_on = connected;
+void bluetooth::handler::CentralEventHandler::set_proceed(bool connected) {
+    proceed = connected;
 }
 
-void handler::CentralEventHandler::set_is_peripheral_found(bool found) {
-    is_peripheral_found = found;
-}
-
-handler::CentralEventHandler::~CentralEventHandler() {
+bluetooth::handler::CentralEventHandler::~CentralEventHandler() {
     bluetooth_object = nullptr;
 }
 
