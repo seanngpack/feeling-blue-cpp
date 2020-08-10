@@ -1,4 +1,5 @@
-#include "peripheral_mac.h"
+#include "peripheral.h"
+#include "central_event_handler.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -9,54 +10,56 @@
                  C++ Wrapper implementation here
 
 ---------------------------------------------------------*/
-namespace wrapper {
-    struct WrapperImpl {
-        CBluetooth *wrapped;
-    };
+namespace bluetooth {
+    namespace wrapper {
+        struct WrapperImpl {
+            CBluetooth *wrapped;
+        };
 
-    Wrapper::Wrapper() :
-            impl(new WrapperImpl()) {
-        impl->wrapped = [[CBluetooth alloc] init];
-    }
-
-    void Wrapper::start_bluetooth() {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
-        [pool release];
-    }
-
-    void Wrapper::find_peripheral(std::vector<std::string> uuids) {
-        NSMutableArray *arr = [[NSMutableArray alloc] init];
-        for (int i = 0; i < uuids.size(); i++) {
-            NSString *uuid = [NSString stringWithUTF8String:uuids[i].c_str()];
-            [arr addObject:[CBUUID UUIDWithString:uuid]];
+        Wrapper::Wrapper() :
+                impl(new WrapperImpl()) {
+            impl->wrapped = [[CBluetooth alloc] init];
         }
-        [impl->wrapped findPeripheralUUID:(arr)];
-        [arr release]; // WARNING: this might cause an issue
-    }
 
-    void Wrapper::find_peripheral(std::string name) {
-        NSString *n = [NSString stringWithUTF8String:name.c_str()];
-        [impl->wrapped findPeripheralName:(n)];
-    }
+#include <iostream>
 
-    bluetooth::PeripheralMac *Wrapper::get_peripheral() {
-        return [impl->wrapped getPeripheral];
-    }
-
-    void Wrapper::set_handler(void *central_event_handler) {
-        auto *a = static_cast<handler::CentralEventHandler *>(central_event_handler);
-        [impl->wrapped setHandler:a];
-    }
-
-    Wrapper::~Wrapper() {
-        if (impl) {
-            [impl->wrapped release];
+        void Wrapper::start_bluetooth() {
+            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+            [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
+            [pool release];
         }
-        delete impl;
+
+        void Wrapper::find_peripheral(std::vector<std::string> uuids) {
+            NSMutableArray *arr = [[NSMutableArray alloc] init];
+            for (int i = 0; i < uuids.size(); i++) {
+                NSString *uuid = [NSString stringWithUTF8String:uuids[i].c_str()];
+                [arr addObject:[CBUUID UUIDWithString:uuid]];
+            }
+            [impl->wrapped findPeripheralUUID:(arr)];
+            [arr release]; // WARNING: this might cause an issue
+        }
+
+        void Wrapper::find_peripheral(std::string name) {
+            NSString *n = [NSString stringWithUTF8String:name.c_str()];
+            [impl->wrapped findPeripheralName:(n)];
+        }
+
+        bluetooth::Peripheral *Wrapper::get_peripheral() {
+            return [impl->wrapped getPeripheral];
+        }
+
+        void Wrapper::set_handler(void *central_event_handler) {
+            auto *a = static_cast<handler::CentralEventHandler *>(central_event_handler);
+            [impl->wrapped setHandler:a];
+        }
+
+        Wrapper::~Wrapper() {
+            if (impl) {
+                [impl->wrapped release];
+            }
+            delete impl;
+        }
     }
-
-
 }
 
 
@@ -69,6 +72,7 @@ namespace wrapper {
 
 - (void)findPeripheralName:(NSString *)name {
     _nameSearch = true;
+    _peripheralName = name;
     [_centralManager scanForPeripheralsWithServices:nil
                                             options:nil];
 }
@@ -80,7 +84,7 @@ namespace wrapper {
 }
 
 - (void)rotateTable:(int)degrees {
-    _centralEventHandler->set_is_peripheral_found(true);
+    _centralEventHandler->set_proceed(true);
     NSData *bytes = [NSData dataWithBytes:&degrees length:sizeof(degrees)];
     [_peripheral
             writeValue:bytes
@@ -88,16 +92,16 @@ namespace wrapper {
                   type:CBCharacteristicWriteWithResponse];
 }
 
-- (bluetooth::PeripheralMac *)getPeripheral {
+- (bluetooth::Peripheral *)getPeripheral {
     std::string name = std::string([_peripheral.name UTF8String]);
-    auto *p = new bluetooth::PeripheralMac();
+    auto *p = new bluetooth::Peripheral();
     p->set_name(name);
     return p;
 }
 
 
-- (void)setHandler:(handler::CentralEventHandler *)CentralEventHandler {
-    _centralEventHandler = CentralEventHandler;
+- (void)setHandler:(bluetooth::handler::CentralEventHandler *)centralEventHandler {
+    _centralEventHandler = centralEventHandler;
 }
 
 
@@ -149,10 +153,10 @@ namespace wrapper {
             break;
         case CBManagerStatePoweredOn: {
             state = @"Bluetooth LE is turned on and ready for communication.";
-            std::unique_lock<std::mutex> ul(_centralEventHandler->power_mutex);
-            _centralEventHandler->set_is_powered_on(true);
+            std::unique_lock<std::mutex> ul(_centralEventHandler->central_mutex);
+            _centralEventHandler->set_proceed(true);
             ul.unlock();
-            _centralEventHandler->power_cv.notify_one();
+            _centralEventHandler->cv.notify_one();
             ul.lock();
             break;
         }
@@ -167,46 +171,59 @@ namespace wrapper {
 // call this during scanning when it finds a peripheral_mac
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     NSString *pName = advertisementData[@"kCBAdvDataLocalName"];
-    NSLog(@"NEXT PERIPHERAL: %@ (%@)", pName, peripheral.identifier.UUIDString);
+    NSLog(@"NEXT PERIPHERAL: %@ (%@)", pName,
+          peripheral.identifier.UUIDString); // cannot predict UUIDSTRING, it is seeded
     NSLog(@"NAME: %@ ", peripheral.name);
 
-    // search by name
+
     if (_nameSearch) {
         if (pName) {
-            if ([pName isEqualToString:_peripheralName]) {
-                _peripheral = peripheral;
-                _peripheral.delegate = self;
-                [_centralManager connectPeripheral:_peripheral options:nil];
+            if ([pName isEqualToString:@"SwagScanner"]) {
+
+                self.peripheral = peripheral;
+                self.peripheral.delegate = self;
+                [self.centralManager connectPeripheral:self.peripheral options:nil];
             }
         }
     } else {
         _peripheral = peripheral;
         _peripheral.delegate = self;
+        [_centralManager stopScan];
         [_centralManager connectPeripheral:_peripheral options:nil];
     }
 }
 
 // called after peripheral_mac is connected
-- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
+- (void)centralManager:(CBCentralManager *)central
+  didConnectPeripheral:
+          (CBPeripheral *)peripheral {
     [_centralManager stopScan];
     NSLog(@"Scanning stopped");
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
     NSLog(@"PERIPHERAL NAME: %@", peripheral.name);
-    std::unique_lock<std::mutex> ul(_centralEventHandler->peripheral_mutex);
-    _centralEventHandler->set_is_peripheral_found(true);
+    std::unique_lock<std::mutex> ul(_centralEventHandler->central_mutex);
+    _centralEventHandler->set_proceed(true);
     ul.unlock();
-    _centralEventHandler->peripheral_cv.notify_one();
+    _centralEventHandler->cv.notify_one();
     ul.lock();
 //    NSLog(@"Now looking for services...");
 //    [peripheral discoverServices:nil];
 }
 
 // called if didDiscoverPeripheral fails to connect
-- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+- (void)    centralManager:(CBCentralManager *)central
+didFailToConnectPeripheral:
+        (CBPeripheral *)peripheral
+                     error:
+                             (NSError *)error {
     NSLog(@"**** CONNECTION FAILED!!!");
 }
 
-- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
+- (void) centralManager:(CBCentralManager *)central
+didDisconnectPeripheral:
+        (CBPeripheral *)peripheral
+                  error:
+                          (NSError *)error {
     NSLog(@"**** DISCONNECTED FROM SWAG SCANNER");
 }
 
@@ -214,7 +231,9 @@ namespace wrapper {
 
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
-- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
+- (void) peripheral:(CBPeripheral *)peripheral
+didDiscoverServices:
+        (NSError *)error {
     // Core Bluetooth creates an array of CBService objects —- one for each service that is discovered on the peripheral_mac.
     for (CBService *service in peripheral.services) {
         NSLog(@"Discovered service: %@", service);
@@ -226,7 +245,11 @@ namespace wrapper {
 
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
-- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
+- (void)                  peripheral:(CBPeripheral *)peripheral
+didDiscoverCharacteristicsForService:
+        (CBService *)service
+                               error:
+                                       (NSError *)error {
     for (CBCharacteristic *characteristic in service.characteristics) {
         uint8_t enableValue = 0;
         NSData *enableBytes = [NSData dataWithBytes:&enableValue length:sizeof(uint8_t)];
@@ -241,7 +264,7 @@ namespace wrapper {
         // table position
         if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
             NSLog(@"Enabled table position characteristic with notifications: %@", characteristic);
-            _tablePosChar = characteristic;
+//            _tablePosChar = characteristic;
             [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
         }
 
@@ -257,7 +280,11 @@ namespace wrapper {
 
 // start receiving data from this method once we set up notifications. Also can be manually
 // called with readValueForCharacteristic
-- (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+- (void)             peripheral:(CBPeripheral *)peripheral
+didUpdateValueForCharacteristic:
+        (CBCharacteristic *)characteristic
+                          error:
+                                  (NSError *)error {
     if (error) {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
     } else {
