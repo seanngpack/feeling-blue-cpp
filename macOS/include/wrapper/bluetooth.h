@@ -39,32 +39,28 @@ namespace bluetooth {
 - (void)setHandler:(bluetooth::handler::CentralEventHandler *)centralEventHandler;
 
 /**
- * Start the bluetooth_object discovery and initialization process. Will create a CBCentralManager and
- * actively scan for Swag Scanner's bluetooth_object service. Then it will subscribe to notifications.
+ * Create a new thread. On this thread, allocates a new instance of CBCentralManager to run on that queue.
+ * Also creates a runloop.
  */
 - (void)startBluetooth;
 
 /**
- * Scan for peripheral that matches given name. Store the peripheral into the
- * class field and return a PeripheralImpl.
+ * Scan for peripheral that matches given name, store it, and connect to it.
  * @param name name of peripheral.
  */
-- (void)findPeripheralName:(NSString *)name;
+- (void)findAndConnectPeripheralByName:(NSString *)name;
 
 /**
- * Scan for peripheral that advertises given uuids.
+ * Scan for peripheral that advertises given uuids, store it, then connect to it.
  * @param uuids array of UUIDs
  */
-- (void)findPeripheralUUID:(NSArray<CBUUID *> *)uuids;
+- (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids;
 
 /**
- * Call this method after findPeripheral. This returns the found peripheral converted
- * to the C++ object PeripheralImpl.
- * This method exists because we need to wait for the peripheral to be connected which
- * occurs in the didConnectPeripheral method.
- * @return the peripheral.
+ * Get the peripheral name. Call this after findAndConnectPeripheral.
+ * @return the name of the peripheral.
  */
-- (bluetooth::Peripheral *)getPeripheral;
+- (NSString *)getPeripheralName;
 
 /**
  * Rotate the table with the given angle in degrees.

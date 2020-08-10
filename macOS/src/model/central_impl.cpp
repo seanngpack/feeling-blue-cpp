@@ -15,24 +15,27 @@ namespace bluetooth {
 
         ~CentralImpl() {
             delete event_handler;
+            delete peripheral;
         }
 
         void start_bluetooth() {
             event_handler->start_bluetooth();
         }
 
-
         Peripheral find_peripheral(const std::vector<std::string> &uuids) {
-            return event_handler->find_peripheral(uuids);
+            peripheral = event_handler->find_peripheral(uuids);
+            return *peripheral;
         }
 
         Peripheral find_peripheral(const std::string &name) {
-            return event_handler->find_peripheral(name);
+            peripheral = event_handler->find_peripheral(name);
+            return *peripheral;
         }
 
     private:
         std::shared_ptr<wrapper::Wrapper> bluetooth_object;
         handler::CentralEventHandler *event_handler;
+        Peripheral *peripheral;
     };
 
     // Central implementation //

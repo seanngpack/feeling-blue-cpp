@@ -21,8 +21,6 @@ namespace bluetooth {
             impl->wrapped = [[CBluetooth alloc] init];
         }
 
-#include <iostream>
-
         void Wrapper::start_bluetooth() {
             NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
             [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
@@ -35,17 +33,20 @@ namespace bluetooth {
                 NSString *uuid = [NSString stringWithUTF8String:uuids[i].c_str()];
                 [arr addObject:[CBUUID UUIDWithString:uuid]];
             }
-            [impl->wrapped findPeripheralUUID:(arr)];
-            [arr release]; // WARNING: this might cause an issue
+            [impl->wrapped findAndConnectPeripheralByUUID:(arr)];
+            [arr release];
         }
 
         void Wrapper::find_peripheral(std::string name) {
             NSString *n = [NSString stringWithUTF8String:name.c_str()];
-            [impl->wrapped findPeripheralName:(n)];
+            [impl->wrapped findAndConnectPeripheralByName:(n)];
         }
 
-        bluetooth::Peripheral *Wrapper::get_peripheral() {
-            return [impl->wrapped getPeripheral];
+        std::string Wrapper::get_peripheral_name() {
+            auto *n = new std::string([[impl->wrapped getPeripheralName] UTF8String]);
+            const std::string temp = *n;
+            delete n;
+            return temp;
         }
 
         void Wrapper::set_handler(void *central_event_handler) {
@@ -70,14 +71,28 @@ namespace bluetooth {
 
 @implementation CBluetooth
 
-- (void)findPeripheralName:(NSString *)name {
+- (void)startBluetooth {
+    _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
+
+    @autoreleasepool {
+        dispatch_async(_centralQueue, ^{
+            self.centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:_centralQueue options:nil];
+            NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
+            while (([runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])) {
+            }
+            [[NSRunLoop currentRunLoop] run];
+        });
+    };
+}
+
+- (void)findAndConnectPeripheralByName:(NSString *)name {
     _nameSearch = true;
     _peripheralName = name;
     [_centralManager scanForPeripheralsWithServices:nil
                                             options:nil];
 }
 
-- (void)findPeripheralUUID:(NSArray<CBUUID *> *)uuids {
+- (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids {
     _nameSearch = false;
     [_centralManager scanForPeripheralsWithServices:uuids
                                             options:nil];
@@ -92,11 +107,8 @@ namespace bluetooth {
                   type:CBCharacteristicWriteWithResponse];
 }
 
-- (bluetooth::Peripheral *)getPeripheral {
-    std::string name = std::string([_peripheral.name UTF8String]);
-    auto *p = new bluetooth::Peripheral();
-    p->set_name(name);
-    return p;
+- (NSString *)getPeripheralName {
+    return _peripheralName;
 }
 
 
@@ -112,21 +124,6 @@ namespace bluetooth {
     }
     return self;
 }
-
-- (void)startBluetooth {
-    _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
-
-    @autoreleasepool {
-        dispatch_async(_centralQueue, ^{
-            self.centralManager = [[CBCentralManager alloc] initWithDelegate:self queue:_centralQueue options:nil];
-            NSRunLoop *runLoop = [NSRunLoop currentRunLoop];
-            while (([runLoop runMode:NSDefaultRunLoopMode beforeDate:[NSDate distantFuture]])) {
-            }
-            [[NSRunLoop currentRunLoop] run];
-        });
-    };
-}
-
 
 - (void)dealloc {
     std::cout << "destructing this bluetooth_object object";
@@ -175,32 +172,30 @@ namespace bluetooth {
           peripheral.identifier.UUIDString); // cannot predict UUIDSTRING, it is seeded
     NSLog(@"NAME: %@ ", peripheral.name);
 
-
     if (_nameSearch) {
         if (pName) {
-            if ([pName isEqualToString:@"SwagScanner"]) {
-
+            if ([pName isEqualToString:_peripheralName]) {
                 self.peripheral = peripheral;
                 self.peripheral.delegate = self;
+                [_centralManager stopScan];
+                NSLog(@"Scanning stopped");
                 [self.centralManager connectPeripheral:self.peripheral options:nil];
             }
         }
     } else {
         _peripheral = peripheral;
+        _peripheralName = peripheral.name;
         _peripheral.delegate = self;
         [_centralManager stopScan];
+        NSLog(@"Scanning stopped");
         [_centralManager connectPeripheral:_peripheral options:nil];
     }
 }
 
 // called after peripheral_mac is connected
-- (void)centralManager:(CBCentralManager *)central
-  didConnectPeripheral:
-          (CBPeripheral *)peripheral {
+- (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [_centralManager stopScan];
-    NSLog(@"Scanning stopped");
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
-    NSLog(@"PERIPHERAL NAME: %@", peripheral.name);
     std::unique_lock<std::mutex> ul(_centralEventHandler->central_mutex);
     _centralEventHandler->set_proceed(true);
     ul.unlock();
@@ -211,11 +206,7 @@ namespace bluetooth {
 }
 
 // called if didDiscoverPeripheral fails to connect
-- (void)    centralManager:(CBCentralManager *)central
-didFailToConnectPeripheral:
-        (CBPeripheral *)peripheral
-                     error:
-                             (NSError *)error {
+- (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     NSLog(@"**** CONNECTION FAILED!!!");
 }
 
@@ -231,9 +222,7 @@ didDisconnectPeripheral:
 
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
-- (void) peripheral:(CBPeripheral *)peripheral
-didDiscoverServices:
-        (NSError *)error {
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
     // Core Bluetooth creates an array of CBService objects —- one for each service that is discovered on the peripheral_mac.
     for (CBService *service in peripheral.services) {
         NSLog(@"Discovered service: %@", service);
@@ -245,11 +234,7 @@ didDiscoverServices:
 
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
-- (void)                  peripheral:(CBPeripheral *)peripheral
-didDiscoverCharacteristicsForService:
-        (CBService *)service
-                               error:
-                                       (NSError *)error {
+- (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
     for (CBCharacteristic *characteristic in service.characteristics) {
         uint8_t enableValue = 0;
         NSData *enableBytes = [NSData dataWithBytes:&enableValue length:sizeof(uint8_t)];
@@ -280,11 +265,7 @@ didDiscoverCharacteristicsForService:
 
 // start receiving data from this method once we set up notifications. Also can be manually
 // called with readValueForCharacteristic
-- (void)             peripheral:(CBPeripheral *)peripheral
-didUpdateValueForCharacteristic:
-        (CBCharacteristic *)characteristic
-                          error:
-                                  (NSError *)error {
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (error) {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
     } else {

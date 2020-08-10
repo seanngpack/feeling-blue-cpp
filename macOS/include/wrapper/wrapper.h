@@ -35,10 +35,10 @@ namespace bluetooth {
             void find_peripheral(std::string name);
 
             /**
-             * Return the peripheral. This also sets the name of the peripheral.
-             * @return pointer to peripheral.
+             * Return the name of the connected peripheral.
+             * @return name of peripheral.
              */
-            bluetooth::Peripheral *get_peripheral();
+            std::string get_peripheral_name();
 
             /**
              * Calls on objective c function to set the callback to the arduino handler object.

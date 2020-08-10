@@ -19,13 +19,10 @@ namespace bluetooth {
     class Peripheral {
     public:
 
-        Peripheral();
+        Peripheral(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt);
 
         ~Peripheral();
 
-        void set_name(const std::string &name);
-
-        void set_bluetooth(std::shared_ptr<wrapper::Wrapper> bt);
 
     private:
         struct PeripheralImpl;

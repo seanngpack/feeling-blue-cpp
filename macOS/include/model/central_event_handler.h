@@ -32,9 +32,9 @@ namespace bluetooth {
 
             void start_bluetooth();
 
-            Peripheral find_peripheral(const std::vector<std::string> &uuids);
+            Peripheral *find_peripheral(const std::vector<std::string> &uuids);
 
-            Peripheral find_peripheral(const std::string &name);
+            Peripheral *find_peripheral(const std::string &name);
 
             void set_proceed(bool connected);
 

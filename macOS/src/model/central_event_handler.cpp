@@ -18,24 +18,22 @@ void bluetooth::handler::CentralEventHandler::start_bluetooth() {
     proceed = false;
 }
 
-bluetooth::Peripheral bluetooth::handler::CentralEventHandler::find_peripheral(const std::vector<std::string> &uuids) {
+bluetooth::Peripheral *bluetooth::handler::CentralEventHandler::find_peripheral(const std::vector<std::string> &uuids) {
     std::unique_lock<std::mutex> ul(central_mutex);
     bluetooth_object->find_peripheral(uuids);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
-    bluetooth::Peripheral *p = bluetooth_object->get_peripheral();
-    p->set_bluetooth(bluetooth_object);
-    return *p;
+    auto *p = new bluetooth::Peripheral(bluetooth_object->get_peripheral_name(),bluetooth_object);
+    return p;
 }
 
-bluetooth::Peripheral bluetooth::handler::CentralEventHandler::find_peripheral(const std::string &name) {
+bluetooth::Peripheral *bluetooth::handler::CentralEventHandler::find_peripheral(const std::string &name) {
     std::unique_lock<std::mutex> ul(central_mutex);
     bluetooth_object->find_peripheral(name);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
-    bluetooth::Peripheral *p = bluetooth_object->get_peripheral();
-    p->set_bluetooth(bluetooth_object);
-    return *p;
+    auto *p = new bluetooth::Peripheral(bluetooth_object->get_peripheral_name(),bluetooth_object);
+    return p;
 }
 
 void bluetooth::handler::CentralEventHandler::rotate_by(int degs) {

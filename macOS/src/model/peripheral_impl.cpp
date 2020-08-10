@@ -1,26 +1,22 @@
 #include "peripheral.h"
 #include <string>
+#include <utility>
 
 namespace bluetooth {
 
     struct Peripheral::PeripheralImpl {
     public:
-        PeripheralImpl() {}
+        PeripheralImpl(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt) :
+                name(name), bt(std::move(bt)) {}
 
-        void set_name(const std::string &name) {
-            this->name = name;
-        }
-
-        void set_bluetooth(std::shared_ptr<wrapper::Wrapper> bt) {
-            this->bt = std::move(bt);
-        }
 
     private:
         std::shared_ptr<wrapper::Wrapper> bt;
         std::string name;
     };
 
-    Peripheral::Peripheral() : pImpl(new PeripheralImpl()) {}
+    Peripheral::Peripheral(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt) :
+            pImpl(new PeripheralImpl(name, bt)) {}
 
     Peripheral::~Peripheral() {
         delete pImpl;
@@ -28,11 +24,6 @@ namespace bluetooth {
 
     // Peripheral implementation //
 
-    void Peripheral::set_name(const std::string &name) {
-        pImpl->set_name(name);
-    }
 
-    void Peripheral::set_bluetooth(std::shared_ptr<wrapper::Wrapper> bt) {
-        pImpl->set_bluetooth(std::move(bt));
-    }
+
 }
