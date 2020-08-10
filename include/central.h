@@ -13,6 +13,8 @@ namespace bluetooth {
 
         ~Central();
 
+        void start_bluetooth();
+
         /**
          * Find and connect to the peripheral_mac given the service UUIDs advertised by the peripheral_mac.
          * @param uuids

@@ -4,7 +4,7 @@
 
 #include <utility>
 
-handler::CentralEventHandler::CentralEventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth) :
+handler::CentralEventHandler::CentralEventHandler(std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth) :
         bluetooth_object(std::move(bluetooth)),
         is_powered_on(false),
         is_peripheral_found(false) {

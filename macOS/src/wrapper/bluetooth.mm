@@ -9,51 +9,55 @@
                  C++ Wrapper implementation here
 
 ---------------------------------------------------------*/
-namespace wrapper {
-    struct WrapperImpl {
-        CBluetooth *wrapped;
-    };
+namespace bluetooth {
+    namespace wrapper {
+        struct WrapperImpl {
+            CBluetooth *wrapped;
+        };
 
-    Wrapper::Wrapper() :
-            impl(new WrapperImpl()) {
-        impl->wrapped = [[CBluetooth alloc] init];
-    }
-
-    void Wrapper::start_bluetooth() {
-        NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-        [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
-        [pool release];
-    }
-
-    void Wrapper::find_peripheral(std::vector<std::string> uuids) {
-        NSMutableArray *arr = [[NSMutableArray alloc] init];
-        for (int i = 0; i < uuids.size(); i++) {
-            NSString *uuid = [NSString stringWithUTF8String:uuids[i].c_str()];
-            [arr addObject:[CBUUID UUIDWithString:uuid]];
+        Wrapper::Wrapper() :
+                impl(new WrapperImpl()) {
+            impl->wrapped = [[CBluetooth alloc] init];
         }
-        [impl->wrapped findPeripheralUUID:(arr)];
-        [arr release]; // WARNING: this might cause an issue
-    }
 
-    void Wrapper::find_peripheral(std::string name) {
-        NSString *n = [NSString stringWithUTF8String:name.c_str()];
-        [impl->wrapped findPeripheralName:(n)];
-    }
+#include <iostream>
 
-    bluetooth::Peripheral *Wrapper::get_peripheral() {
-        return [impl->wrapped getPeripheral];
-    }
-
-    void Wrapper::set_handler(void *central_event_handler) {
-        auto *a = static_cast<handler::CentralEventHandler *>(central_event_handler);
-        [impl->wrapped setHandler:a];
-    }
-
-    Wrapper::~Wrapper() {
-        if (impl) {
-            [impl->wrapped release];
+        void Wrapper::start_bluetooth() {
+            NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+            [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
+            [pool release];
         }
-        delete impl;
+
+        void Wrapper::find_peripheral(std::vector<std::string> uuids) {
+            NSMutableArray *arr = [[NSMutableArray alloc] init];
+            for (int i = 0; i < uuids.size(); i++) {
+                NSString *uuid = [NSString stringWithUTF8String:uuids[i].c_str()];
+                [arr addObject:[CBUUID UUIDWithString:uuid]];
+            }
+            [impl->wrapped findPeripheralUUID:(arr)];
+            [arr release]; // WARNING: this might cause an issue
+        }
+
+        void Wrapper::find_peripheral(std::string name) {
+            NSString *n = [NSString stringWithUTF8String:name.c_str()];
+            [impl->wrapped findPeripheralName:(n)];
+        }
+
+        bluetooth::Peripheral *Wrapper::get_peripheral() {
+            return [impl->wrapped getPeripheral];
+        }
+
+        void Wrapper::set_handler(void *central_event_handler) {
+            auto *a = static_cast<handler::CentralEventHandler *>(central_event_handler);
+            [impl->wrapped setHandler:a];
+        }
+
+        Wrapper::~Wrapper() {
+            if (impl) {
+                [impl->wrapped release];
+            }
+            delete impl;
+        }
     }
 }
 

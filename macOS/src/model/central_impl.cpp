@@ -5,6 +5,8 @@
 #include <string>
 
 namespace bluetooth {
+
+
     struct Central::CentralImpl {
     public:
         CentralImpl() :
@@ -14,6 +16,11 @@ namespace bluetooth {
         ~CentralImpl() {
             delete event_handler;
         }
+
+        void start_bluetooth() {
+            bluetooth_object->start_bluetooth();
+        }
+
 
         Peripheral find_peripheral(const std::vector<std::string> &uuids) {
             return event_handler->find_peripheral(uuids);
@@ -34,6 +41,10 @@ namespace bluetooth {
 
     Central::~Central() {
         delete cImpl;
+    }
+
+    void Central::start_bluetooth() {
+        cImpl->start_bluetooth();
     }
 
     Peripheral Central::find_peripheral(const std::vector<std::string> &uuids) {

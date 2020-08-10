@@ -8,16 +8,11 @@
 #include <thread>
 #include <functional>
 #include "wrapper.h"
-#include "peripheral.h"
 
 
-//namespace bluetooth {
-//    class Peripheral;
-//}
-//
-//namespace wrapper {
-//    class Wrapper;
-//}
+namespace bluetooth {
+    class Peripheral;
+}
 
 namespace handler {
 
@@ -27,7 +22,7 @@ namespace handler {
     class CentralEventHandler {
     public:
 
-        CentralEventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth);
+        CentralEventHandler(std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth);
 
         void rotate_by(int degs);
 
@@ -49,7 +44,7 @@ namespace handler {
         std::condition_variable peripheral_cv;
 
     private:
-        std::shared_ptr<wrapper::Wrapper> bluetooth_object;
+        std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;
         bool is_powered_on;
         bool is_peripheral_found;
     };

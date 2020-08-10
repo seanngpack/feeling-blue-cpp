@@ -1,12 +1,9 @@
 #ifndef FEELING_BLUE_PERIPHERAL_H
 #define FEELING_BLUE_PERIPHERAL_H
 
-#include <iostream>
 #include "wrapper.h"
+#include <string>
 
-//namespace wrapper {
-//    class Wrapper;
-//}
 
 namespace bluetooth {
 
