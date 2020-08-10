@@ -6,7 +6,7 @@
 #include <string>
 
 namespace bluetooth {
-    class PeripheralMac;
+    class Peripheral;
 }
 
 
@@ -39,7 +39,7 @@ namespace wrapper {
          * Return the peripheral. This also sets the name of the peripheral.
          * @return pointer to peripheral.
          */
-        bluetooth::PeripheralMac *get_peripheral();
+        bluetooth::Peripheral *get_peripheral();
 
         /**
          * Calls on objective c function to set the callback to the arduino handler object.

@@ -1,12 +1,14 @@
 #include "wrapper.h"
-#include "peripheral_impl.h"
+#include "peripheral.h"
 #include "central_event_handler.h"
+
+#include <utility>
 
 handler::CentralEventHandler::CentralEventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth) :
         bluetooth_object(std::move(bluetooth)),
         is_powered_on(false),
         is_peripheral_found(false) {
-    bluetooth->set_handler(this);
+    bluetooth_object->set_handler(this);
 }
 
 void handler::CentralEventHandler::start_bluetooth() {
@@ -18,16 +20,16 @@ void handler::CentralEventHandler::start_bluetooth() {
 //    is_powered_on = false; // this will be needed when I refactor to one mutex
 }
 
-bluetooth::PeripheralMac handler::CentralEventHandler::find_peripheral(std::vector<std::string> uuids) {
+bluetooth::Peripheral handler::CentralEventHandler::find_peripheral(const std::vector<std::string> &uuids) {
     bluetooth_object->find_peripheral(uuids);
-    bluetooth::PeripheralMac *p = bluetooth_object->get_peripheral();
+    bluetooth::Peripheral *p = bluetooth_object->get_peripheral();
     p->set_bluetooth(bluetooth_object);
     return *p;
 }
 
-bluetooth::PeripheralMac handler::CentralEventHandler::find_peripheral(std::string name) {
+bluetooth::Peripheral handler::CentralEventHandler::find_peripheral(const std::string &name) {
     bluetooth_object->find_peripheral(name);
-    bluetooth::PeripheralMac *p = bluetooth_object->get_peripheral();
+    bluetooth::Peripheral *p = bluetooth_object->get_peripheral();
     p->set_bluetooth(bluetooth_object);
     return *p;
 }

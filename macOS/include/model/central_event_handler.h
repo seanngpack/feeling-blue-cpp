@@ -1,19 +1,29 @@
 #ifndef FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
 #define FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
 
-#include "wrapper.h"
-#include "peripheral_impl.h"
 #include <condition_variable>
 #include <future>
 #include <iostream>
 #include <mutex>
 #include <thread>
 #include <functional>
+#include "wrapper.h"
+#include "peripheral.h"
+
+
+//namespace bluetooth {
+//    class Peripheral;
+//}
+//
+//namespace wrapper {
+//    class Wrapper;
+//}
 
 namespace handler {
 
     // TODO: Reduce number of mutexes and conditional variables to just one.
     // mux & ready
+
     class CentralEventHandler {
     public:
 
@@ -23,9 +33,9 @@ namespace handler {
 
         void start_bluetooth();
 
-        bluetooth::PeripheralMac find_peripheral(std::vector<std::string> uuids);
+        bluetooth::Peripheral find_peripheral(const std::vector<std::string> &uuids);
 
-        bluetooth::PeripheralMac find_peripheral(std::string name);
+        bluetooth::Peripheral find_peripheral(const std::string &name);
 
         void set_is_powered_on(bool connected);
 

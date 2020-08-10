@@ -1,9 +1,10 @@
 #include "central_event_handler.h"
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
-#include "peripheral_impl.h"
 
-//class PeripheralImpl;
+namespace bluetooth {
+    class Peripheral;
+}
 
 // An Objective-C class that needs to be accessed from C++
 @interface CBluetooth : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
@@ -61,7 +62,7 @@
  * occurs in the didConnectPeripheral method.
  * @return the peripheral.
  */
-- (bluetooth::PeripheralMac *)getPeripheral;
+- (bluetooth::Peripheral *)getPeripheral;
 
 /**
  * Rotate the table with the given angle in degrees.

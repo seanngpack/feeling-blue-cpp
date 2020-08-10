@@ -11,12 +11,12 @@ namespace bluetooth {
             this->name = name;
         }
 
-        void set_bluetooth(std::shared_ptr<Wrapper> bt) {
+        void set_bluetooth(std::shared_ptr<wrapper::Wrapper> bt) {
             this->bt = std::move(bt);
         }
 
     private:
-        std::shared_ptr<Wrapper> bt;
+        std::shared_ptr<wrapper::Wrapper> bt;
         std::string name;
     };
 
@@ -32,7 +32,7 @@ namespace bluetooth {
         pImpl->set_name(name);
     }
 
-    void Peripheral::set_bluetooth(std::shared_ptr<Wrapper> bt) {
+    void Peripheral::set_bluetooth(std::shared_ptr<wrapper::Wrapper> bt) {
         pImpl->set_bluetooth(std::move(bt));
     }
 }

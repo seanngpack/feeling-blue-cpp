@@ -1,4 +1,4 @@
-#include "peripheral_impl.h"
+#include "peripheral.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -40,7 +40,7 @@ namespace wrapper {
         [impl->wrapped findPeripheralName:(n)];
     }
 
-    bluetooth::PeripheralMac *Wrapper::get_peripheral() {
+    bluetooth::Peripheral *Wrapper::get_peripheral() {
         return [impl->wrapped getPeripheral];
     }
 
@@ -86,9 +86,9 @@ namespace wrapper {
                   type:CBCharacteristicWriteWithResponse];
 }
 
-- (bluetooth::PeripheralMac *)getPeripheral {
+- (bluetooth::Peripheral *)getPeripheral {
     std::string name = std::string([_peripheral.name UTF8String]);
-    auto *p = new bluetooth::PeripheralMac();
+    auto *p = new bluetooth::Peripheral();
     p->set_name(name);
     return p;
 }

@@ -2,9 +2,14 @@
 #define FEELING_BLUE_PERIPHERAL_H
 
 #include <iostream>
+#include "wrapper.h"
+
+//namespace wrapper {
+//    class Wrapper;
+//}
 
 namespace bluetooth {
-    class Wrapper;
+
 
     class Peripheral {
     public:
@@ -13,9 +18,9 @@ namespace bluetooth {
 
         ~Peripheral();
 
-        void set_name(const std::string& name);
+        void set_name(const std::string &name);
 
-        void set_bluetooth(std::shared_ptr<Wrapper> bt);
+        void set_bluetooth(std::shared_ptr<wrapper::Wrapper> bt);
 
     private:
         struct PeripheralImpl;
