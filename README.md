@@ -12,9 +12,9 @@ C++ library for BluetoothLE usage on MacOS or Windows. One of the only bluetooth
 
 ## Features
 
-* Blocking API, calls to find services, characteristics, etc block the calling thread until the process is complete.
+* Blocking API. Calls to find services, characteristics, etc block the calling thread until the process is complete.
 Blocking methods are documented.
-* Non-intrusive namespace. The API is encapsulated in this bluetooth so your global namespace does not get polluted.
+* Non-intrusive namespace. The API is encapsulated in ```bluetooth::``` so your global namespace does not get polluted.
 * Simple and straightfoward API.
 
 ## Installation
