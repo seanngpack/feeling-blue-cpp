@@ -18,17 +18,17 @@ namespace bluetooth {
 
     /**
      * Represents a characteristic.
-     * Owned by service.
      */
     class Characteristic {
     public:
 
-        Characteristic(const std::string &uuid,
+        Characteristic(const std::string &char_uuid,
                        const std::string &service_uuid,
                        std::shared_ptr<handler::EventHandler> event_handler);
 
         ~Characteristic();
 
+        std::string uuid();
 
     private:
         struct CharacteristicImpl;

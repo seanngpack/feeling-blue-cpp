@@ -42,7 +42,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(feeling-blue REQUIRED)
 
 add_executable(yourProject main.cpp)
-target_link_libraries(testLib PUBLIC feeling-blue)
+target_link_libraries(yourProject PUBLIC feeling-blue)
 
 ```
 

@@ -23,6 +23,15 @@ namespace bluetooth {
             return s;
         }
 
+        std::shared_ptr<Service> get_service(const std::string &uuid) {
+            for (auto s : services) {
+                if (uuid == s->uuid()) {
+                    return s;
+                }
+            }
+            return nullptr;
+        }
+
     private:
         std::string name;
         std::vector<std::shared_ptr<Service>> services;
@@ -39,5 +48,9 @@ namespace bluetooth {
 
     std::shared_ptr<Service> Peripheral::find_service(const std::string &uuid) {
         return pImpl->find_service(uuid);
+    }
+
+    std::shared_ptr<Service> Peripheral::get_service(const std::string &uuid) {
+        return pImpl->get_service(uuid);
     }
 }

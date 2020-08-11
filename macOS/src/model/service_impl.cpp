@@ -8,27 +8,39 @@ namespace bluetooth {
 
     struct Service::ServiceImpl {
     public:
-        ServiceImpl(const std::string &uuid, std::shared_ptr<handler::EventHandler> event_handler)
-                :
-                uuid(uuid), event_handler(event_handler) {}
+        ServiceImpl(const std::string &service_uuid, std::shared_ptr<handler::EventHandler> event_handler)
+                : service_uuid(service_uuid), event_handler(event_handler) {}
 
-        std::shared_ptr<Characteristic> find_characteristic(const std::string &char_uuid) {
-            std::shared_ptr<Characteristic> c = event_handler->find_characteristic(char_uuid, uuid);
-            characteristics.push_back(c);
-            return c;
-        }
 
         ~ServiceImpl() {
 
         }
 
+        std::shared_ptr<Characteristic> find_characteristic(const std::string &uuid) {
+            std::shared_ptr<Characteristic> c = event_handler->find_characteristic(uuid, service_uuid);
+            characteristics.push_back(c);
+            return c;
+        }
+
+        std::shared_ptr<Characteristic> get_characteristic(const std::string &uuid) {
+            for (auto c : characteristics) {
+                if (uuid == c->uuid()) {
+                    return c;
+                }
+            }
+            return nullptr;
+        }
+
+        std::string uuid() {
+            return service_uuid;
+        }
+
+
     private:
-        std::string uuid;
+        std::string service_uuid;
         std::vector<std::shared_ptr<Characteristic>> characteristics;
         std::shared_ptr<handler::EventHandler> event_handler;
     };
-
-    // Wrapper implementation //
 
     Service::Service(const std::string &uuid,
                      std::shared_ptr<handler::EventHandler> event_handler) :
@@ -42,5 +54,11 @@ namespace bluetooth {
         return sImpl->find_characteristic(uuid);
     }
 
+    std::shared_ptr<Characteristic> Service::get_characteristic(const std::string &uuid) {
+        return sImpl->find_characteristic(uuid);
+    }
 
+    std::string Service::uuid() {
+        return sImpl->uuid();
+    }
 }
