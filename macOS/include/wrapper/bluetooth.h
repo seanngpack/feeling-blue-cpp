@@ -20,6 +20,7 @@ namespace bluetooth {
 @property(strong, nonatomic) NSMutableData *data;
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
 @property(nonatomic, assign) BOOL nameSearch;
+@property(nonatomic, strong) CBUUID *currentServiceSearchUUID;
 
 
 #define SWAG_SCANNER_NAME @"SwagScanner"
@@ -55,6 +56,13 @@ namespace bluetooth {
  * @param uuids array of UUIDs
  */
 - (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids;
+
+/**
+ * Use the peripheral to scan for a service given its uuid.
+ * Sets _currentServiceSearchUUID to the given uuid and uses that to see whether the service is found or not.
+ * @param uuid uuid of the service.
+ */
+- (void)findAndConnectServiceByUUID:(CBUUID *)uuid;
 
 /**
  * Get the peripheral name. Call this after findAndConnectPeripheral.

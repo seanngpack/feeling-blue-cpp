@@ -10,10 +10,14 @@ namespace bluetooth {
         class Wrapper;
     }
 
+    namespace handler {
+        class EventHandler;
+    }
+
     class Service {
     public:
 
-        Service(std::string UUID, std::shared_ptr<wrapper::Wrapper> bt);
+        Service(const std::string &uuid, std::shared_ptr<wrapper::Wrapper> bt, handler::EventHandler *event_handler);
 
         ~Service();
 

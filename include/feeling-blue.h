@@ -5,6 +5,7 @@
 
 #include "central.h"
 #include "peripheral.h"
+#include "service.h"
 
 #endif
 

@@ -1,5 +1,6 @@
 #include "wrapper.h"
 #include "peripheral.h"
+#include "service.h"
 #include "event_handler.h"
 
 #include <utility>
@@ -23,7 +24,7 @@ bluetooth::Peripheral *bluetooth::handler::EventHandler::find_peripheral(const s
     bluetooth_object->find_peripheral(uuids);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
-    auto *p = new bluetooth::Peripheral(bluetooth_object->get_peripheral_name(),bluetooth_object, this);
+    auto *p = new bluetooth::Peripheral(bluetooth_object->get_peripheral_name(), bluetooth_object, this);
     return p;
 }
 
@@ -32,7 +33,24 @@ bluetooth::Peripheral *bluetooth::handler::EventHandler::find_peripheral(const s
     bluetooth_object->find_peripheral(name);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
-    auto *p = new bluetooth::Peripheral(bluetooth_object->get_peripheral_name(),bluetooth_object, this);
+    auto *p = new bluetooth::Peripheral(bluetooth_object->get_peripheral_name(), bluetooth_object, this);
+    return p;
+}
+
+bluetooth::Service *bluetooth::handler::EventHandler::find_service(const std::string &uuid) {
+    std::unique_lock<std::mutex> ul(mut);
+    bluetooth_object->find_service(uuid);
+    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+    proceed = false;
+
+    Service *p;
+
+    if (service_found) {
+        p = new bluetooth::Service(uuid, bluetooth_object, this);
+    } else {
+        p = nullptr;
+    }
+
     return p;
 }
 
@@ -53,8 +71,3 @@ void bluetooth::handler::EventHandler::set_proceed(bool connected) {
 bluetooth::handler::EventHandler::~EventHandler() {
     bluetooth_object = nullptr;
 }
-
-
-
-
-

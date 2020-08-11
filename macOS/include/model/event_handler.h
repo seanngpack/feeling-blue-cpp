@@ -5,6 +5,7 @@
 #include <future>
 #include <iostream>
 #include <mutex>
+#include <string>
 #include <thread>
 #include <functional>
 
@@ -29,7 +30,7 @@ namespace bluetooth {
 
             void start_bluetooth();
 
-            Service find_service();
+            Service *find_service(const std::string &uuid);
 
             Peripheral *find_peripheral(const std::vector<std::string> &uuids);
 
@@ -41,6 +42,7 @@ namespace bluetooth {
 
             std::mutex mut;
             std::condition_variable cv;
+            bool service_found;
 
         private:
             std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;

@@ -40,7 +40,7 @@ namespace bluetooth {
              * @param uuid uuid of the service
              * @return a pointer
              */
-            void *find_service(std::string uuid);
+            void find_service(std::string uuid);
 
             /**
              * Return the name of the connected peripheral.

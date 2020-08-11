@@ -42,6 +42,12 @@ namespace bluetooth {
             [impl->wrapped findAndConnectPeripheralByName:(n)];
         }
 
+        void Wrapper::find_service(std::string uuid) {
+            NSString *s = [NSString stringWithUTF8String:uuid.c_str()];
+            CBUUID *c = [CBUUID UUIDWithString:s];
+            [impl->wrapped findAndConnectServiceByUUID:(c)];
+        }
+
         std::string Wrapper::get_peripheral_name() {
             auto *n = new std::string([[impl->wrapped getPeripheralName] UTF8String]);
             const std::string temp = *n;
@@ -60,6 +66,8 @@ namespace bluetooth {
             }
             delete impl;
         }
+
+
     }
 }
 
@@ -97,6 +105,12 @@ namespace bluetooth {
     [_centralManager scanForPeripheralsWithServices:uuids
                                             options:nil];
 }
+
+- (void)findAndConnectServiceByUUID:(CBUUID *)uuid {
+    _currentServiceSearchUUID = uuid;
+    [_peripheral discoverServices:@[uuid]];
+}
+
 
 - (void)rotateTable:(int)degrees {
     _eventHandler->set_proceed(true);
@@ -210,11 +224,7 @@ namespace bluetooth {
     NSLog(@"**** CONNECTION FAILED!!!");
 }
 
-- (void) centralManager:(CBCentralManager *)central
-didDisconnectPeripheral:
-        (CBPeripheral *)peripheral
-                  error:
-                          (NSError *)error {
+- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     NSLog(@"**** DISCONNECTED FROM SWAG SCANNER");
 }
 
@@ -224,12 +234,29 @@ didDisconnectPeripheral:
 // Can access the services throup peripheral.services
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
     // Core Bluetooth creates an array of CBService objects —- one for each service that is discovered on the peripheral_mac.
+//    for (CBService *service in peripheral.services) {
+//        NSLog(@"Discovered service: %@", service);
+//        if (([service.UUID isEqual:[CBUUID UUIDWithString:UART_SERVICE_UUID]])) {
+//            [peripheral discoverCharacteristics:nil forService:service];
+//        }
+//    }
+    bool found = false;
     for (CBService *service in peripheral.services) {
-        NSLog(@"Discovered service: %@", service);
-        if (([service.UUID isEqual:[CBUUID UUIDWithString:UART_SERVICE_UUID]])) {
-            [peripheral discoverCharacteristics:nil forService:service];
+        if (([service.UUID isEqual:_currentServiceSearchUUID])) {
+            NSLog(@"Discovered service: %@", service);
+            found = true;
         }
     }
+    if (!found) {
+        NSLog(@"Warning, service: %@ not found!", _currentServiceSearchUUID);
+    }
+    _eventHandler->service_found = found;
+
+    std::unique_lock<std::mutex> ul(_eventHandler->mut);
+    _eventHandler->set_proceed(true);
+    ul.unlock();
+    _eventHandler->cv.notify_one();
+    ul.lock();
 }
 
 // peripheral_mac's response to discoverCharacteristics

@@ -2,6 +2,7 @@
 #include "service.h"
 #include "event_handler.h"
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace bluetooth {
@@ -14,11 +15,10 @@ namespace bluetooth {
                 name(name), bt(std::move(bt)), event_handler(event_handler) {}
 
         Service find_service(const std::string &uuid) {
-            Service s = event_handler->find_service(uuid);
-            services.push_back(s);
-            return s;
+            Service *s = event_handler->find_service(uuid);
+            services.push_back(*s);
+            return *s;
         }
-
 
     private:
         std::shared_ptr<wrapper::Wrapper> bt;
@@ -27,8 +27,10 @@ namespace bluetooth {
         handler::EventHandler *event_handler;
     };
 
-    Peripheral::Peripheral(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt) :
-            pImpl(new PeripheralImpl(name, bt)) {}
+    Peripheral::Peripheral(const std::string &name,
+                           std::shared_ptr<wrapper::Wrapper> bt,
+                           handler::EventHandler *event_handler) :
+            pImpl(new PeripheralImpl(name, std::move(bt), event_handler)) {}
 
     Peripheral::~Peripheral() {
         delete pImpl;
@@ -37,7 +39,4 @@ namespace bluetooth {
     Service Peripheral::find_service(const std::string &uuid) {
         return pImpl->find_service(uuid);
     }
-
-    // Peripheral implementation //
-
 }
