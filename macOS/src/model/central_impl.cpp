@@ -11,7 +11,9 @@ namespace bluetooth {
     public:
         CentralImpl() :
                 bluetooth_object(std::make_shared<wrapper::Wrapper>()),
-                event_handler(new handler::EventHandler(std::move(bluetooth_object))) {}
+                event_handler(new handler::EventHandler(std::move(bluetooth_object))) {
+            // TODO: same with other constructors, check for nullptr
+        }
 
         ~CentralImpl() {
             delete event_handler;

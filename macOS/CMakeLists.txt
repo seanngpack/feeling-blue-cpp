@@ -11,7 +11,7 @@ set(macOS_SRCS
         ../include/peripheral.h
         ../include/central.h
         ../include/service.h
-        src/model/service_impl.cpp)
+        src/model/service_impl.cpp ../include/characteristic.h src/model/characteristic_impl.cpp)
 
 
 

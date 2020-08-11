@@ -22,6 +22,10 @@ namespace bluetooth {
 
     class Service;
 
+    /**
+     * represents a peripheral device.
+     * Owned by central.
+     */
     class Peripheral {
     public:
 
@@ -33,6 +37,8 @@ namespace bluetooth {
          * Find service given the uuid.
          * @param uuid service's uuid.
          * @return the service, or nullptr if the service cannot be found.
+         * TODO: I'm invoking the copy constructor to return a new object...is this appropriate
+         * to return to the consumer?
          */
         Service find_service(const std::string &uuid);
 

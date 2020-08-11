@@ -19,6 +19,8 @@ namespace bluetooth {
 
     class Service;
 
+    class Characteristic;
+
     namespace handler {
 
         class EventHandler {
@@ -36,6 +38,8 @@ namespace bluetooth {
 
             Peripheral *find_peripheral(const std::string &name);
 
+            Characteristic *find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
+
             void set_proceed(bool connected);
 
             ~EventHandler();
@@ -43,6 +47,7 @@ namespace bluetooth {
             std::mutex mut;
             std::condition_variable cv;
             bool service_found;
+            bool char_found;
 
         private:
             std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;

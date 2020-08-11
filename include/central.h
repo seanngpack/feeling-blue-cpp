@@ -7,6 +7,9 @@
 namespace bluetooth {
     class Peripheral;
 
+    /**
+     * Represents a central manager.
+     */
     class Central {
     public:
         Central();

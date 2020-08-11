@@ -21,6 +21,7 @@ namespace bluetooth {
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
 @property(nonatomic, assign) BOOL nameSearch;
 @property(nonatomic, strong) CBUUID *currentServiceSearchUUID;
+@property(nonatomic, strong) CBUUID *currentCharSearchUUID;
 
 
 #define SWAG_SCANNER_NAME @"SwagScanner"
@@ -63,6 +64,13 @@ namespace bluetooth {
  * @param uuid uuid of the service.
  */
 - (void)findAndConnectServiceByUUID:(CBUUID *)uuid;
+
+/**
+ * Find and connect to characteristics given its uuid and the service it belongs to.
+ * @param uuid uuid of the characteristic.
+ * @param service service that the characteristic belongs to.
+ */
+- (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID;
 
 /**
  * Get the peripheral name. Call this after findAndConnectPeripheral.

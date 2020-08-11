@@ -21,6 +21,13 @@ namespace bluetooth {
             impl->wrapped = [[CBluetooth alloc] init];
         }
 
+        Wrapper::~Wrapper() {
+            if (impl) {
+                [impl->wrapped release];
+            }
+            delete impl;
+        }
+
         void Wrapper::start_bluetooth() {
             NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
             [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
@@ -48,9 +55,17 @@ namespace bluetooth {
             [impl->wrapped findAndConnectServiceByUUID:(c)];
         }
 
+        void Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
+            NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
+            NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
+            CBUUID *CBchar = [CBUUID UUIDWithString:char_s];
+            CBUUID *CBService = [CBUUID UUIDWithString:service_s];
+            [impl->wrapped findAndConnectCharacteristicByUUID:CBchar belongingToService:CBService];
+        }
+
         std::string Wrapper::get_peripheral_name() {
             auto *n = new std::string([[impl->wrapped getPeripheralName] UTF8String]);
-            const std::string temp = *n;
+            std::string temp = *n;
             delete n;
             return temp;
         }
@@ -59,14 +74,6 @@ namespace bluetooth {
             auto *a = static_cast<handler::EventHandler *>(central_event_handler);
             [impl->wrapped setHandler:a];
         }
-
-        Wrapper::~Wrapper() {
-            if (impl) {
-                [impl->wrapped release];
-            }
-            delete impl;
-        }
-
 
     }
 }
@@ -111,6 +118,15 @@ namespace bluetooth {
     [_peripheral discoverServices:@[uuid]];
 }
 
+- (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
+    _currentCharSearchUUID = charUUID;
+    for (CBService *service in _peripheral.services) {
+        if (([service.UUID isEqual:serviceUUID])) {
+            [_peripheral discoverCharacteristics:@[charUUID] forService:service];
+        }
+    }
+}
+
 
 - (void)rotateTable:(int)degrees {
     _eventHandler->set_proceed(true);
@@ -120,6 +136,7 @@ namespace bluetooth {
      forCharacteristic:_rotateTableChar
                   type:CBCharacteristicWriteWithResponse];
 }
+
 
 - (NSString *)getPeripheralName {
     return _peripheralName;
@@ -233,23 +250,20 @@ namespace bluetooth {
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
-    // Core Bluetooth creates an array of CBService objects —- one for each service that is discovered on the peripheral_mac.
-//    for (CBService *service in peripheral.services) {
-//        NSLog(@"Discovered service: %@", service);
-//        if (([service.UUID isEqual:[CBUUID UUIDWithString:UART_SERVICE_UUID]])) {
-//            [peripheral discoverCharacteristics:nil forService:service];
-//        }
-//    }
     bool found = false;
     for (CBService *service in peripheral.services) {
         if (([service.UUID isEqual:_currentServiceSearchUUID])) {
-            NSLog(@"Discovered service: %@", service);
+            NSLog(@"**** SUCCESSFULLY CONNECTED TO SERVICE: %@", service);
             found = true;
         }
     }
     if (!found) {
         NSLog(@"Warning, service: %@ not found!", _currentServiceSearchUUID);
     }
+
+    // don't forget to reset
+    _currentServiceSearchUUID = nil;
+
     _eventHandler->service_found = found;
 
     std::unique_lock<std::mutex> ul(_eventHandler->mut);
@@ -262,30 +276,54 @@ namespace bluetooth {
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
+    bool found = false;
     for (CBCharacteristic *characteristic in service.characteristics) {
-        uint8_t enableValue = 0;
-        NSData *enableBytes = [NSData dataWithBytes:&enableValue length:sizeof(uint8_t)];
-
-        // rotate table
-        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:ROTATE_TABLE_CHAR_UUID]]) {
-            NSLog(@"Enabled table rotation characteristic: %@", characteristic);
-            _rotateTableChar = characteristic;
-            [self.peripheral writeValue:enableBytes forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
-        }
-
-        // table position
-        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
-            NSLog(@"Enabled table position characteristic with notifications: %@", characteristic);
-//            _tablePosChar = characteristic;
-            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
-        }
-
-        // table rotation
-        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
-            NSLog(@"Enabled is table rotation? characteristic with notifications: %@", characteristic);
-            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
+//        NSLog(@"we have this charactersitic in service: %@", characteristic);
+        if ([characteristic.UUID isEqual:_currentCharSearchUUID]) {
+            NSLog(@"**** SUCCESSFULLY CONNECTED TO CHARACTERISTIC: %@", characteristic);
+            found = true;
         }
     }
+    if (!found) {
+        NSLog(@"WARNING, char: %@ not found!", _currentCharSearchUUID);
+    }
+
+    // don't forget to reset
+    _currentCharSearchUUID = nil;
+
+    _eventHandler->char_found = found;
+
+    std::unique_lock<std::mutex> ul(_eventHandler->mut);
+    _eventHandler->set_proceed(true);
+    ul.unlock();
+    _eventHandler->cv.notify_one();
+    ul.lock();
+
+//        uint8_t enableValue = 0;
+//        NSData *enableBytes = [NSData dataWithBytes:&enableValue length:sizeof(uint8_t)];
+//
+//        //TODO: as I'm writing the find_characteristics, these write value stuff don't need to be here
+//
+//        // rotate table
+//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:ROTATE_TABLE_CHAR_UUID]]) {
+//            NSLog(@"Enabled table rotation characteristic: %@", characteristic);
+//            _rotateTableChar = characteristic;
+//            [self.peripheral writeValue:enableBytes forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
+//        }
+//
+//        // table position
+//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
+//            NSLog(@"Enabled table position characteristic with notifications: %@", characteristic);
+////            _tablePosChar = characteristic;
+//            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
+//        }
+//
+//        // table rotation
+//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
+//            NSLog(@"Enabled is table rotation? characteristic with notifications: %@", characteristic);
+//            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
+//        }
+
 
 
 }

@@ -1,6 +1,7 @@
 #include "wrapper.h"
 #include "peripheral.h"
 #include "service.h"
+#include "characteristic.h"
 #include "event_handler.h"
 
 #include <utility>
@@ -51,7 +52,31 @@ bluetooth::Service *bluetooth::handler::EventHandler::find_service(const std::st
         p = nullptr;
     }
 
+    // reset this flag for future use.
+    service_found = false;
+
     return p;
+}
+
+bluetooth::Characteristic *bluetooth::handler::EventHandler::find_characteristic(const std::string &char_uuid,
+                                                                                 const std::string &service_uuid) {
+    std::unique_lock<std::mutex> ul(mut);
+    bluetooth_object->find_characteristic(char_uuid, service_uuid);
+    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+    proceed = false;
+
+    Characteristic *c;
+
+    if (char_found) {
+        c = new bluetooth::Characteristic(char_uuid, service_uuid, this);
+    } else {
+        c = nullptr;
+    }
+
+    // reset this flag for future use.
+    char_found = false;
+
+    return c;
 }
 
 void bluetooth::handler::EventHandler::rotate_by(int degs) {
@@ -71,3 +96,5 @@ void bluetooth::handler::EventHandler::set_proceed(bool connected) {
 bluetooth::handler::EventHandler::~EventHandler() {
     bluetooth_object = nullptr;
 }
+
+

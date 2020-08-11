@@ -6,6 +6,7 @@
 #include "central.h"
 #include "peripheral.h"
 #include "service.h"
+#include "characteristic.h"
 
 #endif
 

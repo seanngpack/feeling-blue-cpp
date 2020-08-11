@@ -43,6 +43,14 @@ namespace bluetooth {
             void find_service(std::string uuid);
 
             /**
+             * Find the characteristic given the uuid of the characteristic and the
+             * service that it belongs to.
+             * @param char_uuid uuid of the characteristic.
+             * @param service_uuid uuid of the service.
+             */
+            void find_characteristic(std::string char_uuid, std::string service_uuid);
+
+            /**
              * Return the name of the connected peripheral.
              * @return name of peripheral.
              */
