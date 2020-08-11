@@ -3,7 +3,7 @@
 
 #include <condition_variable>
 #include <future>
-#include <iostream>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -26,7 +26,7 @@ namespace bluetooth {
         class EventHandler {
         public:
 
-            EventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth);
+            EventHandler();
 
             void rotate_by(int degs);
 
@@ -34,9 +34,9 @@ namespace bluetooth {
 
             Service *find_service(const std::string &uuid);
 
-            Peripheral *find_peripheral(const std::vector<std::string> &uuids);
+            std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids);
 
-            Peripheral *find_peripheral(const std::string &name);
+            std::shared_ptr<Peripheral> find_peripheral(const std::string &name);
 
             Characteristic *find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
 

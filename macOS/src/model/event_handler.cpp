@@ -3,11 +3,11 @@
 #include "service.h"
 #include "characteristic.h"
 #include "event_handler.h"
-
+#include <iostream>
 #include <utility>
 
-bluetooth::handler::EventHandler::EventHandler(std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth) :
-        bluetooth_object(std::move(bluetooth)),
+bluetooth::handler::EventHandler::EventHandler() :
+        bluetooth_object(std::make_shared<wrapper::Wrapper>()),
         proceed(false) {
     bluetooth_object->set_handler(this);
 }
@@ -20,22 +20,21 @@ void bluetooth::handler::EventHandler::start_bluetooth() {
     proceed = false;
 }
 
-bluetooth::Peripheral *bluetooth::handler::EventHandler::find_peripheral(const std::vector<std::string> &uuids) {
+std::shared_ptr<bluetooth::Peripheral>
+bluetooth::handler::EventHandler::find_peripheral(const std::vector<std::string> &uuids) {
     std::unique_lock<std::mutex> ul(mut);
     bluetooth_object->find_peripheral(uuids);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
-    auto *p = new bluetooth::Peripheral(bluetooth_object->get_peripheral_name(), bluetooth_object, this);
-    return p;
+    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), bluetooth_object, this);
 }
 
-bluetooth::Peripheral *bluetooth::handler::EventHandler::find_peripheral(const std::string &name) {
+std::shared_ptr<bluetooth::Peripheral> bluetooth::handler::EventHandler::find_peripheral(const std::string &name) {
     std::unique_lock<std::mutex> ul(mut);
     bluetooth_object->find_peripheral(name);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
-    auto *p = new bluetooth::Peripheral(bluetooth_object->get_peripheral_name(), bluetooth_object, this);
-    return p;
+    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), bluetooth_object, this);;
 }
 
 bluetooth::Service *bluetooth::handler::EventHandler::find_service(const std::string &uuid) {
