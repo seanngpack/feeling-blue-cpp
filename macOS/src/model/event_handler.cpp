@@ -57,17 +57,17 @@ std::shared_ptr<bluetooth::Service> bluetooth::handler::EventHandler::find_servi
     return s;
 }
 
-bluetooth::Characteristic *bluetooth::handler::EventHandler::find_characteristic(const std::string &char_uuid,
+std::shared_ptr<bluetooth::Characteristic> bluetooth::handler::EventHandler::find_characteristic(const std::string &char_uuid,
                                                                                  const std::string &service_uuid) {
     std::unique_lock<std::mutex> ul(mut);
     bluetooth_object->find_characteristic(char_uuid, service_uuid);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
 
-    Characteristic *c;
+    std::shared_ptr<Characteristic> c;
 
     if (char_found) {
-        c = new bluetooth::Characteristic(char_uuid, service_uuid, this);
+        c = std::make_shared<Characteristic>(char_uuid, service_uuid, this);
     } else {
         c = nullptr;
     }

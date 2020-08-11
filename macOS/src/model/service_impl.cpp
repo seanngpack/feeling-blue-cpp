@@ -11,21 +11,19 @@ namespace bluetooth {
                 :
                 uuid(uuid), event_handler(event_handler) {}
 
-        Characteristic find_characteristic(const std::string &char_uuid) {
-            Characteristic *c = event_handler->find_characteristic(char_uuid, uuid);
+        std::shared_ptr<Characteristic> find_characteristic(const std::string &char_uuid) {
+            std::shared_ptr<Characteristic> c = event_handler->find_characteristic(char_uuid, uuid);
             characteristics.push_back(c);
-            return *c;
+            return c;
         }
 
         ~ServiceImpl() {
-            for (int i = 0; i < characteristics.size(); i++) {
-                delete characteristics[i];
-            }
+
         }
 
     private:
         std::string uuid;
-        std::vector<Characteristic *> characteristics;
+        std::vector<std::shared_ptr<Characteristic>> characteristics;
         handler::EventHandler *event_handler;
     };
 
@@ -39,7 +37,7 @@ namespace bluetooth {
         delete sImpl;
     }
 
-    Characteristic Service::find_characteristic(const std::string &uuid) {
+    std::shared_ptr<Characteristic> Service::find_characteristic(const std::string &uuid) {
         return sImpl->find_characteristic(uuid);
     }
 

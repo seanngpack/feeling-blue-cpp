@@ -27,7 +27,7 @@ namespace bluetooth {
 
         ~Service();
 
-        Characteristic find_characteristic(const std::string &char_uuid);
+        std::shared_ptr<Characteristic> find_characteristic(const std::string &char_uuid);
 
 
     private:
