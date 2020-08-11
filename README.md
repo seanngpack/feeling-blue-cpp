@@ -64,7 +64,7 @@ int main() {
     bluetooth::Characteristic position_char = service.find_characteristic("5ffba523-2363-41da-92f5-46adc56b2d37");
 
     // some mechanism to keep your main thread alive
-
+    delete central;
     return 0;
 }
 ```
