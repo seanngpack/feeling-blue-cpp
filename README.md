@@ -1,6 +1,5 @@
 # ![feeling-blue-logo](doc/img/feeling_blue_cpp.png)
-C++ library for BluetoothLE usage on MacOS or Windows. Haven't seen any other bluetooth libraries for MacOS
-so this might be the only one out there!
+C++ library for BluetoothLE usage on MacOS or Windows. One of the only bluetooth libraries for MacOS.
 
 ## Table of Contents
 
