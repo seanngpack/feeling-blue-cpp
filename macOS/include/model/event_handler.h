@@ -23,7 +23,7 @@ namespace bluetooth {
 
     namespace handler {
 
-        class EventHandler {
+        class EventHandler : public std::enable_shared_from_this<EventHandler> {
         public:
 
             EventHandler();

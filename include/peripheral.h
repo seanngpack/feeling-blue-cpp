@@ -30,7 +30,7 @@ namespace bluetooth {
     class Peripheral {
     public:
 
-        Peripheral(const std::string &name, handler::EventHandler *event_handler);
+        Peripheral(const std::string &name, std::shared_ptr<handler::EventHandler> event_handler);
 
         ~Peripheral();
 

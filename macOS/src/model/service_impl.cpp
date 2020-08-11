@@ -1,13 +1,14 @@
 #include "service.h"
 #include "characteristic.h"
 #include "event_handler.h"
+#include <utility>
 #include <vector>
 
 namespace bluetooth {
 
     struct Service::ServiceImpl {
     public:
-        ServiceImpl(const std::string &uuid, handler::EventHandler *event_handler)
+        ServiceImpl(const std::string &uuid, std::shared_ptr<handler::EventHandler> event_handler)
                 :
                 uuid(uuid), event_handler(event_handler) {}
 
@@ -24,14 +25,14 @@ namespace bluetooth {
     private:
         std::string uuid;
         std::vector<std::shared_ptr<Characteristic>> characteristics;
-        handler::EventHandler *event_handler;
+        std::shared_ptr<handler::EventHandler> event_handler;
     };
 
     // Wrapper implementation //
 
     Service::Service(const std::string &uuid,
-                     handler::EventHandler *event_handler) :
-            sImpl(new ServiceImpl(uuid, event_handler)) {}
+                     std::shared_ptr<handler::EventHandler> event_handler) :
+            sImpl(new ServiceImpl(uuid, std::move(event_handler))) {}
 
     Service::~Service() {
         delete sImpl;
