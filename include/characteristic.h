@@ -22,8 +22,6 @@ namespace bluetooth {
     class Characteristic {
     public:
 
-        // TODO: for characteristic and peripheral, maybe even central--
-        // I can remove the wrapper reference, there doesn't seem to be a need for it lol
         Characteristic(const std::string &uuid,
                        const std::string &service_uuid,
                        handler::EventHandler *event_handler);

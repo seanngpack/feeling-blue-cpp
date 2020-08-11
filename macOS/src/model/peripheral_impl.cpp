@@ -14,20 +14,18 @@ namespace bluetooth {
                 name(name), event_handler(event_handler) {}
 
         ~PeripheralImpl() {
-            for (int i = 0; i < services.size(); i++) {
-                delete services[i];
-            }
+
         }
 
-        Service find_service(const std::string &uuid) {
-            Service *s = event_handler->find_service(uuid);
+        std::shared_ptr<Service> find_service(const std::string &uuid) {
+            std::shared_ptr<Service> s = event_handler->find_service(uuid);
             services.push_back(s);
-            return *s;
+            return s;
         }
 
     private:
         std::string name;
-        std::vector<Service *> services;
+        std::vector<std::shared_ptr<Service>> services;
         handler::EventHandler *event_handler;
     };
 
@@ -39,7 +37,7 @@ namespace bluetooth {
         delete pImpl;
     }
 
-    Service Peripheral::find_service(const std::string &uuid) {
+    std::shared_ptr<Service> Peripheral::find_service(const std::string &uuid) {
         return pImpl->find_service(uuid);
     }
 }

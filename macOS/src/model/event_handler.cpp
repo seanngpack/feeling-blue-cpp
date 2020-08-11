@@ -37,24 +37,24 @@ std::shared_ptr<bluetooth::Peripheral> bluetooth::handler::EventHandler::find_pe
     return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), this);;
 }
 
-bluetooth::Service *bluetooth::handler::EventHandler::find_service(const std::string &uuid) {
+std::shared_ptr<bluetooth::Service> bluetooth::handler::EventHandler::find_service(const std::string &uuid) {
     std::unique_lock<std::mutex> ul(mut);
     bluetooth_object->find_service(uuid);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
 
-    Service *p;
+    std::shared_ptr<bluetooth::Service> s;
 
     if (service_found) {
-        p = new bluetooth::Service(uuid, this);
+        s = std::make_shared<bluetooth::Service>(uuid, this);
     } else {
-        p = nullptr;
+        s = nullptr;
     }
 
     // reset this flag for future use.
     service_found = false;
 
-    return p;
+    return s;
 }
 
 bluetooth::Characteristic *bluetooth::handler::EventHandler::find_characteristic(const std::string &char_uuid,

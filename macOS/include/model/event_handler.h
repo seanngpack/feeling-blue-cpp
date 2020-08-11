@@ -32,7 +32,7 @@ namespace bluetooth {
 
             void start_bluetooth();
 
-            Service *find_service(const std::string &uuid);
+            std::shared_ptr<Service> find_service(const std::string &uuid);
 
             std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids);
 

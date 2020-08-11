@@ -2,6 +2,7 @@
 #define FEELING_BLUE_PERIPHERAL_H
 
 #include <string>
+#include <memory>
 
 
 namespace bluetooth {
@@ -40,7 +41,7 @@ namespace bluetooth {
          * TODO: I'm invoking the copy constructor to return a new object...is this appropriate
          * to return to the consumer?
          */
-        Service find_service(const std::string &uuid);
+        std::shared_ptr<Service> find_service(const std::string &uuid);
 
 
     private:
