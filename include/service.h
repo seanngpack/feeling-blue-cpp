@@ -23,11 +23,11 @@ namespace bluetooth {
     class Service {
     public:
 
-        Service(const std::string &uuid, std::shared_ptr<wrapper::Wrapper> bt, handler::EventHandler *event_handler);
+        Service(const std::string &uuid, std::shared_ptr<handler::EventHandler> event_handler);
 
         ~Service();
 
-        Characteristic find_characteristic(const std::string &char_uuid);
+        std::shared_ptr<Characteristic> find_characteristic(const std::string &char_uuid);
 
 
     private:

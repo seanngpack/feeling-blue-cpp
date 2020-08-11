@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace bluetooth {
     class Peripheral;
@@ -20,15 +21,15 @@ namespace bluetooth {
 
         /**
          * Find and connect to the peripheral_mac given the service UUIDs advertised by the peripheral_mac.
-         * @param uuids
+         * @param uuids uuids advertised by the peripheral.
          */
-        Peripheral find_peripheral(const std::vector<std::string> &uuids);
+        std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids);
 
         /**
          * Find and connect to a peripheral_mac given the name of it.
          * @param name the name advertised by the peripheral_mac.
          */
-        Peripheral find_peripheral(const std::string &name);
+        std::shared_ptr<Peripheral> find_peripheral(const std::string &name);
 
 
     private:

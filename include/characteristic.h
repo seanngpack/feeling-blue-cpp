@@ -2,6 +2,7 @@
 #define FEELING_BLUE_CHARACTERISTIC_H
 
 #include <string>
+#include <memory>
 
 namespace bluetooth {
 
@@ -22,11 +23,9 @@ namespace bluetooth {
     class Characteristic {
     public:
 
-        // TODO: for characteristic and peripheral, maybe even central--
-        // I can remove the wrapper reference, there doesn't seem to be a need for it lol
         Characteristic(const std::string &uuid,
                        const std::string &service_uuid,
-                       handler::EventHandler *event_handler);
+                       std::shared_ptr<handler::EventHandler> event_handler);
 
         ~Characteristic();
 

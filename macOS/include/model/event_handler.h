@@ -3,7 +3,7 @@
 
 #include <condition_variable>
 #include <future>
-#include <iostream>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
@@ -23,22 +23,22 @@ namespace bluetooth {
 
     namespace handler {
 
-        class EventHandler {
+        class EventHandler : public std::enable_shared_from_this<EventHandler> {
         public:
 
-            EventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth);
+            EventHandler();
 
             void rotate_by(int degs);
 
             void start_bluetooth();
 
-            Service *find_service(const std::string &uuid);
+            std::shared_ptr<Service> find_service(const std::string &uuid);
 
-            Peripheral *find_peripheral(const std::vector<std::string> &uuids);
+            std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids);
 
-            Peripheral *find_peripheral(const std::string &name);
+            std::shared_ptr<Peripheral> find_peripheral(const std::string &name);
 
-            Characteristic *find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
+            std::shared_ptr<Characteristic> find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
 
             void set_proceed(bool connected);
 
@@ -50,7 +50,7 @@ namespace bluetooth {
             bool char_found;
 
         private:
-            std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;
+            std::unique_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;
             bool proceed;
         };
     }
