@@ -1,7 +1,7 @@
 #include "central.h"
 #include "wrapper.h"
 #include "peripheral.h"
-#include "central_event_handler.h"
+#include "event_handler.h"
 #include <string>
 
 namespace bluetooth {
@@ -11,7 +11,7 @@ namespace bluetooth {
     public:
         CentralImpl() :
                 bluetooth_object(std::make_shared<wrapper::Wrapper>()),
-                event_handler(new handler::CentralEventHandler(std::move(bluetooth_object))) {}
+                event_handler(new handler::EventHandler(std::move(bluetooth_object))) {}
 
         ~CentralImpl() {
             delete event_handler;
@@ -34,7 +34,7 @@ namespace bluetooth {
 
     private:
         std::shared_ptr<wrapper::Wrapper> bluetooth_object;
-        handler::CentralEventHandler *event_handler;
+        handler::EventHandler *event_handler;
         Peripheral *peripheral;
     };
 

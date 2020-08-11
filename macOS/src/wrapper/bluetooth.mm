@@ -1,5 +1,5 @@
 #include "peripheral.h"
-#include "central_event_handler.h"
+#include "event_handler.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -50,7 +50,7 @@ namespace bluetooth {
         }
 
         void Wrapper::set_handler(void *central_event_handler) {
-            auto *a = static_cast<handler::CentralEventHandler *>(central_event_handler);
+            auto *a = static_cast<handler::EventHandler *>(central_event_handler);
             [impl->wrapped setHandler:a];
         }
 
@@ -99,7 +99,7 @@ namespace bluetooth {
 }
 
 - (void)rotateTable:(int)degrees {
-    _centralEventHandler->set_proceed(true);
+    _eventHandler->set_proceed(true);
     NSData *bytes = [NSData dataWithBytes:&degrees length:sizeof(degrees)];
     [_peripheral
             writeValue:bytes
@@ -112,8 +112,8 @@ namespace bluetooth {
 }
 
 
-- (void)setHandler:(bluetooth::handler::CentralEventHandler *)centralEventHandler {
-    _centralEventHandler = centralEventHandler;
+- (void)setHandler:(bluetooth::handler::EventHandler *)eventHandler {
+    _eventHandler = eventHandler;
 }
 
 
@@ -150,10 +150,10 @@ namespace bluetooth {
             break;
         case CBManagerStatePoweredOn: {
             state = @"Bluetooth LE is turned on and ready for communication.";
-            std::unique_lock<std::mutex> ul(_centralEventHandler->central_mutex);
-            _centralEventHandler->set_proceed(true);
+            std::unique_lock<std::mutex> ul(_eventHandler->mut);
+            _eventHandler->set_proceed(true);
             ul.unlock();
-            _centralEventHandler->cv.notify_one();
+            _eventHandler->cv.notify_one();
             ul.lock();
             break;
         }
@@ -196,10 +196,10 @@ namespace bluetooth {
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [_centralManager stopScan];
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
-    std::unique_lock<std::mutex> ul(_centralEventHandler->central_mutex);
-    _centralEventHandler->set_proceed(true);
+    std::unique_lock<std::mutex> ul(_eventHandler->mut);
+    _eventHandler->set_proceed(true);
     ul.unlock();
-    _centralEventHandler->cv.notify_one();
+    _eventHandler->cv.notify_one();
     ul.lock();
 //    NSLog(@"Now looking for services...");
 //    [peripheral discoverServices:nil];
@@ -283,10 +283,10 @@ didDisconnectPeripheral:
 - (void)setIsRotating:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-//    std::unique_lock<std::mutex> ul(_centralEventHandler->peripheral_mutex);
-//    _centralEventHandler->set_is_peripheral_found(theInteger == 1);
+//    std::unique_lock<std::mutex> ul(_eventHandler->peripheral_mutex);
+//    _eventHandler->set_is_peripheral_found(theInteger == 1);
 //    ul.unlock();
-//    _centralEventHandler->peripheral_cv.notify_one();
+//    _eventHandler->peripheral_cv.notify_one();
 //    ul.lock();
 }
 

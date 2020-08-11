@@ -1,5 +1,5 @@
-#ifndef FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
-#define FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
+#ifndef FEELING_BLUE_EVENT_HANDLER_H
+#define FEELING_BLUE_EVENT_HANDLER_H
 
 #include <condition_variable>
 #include <future>
@@ -10,27 +10,26 @@
 
 
 namespace bluetooth {
-    class Peripheral;
-}
-
-namespace bluetooth {
     namespace wrapper {
         class Wrapper;
     }
 
+    class Peripheral;
+
+    class Service;
+
     namespace handler {
 
-        // TODO: Reduce number of mutexes and conditional variables to just one.
-        // mux & ready
-
-        class CentralEventHandler {
+        class EventHandler {
         public:
 
-            CentralEventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth);
+            EventHandler(std::shared_ptr<wrapper::Wrapper> bluetooth);
 
             void rotate_by(int degs);
 
             void start_bluetooth();
+
+            Service find_service();
 
             Peripheral *find_peripheral(const std::vector<std::string> &uuids);
 
@@ -38,9 +37,9 @@ namespace bluetooth {
 
             void set_proceed(bool connected);
 
-            ~CentralEventHandler();
+            ~EventHandler();
 
-            std::mutex central_mutex;
+            std::mutex mut;
             std::condition_variable cv;
 
         private:
@@ -50,4 +49,4 @@ namespace bluetooth {
     }
 }
 
-#endif //FEELING_BLUE_CENTRAL_EVENT_HANDLER_H
+#endif //FEELING_BLUE_EVENT_HANDLER_H

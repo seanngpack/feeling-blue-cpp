@@ -5,14 +5,14 @@ namespace bluetooth {
     class Peripheral;
 
     namespace handler {
-        class CentralEventHandler;
+        class EventHandler;
     }
 }
 
 // An Objective-C class that needs to be accessed from C++
 @interface CBluetooth : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
-@property(nonatomic) bluetooth::handler::CentralEventHandler *centralEventHandler;
+@property(nonatomic) bluetooth::handler::EventHandler *eventHandler;
 @property(strong, nonatomic) CBCentralManager *centralManager;
 @property(strong, nonatomic) CBPeripheral *peripheral;
 @property(nonatomic, strong) NSString *peripheralName;
@@ -36,7 +36,7 @@ namespace bluetooth {
 - (void)dealloc;
 
 
-- (void)setHandler:(bluetooth::handler::CentralEventHandler *)centralEventHandler;
+- (void)setHandler:(bluetooth::handler::EventHandler *)eventHandler;
 
 /**
  * Create a new thread. On this thread, allocates a new instance of CBCentralManager to run on that queue.

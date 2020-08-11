@@ -16,12 +16,25 @@ namespace bluetooth {
         class Wrapper;
     }
 
+    namespace handler {
+        class EventHandler;
+    }
+
+    class Service;
+
     class Peripheral {
     public:
 
-        Peripheral(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt);
+        Peripheral(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt, handler::EventHandler *event_handler);
 
         ~Peripheral();
+
+        /**
+         * Find service given the uuid.
+         * @param uuid service's uuid.
+         * @return the service, or nullptr if the service cannot be found.
+         */
+        Service find_service(const std::string &uuid);
 
 
     private:

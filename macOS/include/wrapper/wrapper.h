@@ -8,6 +8,7 @@
 namespace bluetooth {
 
     class Peripheral;
+    class Service;
 
     namespace wrapper {
         struct WrapperImpl;
@@ -33,6 +34,13 @@ namespace bluetooth {
              * See Central method.
              */
             void find_peripheral(std::string name);
+
+            /**
+             * Find service given the uuid.
+             * @param uuid uuid of the service
+             * @return a pointer
+             */
+            void *find_service(std::string uuid);
 
             /**
              * Return the name of the connected peripheral.
