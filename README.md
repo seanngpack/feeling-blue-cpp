@@ -1,16 +1,22 @@
 # ![feeling-blue-logo](doc/img/feeling_blue_cpp.png)
-C++ library for BluetoothLE usage on MacOS or Windows
+C++ library for BluetoothLE usage on MacOS or Windows. Haven't seen any other bluetooth libraries for MacOS
+so this might be the only one out there!
 
 ## Table of Contents
 
 - [Features](#features)
 - [Installation](#installation)
-- [Time to start using it](#Timeto start using it)
+- [Usage](#Time-to-start-using-it)
 
 
 ---
 
 ## Features
+
+* Blocking API, calls to find services, characteristics, etc block the calling thread until the process is complete.
+Blocking methods are documented.
+* Non-intrusive namespace. The API is encapsulated in this bluetooth so your global namespace does not get polluted.
+* Simple and straightfoward API.
 
 ## Installation
 
