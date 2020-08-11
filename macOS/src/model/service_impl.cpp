@@ -7,9 +7,9 @@ namespace bluetooth {
 
     struct Service::ServiceImpl {
     public:
-        ServiceImpl(const std::string &uuid, std::shared_ptr<wrapper::Wrapper> bt, handler::EventHandler *event_handler)
+        ServiceImpl(const std::string &uuid, handler::EventHandler *event_handler)
                 :
-                uuid(uuid), bt(std::move(bt)), event_handler(event_handler) {}
+                uuid(uuid), event_handler(event_handler) {}
 
         Characteristic find_characteristic(const std::string &char_uuid) {
             Characteristic *c = event_handler->find_characteristic(char_uuid, uuid);
@@ -24,7 +24,6 @@ namespace bluetooth {
         }
 
     private:
-        std::shared_ptr<wrapper::Wrapper> bt;
         std::string uuid;
         std::vector<Characteristic *> characteristics;
         handler::EventHandler *event_handler;
@@ -33,9 +32,8 @@ namespace bluetooth {
     // Wrapper implementation //
 
     Service::Service(const std::string &uuid,
-                     std::shared_ptr<wrapper::Wrapper> bt,
                      handler::EventHandler *event_handler) :
-            sImpl(new ServiceImpl(uuid, std::move(bt), event_handler)) {}
+            sImpl(new ServiceImpl(uuid, event_handler)) {}
 
     Service::~Service() {
         delete sImpl;

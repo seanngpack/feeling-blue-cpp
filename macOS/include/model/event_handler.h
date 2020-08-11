@@ -50,7 +50,7 @@ namespace bluetooth {
             bool char_found;
 
         private:
-            std::shared_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;
+            std::unique_ptr<bluetooth::wrapper::Wrapper> bluetooth_object;
             bool proceed;
         };
     }

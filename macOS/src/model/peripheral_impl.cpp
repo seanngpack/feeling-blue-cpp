@@ -10,9 +10,8 @@ namespace bluetooth {
     struct Peripheral::PeripheralImpl {
     public:
         PeripheralImpl(const std::string &name,
-                       std::shared_ptr<wrapper::Wrapper> bt,
                        handler::EventHandler *event_handler) :
-                name(name), bt(std::move(bt)), event_handler(event_handler) {}
+                name(name), event_handler(event_handler) {}
 
         ~PeripheralImpl() {
             for (int i = 0; i < services.size(); i++) {
@@ -27,16 +26,14 @@ namespace bluetooth {
         }
 
     private:
-        std::shared_ptr<wrapper::Wrapper> bt;
         std::string name;
         std::vector<Service *> services;
         handler::EventHandler *event_handler;
     };
 
     Peripheral::Peripheral(const std::string &name,
-                           std::shared_ptr<wrapper::Wrapper> bt,
                            handler::EventHandler *event_handler) :
-            pImpl(new PeripheralImpl(name, std::move(bt), event_handler)) {}
+            pImpl(new PeripheralImpl(name, event_handler)) {}
 
     Peripheral::~Peripheral() {
         delete pImpl;

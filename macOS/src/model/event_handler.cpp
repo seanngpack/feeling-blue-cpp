@@ -7,7 +7,7 @@
 #include <utility>
 
 bluetooth::handler::EventHandler::EventHandler() :
-        bluetooth_object(std::make_shared<wrapper::Wrapper>()),
+        bluetooth_object(std::make_unique<wrapper::Wrapper>()),
         proceed(false) {
     bluetooth_object->set_handler(this);
 }
@@ -26,7 +26,7 @@ bluetooth::handler::EventHandler::find_peripheral(const std::vector<std::string>
     bluetooth_object->find_peripheral(uuids);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
-    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), bluetooth_object, this);
+    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), this);
 }
 
 std::shared_ptr<bluetooth::Peripheral> bluetooth::handler::EventHandler::find_peripheral(const std::string &name) {
@@ -34,7 +34,7 @@ std::shared_ptr<bluetooth::Peripheral> bluetooth::handler::EventHandler::find_pe
     bluetooth_object->find_peripheral(name);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
     proceed = false;
-    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), bluetooth_object, this);;
+    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), this);;
 }
 
 bluetooth::Service *bluetooth::handler::EventHandler::find_service(const std::string &uuid) {
@@ -46,7 +46,7 @@ bluetooth::Service *bluetooth::handler::EventHandler::find_service(const std::st
     Service *p;
 
     if (service_found) {
-        p = new bluetooth::Service(uuid, bluetooth_object, this);
+        p = new bluetooth::Service(uuid, this);
     } else {
         p = nullptr;
     }
