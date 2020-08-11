@@ -9,10 +9,12 @@ namespace bluetooth {
     }
 }
 
-// An Objective-C class that needs to be accessed from C++
+/**
+ * Represents a class that manages corebluetooth functionality.
+ */
 @interface CBluetooth : NSObject <CBCentralManagerDelegate, CBPeripheralDelegate>
 
-@property(nonatomic) bluetooth::handler::EventHandler *eventHandler;
+@property(nonatomic) std::shared_ptr<bluetooth::handler::EventHandler> eventHandler;
 @property(strong, nonatomic) CBCentralManager *centralManager;
 @property(strong, nonatomic) CBPeripheral *peripheral;
 @property(nonatomic, strong) NSString *peripheralName;
@@ -38,7 +40,7 @@ namespace bluetooth {
 - (void)dealloc;
 
 
-- (void)setHandler:(bluetooth::handler::EventHandler *)eventHandler;
+- (void)setHandler:(std::shared_ptr<bluetooth::handler::EventHandler>)eventHandler;
 
 /**
  * Create a new thread. On this thread, allocates a new instance of CBCentralManager to run on that queue.

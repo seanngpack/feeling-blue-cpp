@@ -71,9 +71,8 @@ namespace bluetooth {
             return temp;
         }
 
-        void Wrapper::set_handler(void *central_event_handler) {
-            auto *a = static_cast<handler::EventHandler *>(central_event_handler);
-            [impl->wrapped setHandler:a];
+        void Wrapper::set_handler(std::shared_ptr<handler::EventHandler> event_handler) {
+            [impl->wrapped setHandler:event_handler];
         }
 
     }
@@ -144,7 +143,7 @@ namespace bluetooth {
 }
 
 
-- (void)setHandler:(bluetooth::handler::EventHandler *)eventHandler {
+- (void)setHandler:(std::shared_ptr<bluetooth::handler::EventHandler>)eventHandler {
     _eventHandler = eventHandler;
 }
 

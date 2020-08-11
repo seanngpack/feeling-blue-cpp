@@ -9,10 +9,10 @@
 bluetooth::handler::EventHandler::EventHandler() :
         bluetooth_object(std::make_unique<wrapper::Wrapper>()),
         proceed(false) {
-    bluetooth_object->set_handler(this);
 }
 
 void bluetooth::handler::EventHandler::start_bluetooth() {
+    bluetooth_object->set_handler(shared_from_this());
     std::unique_lock<std::mutex> ul(mut);
     bluetooth_object->start_bluetooth();
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true

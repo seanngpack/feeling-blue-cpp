@@ -10,8 +10,8 @@ namespace bluetooth {
     struct Central::CentralImpl {
     public:
         CentralImpl() :
-                bluetooth_object(std::make_shared<wrapper::Wrapper>()),
-                event_handler(std::make_shared<handler::EventHandler>()) {
+                event_handler(std::make_shared<handler::EventHandler>()),
+                bluetooth_object(std::make_shared<wrapper::Wrapper>()) {
             // TODO: same with other constructors, check for nullptr
         }
 
@@ -34,8 +34,8 @@ namespace bluetooth {
         }
 
     private:
-        std::shared_ptr<wrapper::Wrapper> bluetooth_object;
         std::shared_ptr<handler::EventHandler> event_handler;
+        std::shared_ptr<wrapper::Wrapper> bluetooth_object;
         std::shared_ptr<Peripheral> peripheral;
     };
 

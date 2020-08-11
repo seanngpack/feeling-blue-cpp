@@ -55,6 +55,8 @@ to its service and characteristics.
 ```
 main.cpp
 
+#include "feeling-blue/feeling-blue.h"
+
 int main() {
     std::unique_ptr<bluetooth::Central> central = std::make_unique<bluetooth::Central>();
     central->start_bluetooth();
