@@ -49,22 +49,22 @@ target_link_libraries(testLib PUBLIC feeling-blue)
 
 
 ## Time to start using it!
-This library is simple and easy to use. Below is an example of finding your device and connecting
+Below is an example of finding your device and connecting
 to its service and characteristics.
 
 ```
 main.cpp
 
 int main() {
-    auto *central = new bluetooth::Central();
+    std::unique_ptr<bluetooth::Central> central = std::make_unique<bluetooth::Central>();
     central->start_bluetooth();
-    bluetooth::Peripheral peripheral = central->find_peripheral("SwagScanner");
-    bluetooth::Service service = peripheral.find_service("5ffba521-2363-41da-92f5-46adc56b2d37");
-    bluetooth::Characteristic rotate_char = service.find_characteristic("5ffba522-2363-41da-92f5-46adc56b2d37");
-    bluetooth::Characteristic position_char = service.find_characteristic("5ffba523-2363-41da-92f5-46adc56b2d37");
+    std::shared_ptr<bluetooth::Peripheral> peripheral = central->find_peripheral("SwagScanner");
+    std::shared_ptr<bluetooth::Service> service = peripheral->find_service("5ffba521-2363-41da-92f5-46adc56b2d37");
+    std::shared_ptr<bluetooth::Characteristic> rotate_char = service->find_characteristic("5ffba522-2363-41da-92f5-46adc56b2d37");
+    std::shared_ptr<bluetooth::Characteristic> position_char = service->find_characteristic("5ffba523-2363-41da-92f5-46adc56b2d37");
 
     // some mechanism to keep your main thread alive
-    delete central;
+  
     return 0;
 }
 ```
