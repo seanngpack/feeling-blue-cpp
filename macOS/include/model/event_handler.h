@@ -32,7 +32,7 @@ namespace bluetooth {
 
             void rotate_by(int degs);
 
-            void start_bluetooth();
+//            void start_bluetooth();
 
             std::shared_ptr<Service> find_service(const std::string &uuid);
 

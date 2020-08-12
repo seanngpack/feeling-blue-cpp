@@ -11,7 +11,7 @@ namespace bluetooth {
     }
 }
 
-typedef void (^findServiceCompletionBlock) (void);
+typedef void (^semaphoreCompletionBlock) (void);
 
 /**
  * Represents a class that manages corebluetooth functionality.
@@ -58,13 +58,13 @@ typedef void (^findServiceCompletionBlock) (void);
  * Scan for peripheral that matches given name, store it, and connect to it.
  * @param name name of peripheral.
  */
-- (void)findAndConnectPeripheralByName:(NSString *)name;
+- (void)findAndConnectPeripheralByName:(NSString *)name completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
  * Scan for peripheral that advertises given uuids, store it, then connect to it.
  * @param uuids array of UUIDs
  */
-- (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids;
+- (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
  * Use the peripheral to scan for a service given its uuid.
@@ -72,7 +72,7 @@ typedef void (^findServiceCompletionBlock) (void);
  * @param uuid uuid of the service.
  * @param completionBlock block contains signal to semaphore to unblock calling thread.
  */
-- (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(findServiceCompletionBlock)completionBlock;
+- (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
  * Find and connect to characteristics given its uuid and the service it belongs to.
@@ -93,6 +93,11 @@ typedef void (^findServiceCompletionBlock) (void);
  */
 - (CBPeripheral *)getPeripheral;
 
+
+/**
+ * Get the dispatch semaphore.
+ * @return the semaphore.
+ */
 - (dispatch_semaphore_t)getSemaphore;
 
 /**

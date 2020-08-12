@@ -11,14 +11,14 @@ bluetooth::handler::EventHandler::EventHandler() :
         proceed(false) {
 }
 
-void bluetooth::handler::EventHandler::start_bluetooth() {
-    bluetooth_object->set_handler(shared_from_this());
-//    std::unique_lock<std::mutex> ul(mut);
-    bluetooth_object->start_bluetooth();
-//    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
-    std::cout << "Finally powered on, unblocking thread" << std::endl;
-//    proceed = false;
-}
+//void bluetooth::handler::EventHandler::start_bluetooth() {
+//    bluetooth_object->set_handler(shared_from_this());
+////    std::unique_lock<std::mutex> ul(mut);
+//    bluetooth_object->start_bluetooth();
+////    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+//    std::cout << "Finally powered on, unblocking thread" << std::endl;
+////    proceed = false;
+//}
 
 std::shared_ptr<bluetooth::Peripheral>
 bluetooth::handler::EventHandler::find_peripheral(const std::vector<std::string> &uuids) {

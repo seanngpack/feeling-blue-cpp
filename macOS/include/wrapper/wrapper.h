@@ -32,14 +32,16 @@ namespace bluetooth {
             void start_bluetooth();
 
             /**
-             * See Central method.
+             * Find the peripheral using the advertised uuids.
+             * @return true if the peripheral was found, false otherwise.
              */
-            void find_peripheral(std::vector<std::string> uuids);
+            bool find_peripheral(std::vector<std::string> uuids);
 
             /**
-             * See Central method.
+             * Find the peripheral using the name of the device.
+             * @return true if the peripheral was found, false otherwise.
              */
-            void find_peripheral(std::string name);
+            bool find_peripheral(std::string name);
 
             /**
              * Find service given the service_uuid.

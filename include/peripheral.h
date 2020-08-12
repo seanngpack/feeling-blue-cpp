@@ -17,10 +17,6 @@ namespace bluetooth {
         class Wrapper;
     }
 
-    namespace handler {
-        class EventHandler;
-    }
-
     class Service;
 
     /**
@@ -29,7 +25,7 @@ namespace bluetooth {
     class Peripheral {
     public:
 
-        Peripheral(const std::string &name, std::shared_ptr<handler::EventHandler> event_handler);
+        Peripheral(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt);
 
         ~Peripheral();
 

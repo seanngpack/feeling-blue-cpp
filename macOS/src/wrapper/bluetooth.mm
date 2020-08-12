@@ -38,19 +38,39 @@ namespace bluetooth {
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
         }
 
-        void Wrapper::find_peripheral(std::vector<std::string> uuids) {
+        bool Wrapper::find_peripheral(std::vector<std::string> uuids) {
             NSMutableArray *arr = [[NSMutableArray alloc] init];
             for (int i = 0; i < uuids.size(); i++) {
                 NSString *uuid = [NSString stringWithUTF8String:uuids[i].c_str()];
                 [arr addObject:[CBUUID UUIDWithString:uuid]];
             }
-            [impl->wrapped findAndConnectPeripheralByUUID:(arr)];
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+
+            [impl->wrapped findAndConnectPeripheralByUUID:(arr) completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+            if ([impl->wrapped getPeripheral] == nil) {
+                [arr release];
+                return false;
+            }
             [arr release];
+            return true;
         }
 
-        void Wrapper::find_peripheral(std::string name) {
+        bool Wrapper::find_peripheral(std::string name) {
             NSString *n = [NSString stringWithUTF8String:name.c_str()];
-            [impl->wrapped findAndConnectPeripheralByName:(n)];
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+
+            [impl->wrapped findAndConnectPeripheralByName:(n) completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+            if ([impl->wrapped getPeripheral] == nil) {
+                return false;
+            }
+            return true;
         }
 
         bool Wrapper::find_service(std::string service_uuid) {
@@ -59,7 +79,7 @@ namespace bluetooth {
 
             dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
             std::cout << "1" << std::endl;
-            [impl->wrapped findAndConnectServiceByUUID:(c) completion:^{
+            [impl->wrapped findAndConnectServiceByUUID:c completion:^{
                 dispatch_semaphore_signal(sem);
             }];
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
@@ -131,21 +151,26 @@ namespace bluetooth {
     };
 }
 
-- (void)findAndConnectPeripheralByName:(NSString *)name {
+- (void)findAndConnectPeripheralByName:(NSString *)name completion:(semaphoreCompletionBlock)completionBlock {
     _nameSearch = true;
     _peripheralName = name;
     [_centralManager scanForPeripheralsWithServices:nil
                                             options:nil];
+
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    completionBlock();
 }
 
-- (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids {
+- (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids completion:(semaphoreCompletionBlock)completionBlock {
     _nameSearch = false;
     [_centralManager scanForPeripheralsWithServices:uuids
                                             options:nil];
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    completionBlock();
 }
 
 
-- (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(findServiceCompletionBlock)completionBlock {
+- (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(semaphoreCompletionBlock)completionBlock {
     std::cout << "2" << std::endl;
 
     [_peripheral discoverServices:@[uuid]];
@@ -300,13 +325,14 @@ namespace bluetooth {
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [_centralManager stopScan];
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
-    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-    _eventHandler->set_proceed(true);
-    ul.unlock();
-    _eventHandler->cv.notify_one();
-    ul.lock();
-//    NSLog(@"Now looking for services...");
-//    [peripheral discoverServices:nil];
+//    std::unique_lock<std::mutex> ul(_eventHandler->mut);
+//    _eventHandler->set_proceed(true);
+//    ul.unlock();
+//    _eventHandler->cv.notify_one();
+//    ul.lock();
+////    NSLog(@"Now looking for services...");
+
+    dispatch_semaphore_signal(_semaphore);
 }
 
 // called if didDiscoverPeripheral fails to connect
