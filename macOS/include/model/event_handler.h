@@ -34,14 +34,14 @@ namespace bluetooth {
 
 //            void start_bluetooth();
 
-            std::shared_ptr<Service> find_service(const std::string &uuid);
+//            std::shared_ptr<Service> find_service(const std::string &uuid);
 
-            std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids);
+//            std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids);
 
-            std::shared_ptr<Peripheral> find_peripheral(const std::string &name);
+//            std::shared_ptr<Peripheral> find_peripheral(const std::string &name);
 
-            std::shared_ptr<Characteristic>
-            find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
+//            std::shared_ptr<Characteristic>
+//            find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
 
             uint8_t *read(const std::string &service_uuid, const std::string &char_uuid);
 

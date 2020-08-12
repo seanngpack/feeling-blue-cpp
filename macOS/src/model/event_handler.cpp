@@ -20,61 +20,61 @@ bluetooth::handler::EventHandler::EventHandler() :
 ////    proceed = false;
 //}
 
-std::shared_ptr<bluetooth::Peripheral>
-bluetooth::handler::EventHandler::find_peripheral(const std::vector<std::string> &uuids) {
-    std::unique_lock<std::mutex> ul(mut);
-    bluetooth_object->find_peripheral(uuids);
-    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
-    proceed = false;
-    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), shared_from_this());
-}
-
-std::shared_ptr<bluetooth::Peripheral> bluetooth::handler::EventHandler::find_peripheral(const std::string &name) {
-    std::unique_lock<std::mutex> ul(mut);
-    bluetooth_object->find_peripheral(name);
-    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
-    proceed = false;
-    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), shared_from_this());
-}
-
-std::shared_ptr<bluetooth::Service> bluetooth::handler::EventHandler::find_service(const std::string &uuid) {
+//std::shared_ptr<bluetooth::Peripheral>
+//bluetooth::handler::EventHandler::find_peripheral(const std::vector<std::string> &uuids) {
 //    std::unique_lock<std::mutex> ul(mut);
-    bool found = bluetooth_object->find_service(uuid);
+//    bluetooth_object->find_peripheral(uuids);
 //    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
 //    proceed = false;
+//    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), shared_from_this());
+//}
+//
+//std::shared_ptr<bluetooth::Peripheral> bluetooth::handler::EventHandler::find_peripheral(const std::string &name) {
+//    std::unique_lock<std::mutex> ul(mut);
+//    bluetooth_object->find_peripheral(name);
+//    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+//    proceed = false;
+//    return std::make_shared<bluetooth::Peripheral>(bluetooth_object->get_peripheral_name(), shared_from_this());
+//}
 
-    std::shared_ptr<bluetooth::Service> s;
+//std::shared_ptr<bluetooth::Service> bluetooth::handler::EventHandler::find_service(const std::string &uuid) {
+////    std::unique_lock<std::mutex> ul(mut);
+//    bool found = bluetooth_object->find_service(uuid);
+////    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+////    proceed = false;
+//
+//    std::shared_ptr<bluetooth::Service> s;
+//
+//    if (found) {
+//        s = std::make_shared<bluetooth::Service>(uuid, shared_from_this());
+//    } else {
+//        s = nullptr;
+//    }
+//
+//    return s;
+//}
 
-    if (found) {
-        s = std::make_shared<bluetooth::Service>(uuid, shared_from_this());
-    } else {
-        s = nullptr;
-    }
-
-    return s;
-}
-
-std::shared_ptr<bluetooth::Characteristic>
-bluetooth::handler::EventHandler::find_characteristic(const std::string &char_uuid,
-                                                      const std::string &service_uuid) {
-    std::unique_lock<std::mutex> ul(mut);
-    bluetooth_object->find_characteristic(char_uuid, service_uuid);
-    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
-    proceed = false;
-
-    std::shared_ptr<Characteristic> c;
-
-    if (char_found) {
-        c = std::make_shared<Characteristic>(char_uuid, service_uuid, shared_from_this());
-    } else {
-        c = nullptr;
-    }
-
-    // reset this flag for future use.
-    char_found = false;
-
-    return c;
-}
+//std::shared_ptr<bluetooth::Characteristic>
+//bluetooth::handler::EventHandler::find_characteristic(const std::string &char_uuid,
+//                                                      const std::string &service_uuid) {
+//    std::unique_lock<std::mutex> ul(mut);
+//    bluetooth_object->find_characteristic(char_uuid, service_uuid);
+//    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+//    proceed = false;
+//
+//    std::shared_ptr<Characteristic> c;
+//
+//    if (char_found) {
+//        c = std::make_shared<Characteristic>(char_uuid, service_uuid, shared_from_this());
+//    } else {
+//        c = nullptr;
+//    }
+//
+//    // reset this flag for future use.
+//    char_found = false;
+//
+//    return c;
+//}
 
 void bluetooth::handler::EventHandler::rotate_by(int degs) {
     using namespace std::literals::chrono_literals;

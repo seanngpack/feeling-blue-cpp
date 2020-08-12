@@ -17,9 +17,14 @@ namespace bluetooth {
         }
 
         std::shared_ptr<Characteristic> find_characteristic(const std::string &uuid) {
-            std::shared_ptr<Characteristic> c = bt->find_characteristic(uuid, service_uuid);
-            characteristics.push_back(c);
-            return c;
+            if (bt->find_characteristic(uuid, service_uuid)) {
+                std::shared_ptr<bluetooth::Characteristic> c = std::make_shared<bluetooth::Characteristic>(uuid,
+                                                                                                           service_uuid,
+                                                                                                           bt);
+                characteristics.push_back(c);
+                return c;
+            }
+            return nullptr;
         }
 
         std::shared_ptr<Characteristic> get_characteristic(const std::string &uuid) {

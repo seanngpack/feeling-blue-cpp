@@ -11,7 +11,7 @@ namespace bluetooth {
     }
 }
 
-typedef void (^semaphoreCompletionBlock) (void);
+typedef void (^semaphoreCompletionBlock)(void);
 
 /**
  * Represents a class that manages corebluetooth functionality.
@@ -27,9 +27,8 @@ typedef void (^semaphoreCompletionBlock) (void);
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
 @property(nonatomic, strong) dispatch_semaphore_t semaphore;
 @property(nonatomic, assign) BOOL nameSearch;
+@property(nonatomic, strong) CBUUID *currentServiceSearchUUID;
 @property(nonatomic, strong) CBUUID *currentCharSearchUUID;
-
-
 
 
 #define SWAG_SCANNER_NAME @"SwagScanner"
@@ -79,7 +78,7 @@ typedef void (^semaphoreCompletionBlock) (void);
  * @param uuid uuid of the characteristic.
  * @param service service that the characteristic belongs to.
  */
-- (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID;
+- (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID completion:(semaphoreCompletionBlock)completionBlock;;
 
 /**
  * Get the peripheral name. Call this after findAndConnectPeripheral.
@@ -99,6 +98,14 @@ typedef void (^semaphoreCompletionBlock) (void);
  * @return the semaphore.
  */
 - (dispatch_semaphore_t)getSemaphore;
+
+/**
+ * After discovering and connecting characteristics, you may want to fetch one. Use this helper method to extract
+ * a characteristics from the given service.
+ * @param service uuid of the service containing the characteristic.
+ * @return the characteristic. Or nil if not found.
+ */
+- (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID;
 
 /**
  * Read value from characteristic.

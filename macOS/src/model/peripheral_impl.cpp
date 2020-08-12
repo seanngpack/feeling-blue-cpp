@@ -17,10 +17,13 @@ namespace bluetooth {
 
         }
 
-        std::shared_ptr<Service> find_service(const std::string &uuid) {
-            std::shared_ptr<Service> s = bt->find_service(uuid);
-            services.push_back(s);
-            return s;
+        std::shared_ptr<Service> find_service(const std::string &service_uuid) {
+            if (bt->find_service(service_uuid)) {
+                std::shared_ptr<bluetooth::Service> s = std::make_shared<bluetooth::Service>(service_uuid, bt);
+                services.push_back(s);
+                return s;
+            }
+            return nullptr;
         }
 
         std::shared_ptr<Service> get_service(const std::string &uuid) {
@@ -46,11 +49,11 @@ namespace bluetooth {
         delete pImpl;
     }
 
-    std::shared_ptr<Service> Peripheral::find_service(const std::string &uuid) {
-        return pImpl->find_service(uuid);
+    std::shared_ptr<Service> Peripheral::find_service(const std::string &service_uuid) {
+        return pImpl->find_service(service_uuid);
     }
 
-    std::shared_ptr<Service> Peripheral::get_service(const std::string &uuid) {
-        return pImpl->get_service(uuid);
+    std::shared_ptr<Service> Peripheral::get_service(const std::string &service_uuid) {
+        return pImpl->get_service(service_uuid);
     }
 }

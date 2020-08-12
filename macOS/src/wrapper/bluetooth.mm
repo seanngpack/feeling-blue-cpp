@@ -74,12 +74,14 @@ namespace bluetooth {
         }
 
         bool Wrapper::find_service(std::string service_uuid) {
-            NSString *s = [NSString stringWithUTF8String:service_uuid.c_str()];
-            CBUUID *c = [CBUUID UUIDWithString:s];
+            NSString *service_string = [NSString stringWithUTF8String:service_uuid.c_str()];
+            CBUUID *service_cbuuid = [CBUUID UUIDWithString:service_string];
 
             dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            std::cout << sem << std::endl;
+//            dispatch_semaphore_t temp = dispatch_semaphore_create(0);
             std::cout << "1" << std::endl;
-            [impl->wrapped findAndConnectServiceByUUID:c completion:^{
+            [impl->wrapped findAndConnectServiceByUUID:service_cbuuid completion:^{
                 dispatch_semaphore_signal(sem);
             }];
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
@@ -88,23 +90,33 @@ namespace bluetooth {
             CBPeripheral *peripheral = [impl->wrapped getPeripheral];
 
             for (CBService *service in peripheral.services) {
-                if (([service.UUID isEqual:c])) {
+                NSLog(@"service.uuid: %@", service);
+                NSLog(@"cbuuid: %@", service);
+                if (([service.UUID isEqual:service_cbuuid])) {
                     NSLog(@"**** SUCCESSFULLY CONNECTED TO SERVICE: %@", service);
                     return true;
                 }
             }
 
-            NSLog(@"Warning, service: %@ not found!", s);
+            NSLog(@"Warning, service: %@ not found!", service_string);
             return false;
         }
 
 
-        void Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
+        bool Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
             CBUUID *CBService = [CBUUID UUIDWithString:service_s];
-            [impl->wrapped findAndConnectCharacteristicByUUID:CBChar belongingToService:CBService];
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            std::cout << "we still food" << std::endl;
+            [impl->wrapped findAndConnectCharacteristicByUUID:CBChar belongingToService:CBService completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+            if ([impl->wrapped getCharFromService:CBChar belongingToService:CBService] == nil) {
+                return false;
+            }
+            return true;
         }
 
         std::string Wrapper::get_peripheral_name() {
@@ -169,7 +181,6 @@ namespace bluetooth {
     completionBlock();
 }
 
-
 - (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(semaphoreCompletionBlock)completionBlock {
     std::cout << "2" << std::endl;
 
@@ -181,11 +192,16 @@ namespace bluetooth {
     completionBlock();
 }
 
-- (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
+- (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID
+                        belongingToService:(CBUUID *)serviceUUID
+                                completion:(semaphoreCompletionBlock)completionBlock; {
     _currentCharSearchUUID = charUUID;
     for (CBService *service in _peripheral.services) {
         if (([service.UUID isEqual:serviceUUID])) {
             [_peripheral discoverCharacteristics:@[charUUID] forService:service];
+
+            dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+            completionBlock();
         }
     }
 }
@@ -213,12 +229,25 @@ namespace bluetooth {
     return _semaphore;
 }
 
+- (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
+    for (CBService *service in _peripheral.services) {
+        if (([service.UUID isEqual:serviceUUID])) {
+            for (CBCharacteristic *characteristic in service.characteristics) {
+                if (([characteristic.UUID isEqual:charUUID])) {
+                    return characteristic;
+                }
+            }
+        }
+    }
+    return nil;
+}
+
 - (uint8_t *)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID; {
     CBCharacteristic *c = nil;
     for (CBService *service in _peripheral.services) {
         if (([service.UUID isEqual:serviceUUID])) {
             for (CBCharacteristic *characteristic in service.characteristics) {
-                if (([service.UUID isEqual:charUUID])) {
+                if (([characteristic.UUID isEqual:charUUID])) {
                     c = characteristic;
                 }
             }
@@ -246,6 +275,7 @@ namespace bluetooth {
     if (self = [super init]) {
         _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
         _semaphore = dispatch_semaphore_create(0);
+        std::cout << _semaphore << std::endl;
     }
     return self;
 }
@@ -325,6 +355,7 @@ namespace bluetooth {
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [_centralManager stopScan];
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
+    std::cout << "didConnectPeripheral" <<std::endl;
 //    std::unique_lock<std::mutex> ul(_eventHandler->mut);
 //    _eventHandler->set_proceed(true);
 //    ul.unlock();
@@ -372,28 +403,30 @@ namespace bluetooth {
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
-    bool found = false;
-    for (CBCharacteristic *characteristic in service.characteristics) {
-//        NSLog(@"we have this charactersitic in service: %@", characteristic);
-        if ([characteristic.UUID isEqual:_currentCharSearchUUID]) {
-            NSLog(@"**** SUCCESSFULLY CONNECTED TO CHARACTERISTIC: %@", characteristic);
-            found = true;
-        }
-    }
-    if (!found) {
-        NSLog(@"WARNING, char: %@ not found!", _currentCharSearchUUID);
-    }
+//    bool found = false;
+//    for (CBCharacteristic *characteristic in service.characteristics) {
+////        NSLog(@"we have this charactersitic in service: %@", characteristic);
+//        if ([characteristic.UUID isEqual:_currentCharSearchUUID]) {
+//            NSLog(@"**** SUCCESSFULLY CONNECTED TO CHARACTERISTIC: %@", characteristic);
+//            found = true;
+//        }
+//    }
+//    if (!found) {
+//        NSLog(@"WARNING, char: %@ not found!", _currentCharSearchUUID);
+//    }
+
+    dispatch_semaphore_signal(_semaphore);
 
     // don't forget to reset
-    _currentCharSearchUUID = nil;
+//    _currentCharSearchUUID = nil;
+//
+//    _eventHandler->char_found = found;
 
-    _eventHandler->char_found = found;
-
-    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-    _eventHandler->set_proceed(true);
-    ul.unlock();
-    _eventHandler->cv.notify_one();
-    ul.lock();
+//    std::unique_lock<std::mutex> ul(_eventHandler->mut);
+//    _eventHandler->set_proceed(true);
+//    ul.unlock();
+//    _eventHandler->cv.notify_one();
+//    ul.lock();
 
 //        uint8_t enableValue = 0;
 //        NSData *enableBytes = [NSData dataWithBytes:&enableValue length:sizeof(uint8_t)];
