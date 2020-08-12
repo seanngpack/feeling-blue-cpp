@@ -38,21 +38,18 @@ std::shared_ptr<bluetooth::Peripheral> bluetooth::handler::EventHandler::find_pe
 }
 
 std::shared_ptr<bluetooth::Service> bluetooth::handler::EventHandler::find_service(const std::string &uuid) {
-    std::unique_lock<std::mutex> ul(mut);
-    bluetooth_object->find_service(uuid);
-    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
-    proceed = false;
+//    std::unique_lock<std::mutex> ul(mut);
+    bool found = bluetooth_object->find_service(uuid);
+//    cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
+//    proceed = false;
 
     std::shared_ptr<bluetooth::Service> s;
 
-    if (service_found) {
+    if (found) {
         s = std::make_shared<bluetooth::Service>(uuid, shared_from_this());
     } else {
         s = nullptr;
     }
-
-    // reset this flag for future use.
-    service_found = false;
 
     return s;
 }

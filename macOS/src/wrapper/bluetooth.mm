@@ -50,11 +50,31 @@ namespace bluetooth {
             [impl->wrapped findAndConnectPeripheralByName:(n)];
         }
 
-        void Wrapper::find_service(std::string uuid) {
-            NSString *s = [NSString stringWithUTF8String:uuid.c_str()];
+        bool Wrapper::find_service(std::string service_uuid) {
+            NSString *s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *c = [CBUUID UUIDWithString:s];
-            [impl->wrapped findAndConnectServiceByUUID:(c)];
+
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            std::cout << "1" << std::endl;
+            [impl->wrapped findAndConnectServiceByUUID:(c) completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+            std::cout << "5" << std::endl;
+            CBPeripheral *peripheral = [impl->wrapped getPeripheral];
+
+            for (CBService *service in peripheral.services) {
+                if (([service.UUID isEqual:c])) {
+                    NSLog(@"**** SUCCESSFULLY CONNECTED TO SERVICE: %@", service);
+                    return true;
+                }
+            }
+
+            NSLog(@"Warning, service: %@ not found!", s);
+            return false;
         }
+
 
         void Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
@@ -97,6 +117,7 @@ namespace bluetooth {
 
 - (void)startBluetooth {
     _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
+    _semaphore = dispatch_semaphore_create(0);
 
     @autoreleasepool {
         dispatch_async(_centralQueue, ^{
@@ -122,9 +143,16 @@ namespace bluetooth {
                                             options:nil];
 }
 
-- (void)findAndConnectServiceByUUID:(CBUUID *)uuid {
-    _currentServiceSearchUUID = uuid;
+
+- (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(findServiceCompletionBlock)completionBlock {
+    std::cout << "2" << std::endl;
+
     [_peripheral discoverServices:@[uuid]];
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+
+    std::cout << "4" << std::endl;
+    std::cout << "this should happen after the service has been discovered" << std::endl;
+    completionBlock();
 }
 
 - (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
@@ -149,6 +177,14 @@ namespace bluetooth {
 
 - (NSString *)getPeripheralName {
     return _peripheralName;
+}
+
+- (CBPeripheral *)getPeripheral {
+    return _peripheral;
+}
+
+- (dispatch_semaphore_t)getSemaphore {
+    return _semaphore;
 }
 
 - (uint8_t *)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID; {
@@ -282,27 +318,24 @@ namespace bluetooth {
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
-    bool found = false;
-    for (CBService *service in peripheral.services) {
-        if (([service.UUID isEqual:_currentServiceSearchUUID])) {
-            NSLog(@"**** SUCCESSFULLY CONNECTED TO SERVICE: %@", service);
-            found = true;
-        }
-    }
-    if (!found) {
-        NSLog(@"Warning, service: %@ not found!", _currentServiceSearchUUID);
-    }
+//    bool found = false;
+    NSLog(@"discovered a new service");
+    std::cout << "discovered new service" << std::endl;
+
+    std::cout << "3" << std::endl;
+
+    dispatch_semaphore_signal(_semaphore);
 
     // don't forget to reset
-    _currentServiceSearchUUID = nil;
+//    _currentServiceSearchUUID = nil;
+//
+//    _eventHandler->service_found = found;
 
-    _eventHandler->service_found = found;
-
-    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-    _eventHandler->set_proceed(true);
-    ul.unlock();
-    _eventHandler->cv.notify_one();
-    ul.lock();
+//    std::unique_lock<std::mutex> ul(_eventHandler->mut);
+//    _eventHandler->set_proceed(truxe);
+//    ul.unlock();
+//    _eventHandler->cv.notify_one();
+//    ul.lock();
 }
 
 // peripheral_mac's response to discoverCharacteristics

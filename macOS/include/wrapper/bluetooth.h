@@ -1,6 +1,8 @@
 #import <Foundation/Foundation.h>
 #import <CoreBluetooth/CoreBluetooth.h>
 
+#include <memory>
+
 namespace bluetooth {
     class Peripheral;
 
@@ -8,6 +10,8 @@ namespace bluetooth {
         class EventHandler;
     }
 }
+
+typedef void (^findServiceCompletionBlock) (void);
 
 /**
  * Represents a class that manages corebluetooth functionality.
@@ -21,9 +25,11 @@ namespace bluetooth {
 @property(strong, nonatomic) CBCharacteristic *rotateTableChar;
 @property(strong, nonatomic) NSMutableData *data;
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
+@property(nonatomic, strong) dispatch_semaphore_t semaphore;
 @property(nonatomic, assign) BOOL nameSearch;
-@property(nonatomic, strong) CBUUID *currentServiceSearchUUID;
 @property(nonatomic, strong) CBUUID *currentCharSearchUUID;
+
+
 
 
 #define SWAG_SCANNER_NAME @"SwagScanner"
@@ -62,10 +68,11 @@ namespace bluetooth {
 
 /**
  * Use the peripheral to scan for a service given its uuid.
- * Sets _currentServiceSearchUUID to the given uuid and uses that to see whether the service is found or not.
+ * Uses a semaphore to wait until didDiscoverServices() is called.
  * @param uuid uuid of the service.
+ * @param completionBlock block contains signal to semaphore to unblock calling thread.
  */
-- (void)findAndConnectServiceByUUID:(CBUUID *)uuid;
+- (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(findServiceCompletionBlock)completionBlock;
 
 /**
  * Find and connect to characteristics given its uuid and the service it belongs to.
@@ -79,6 +86,14 @@ namespace bluetooth {
  * @return the name of the peripheral.
  */
 - (NSString *)getPeripheralName;
+
+/**
+ * Get the peripheral.
+ * @return peripheral.
+ */
+- (CBPeripheral *)getPeripheral;
+
+- (dispatch_semaphore_t)getSemaphore;
 
 /**
  * Read value from characteristic.
