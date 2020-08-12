@@ -33,6 +33,9 @@ namespace bluetooth {
             NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
             [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
             [pool release];
+
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
         }
 
         void Wrapper::find_peripheral(std::vector<std::string> uuids) {
@@ -116,8 +119,6 @@ namespace bluetooth {
 @implementation CBluetooth
 
 - (void)startBluetooth {
-    _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
-    _semaphore = dispatch_semaphore_create(0);
 
     @autoreleasepool {
         dispatch_async(_centralQueue, ^{
@@ -217,12 +218,13 @@ namespace bluetooth {
 
 
 - (id)init {
-    self = [super init];
-    if (self) {
-        return self;
+    if (self = [super init]) {
+        _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
+        _semaphore = dispatch_semaphore_create(0);
     }
     return self;
 }
+
 
 - (void)dealloc {
     std::cout << "destructing this bluetooth_object object";
@@ -249,11 +251,14 @@ namespace bluetooth {
             break;
         case CBManagerStatePoweredOn: {
             state = @"Bluetooth LE is turned on and ready for communication.";
-            std::unique_lock<std::mutex> ul(_eventHandler->mut);
-            _eventHandler->set_proceed(true);
-            ul.unlock();
-            _eventHandler->cv.notify_one();
-            ul.lock();
+//            std::unique_lock<std::mutex> ul(_eventHandler->mut);
+//            _eventHandler->set_proceed(true);
+//            ul.unlock();
+//            _eventHandler->cv.notify_one();
+//            ul.lock();
+            dispatch_semaphore_signal(_semaphore);
+
+
             break;
         }
         case CBManagerStateUnknown:
