@@ -28,6 +28,8 @@ namespace bluetooth {
 
             EventHandler();
 
+            ~EventHandler();
+
             void rotate_by(int degs);
 
             void start_bluetooth();
@@ -38,11 +40,13 @@ namespace bluetooth {
 
             std::shared_ptr<Peripheral> find_peripheral(const std::string &name);
 
-            std::shared_ptr<Characteristic> find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
+            std::shared_ptr<Characteristic>
+            find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
+
+            uint8_t *read(const std::string &service_uuid, const std::string &char_uuid);
 
             void set_proceed(bool connected);
 
-            ~EventHandler();
 
             std::mutex mut;
             std::condition_variable cv;

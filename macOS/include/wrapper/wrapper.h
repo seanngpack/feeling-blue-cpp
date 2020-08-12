@@ -62,6 +62,8 @@ namespace bluetooth {
              */
             std::string get_peripheral_name();
 
+            uint8_t *read(const std::string &service_uuid, const std::string &char_uuid);
+
             /**
              * Calls on objective c function to set the callback to the arduino handler object.
              * @param event_handler the arduino handler object.

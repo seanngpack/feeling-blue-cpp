@@ -30,6 +30,12 @@ namespace bluetooth {
 
         std::string uuid();
 
+        /**
+         * Read the characteristic. Up to you how to read the char array.
+         * @return a byte array.
+         */
+        uint8_t *read();
+
     private:
         struct CharacteristicImpl;
         CharacteristicImpl *cImpl;

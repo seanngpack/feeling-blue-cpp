@@ -59,9 +59,9 @@ namespace bluetooth {
         void Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
-            CBUUID *CBchar = [CBUUID UUIDWithString:char_s];
+            CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
             CBUUID *CBService = [CBUUID UUIDWithString:service_s];
-            [impl->wrapped findAndConnectCharacteristicByUUID:CBchar belongingToService:CBService];
+            [impl->wrapped findAndConnectCharacteristicByUUID:CBChar belongingToService:CBService];
         }
 
         std::string Wrapper::get_peripheral_name() {
@@ -71,9 +71,18 @@ namespace bluetooth {
             return temp;
         }
 
+        uint8_t *Wrapper::read(const std::string &service_uuid, const std::string &char_uuid) {
+            NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
+            NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
+            CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
+            CBUUID *CBService = [CBUUID UUIDWithString:service_s];
+            return [impl->wrapped read:CBChar belongingToService:CBService];
+        }
+
         void Wrapper::set_handler(std::shared_ptr<handler::EventHandler> event_handler) {
             [impl->wrapped setHandler:event_handler];
         }
+
 
     }
 }
@@ -140,6 +149,29 @@ namespace bluetooth {
 
 - (NSString *)getPeripheralName {
     return _peripheralName;
+}
+
+- (uint8_t *)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID; {
+    CBCharacteristic *c = nil;
+    for (CBService *service in _peripheral.services) {
+        if (([service.UUID isEqual:serviceUUID])) {
+            for (CBCharacteristic *characteristic in service.characteristics) {
+                if (([service.UUID isEqual:charUUID])) {
+                    c = characteristic;
+                }
+            }
+        }
+    }
+    dispatch_sync(dispatch_get_main_queue(), ^{
+        [_peripheral readValueForCharacteristic:c];
+    });
+
+//    NSUInteger size = [charData length] / sizeof(unsigned char);
+//    auto* byte_array = (unsigned char*) [charData bytes];
+
+//    std::vector<std::byte> bytes(byte_array, byte_array + [charData length]);
+    auto *bytes = (uint8_t *) c.value.bytes;
+    return bytes;
 }
 
 
@@ -334,14 +366,15 @@ namespace bluetooth {
     if (error) {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
     } else {
-        // extract the data from the characteristic's value property and display the value based on the characteristic type
-        NSData *dataBytes = characteristic.value;
-        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
-            [self displayTablePosInfo:dataBytes];
-        } else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
-            [self displayRotInfo:dataBytes];
-            [self setIsRotating:dataBytes];
-        }
+
+//        // extract the data from the characteristic's value property and display the value based on the characteristic type
+//        NSData *dataBytes = characteristic.value;
+//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
+//            [self displayTablePosInfo:dataBytes];
+//        } else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
+//            [self displayRotInfo:dataBytes];
+//            [self setIsRotating:dataBytes];
+//        }
     }
 }
 

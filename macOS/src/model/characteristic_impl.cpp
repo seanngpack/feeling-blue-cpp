@@ -1,5 +1,5 @@
 #include "characteristic.h"
-#include "service.h"
+#include "event_handler.h"
 #include <string>
 #include <utility>
 #include <vector>
@@ -21,6 +21,10 @@ namespace bluetooth {
             return char_uuid;
         }
 
+        uint8_t *read() {
+            return event_handler->read(service_uuid, char_uuid);
+        }
+
     private:
         std::string char_uuid;
         std::string service_uuid;
@@ -28,7 +32,6 @@ namespace bluetooth {
     };
 
     Characteristic::Characteristic(const std::string &char_uuid,
-
                                    const std::string &service_uuid,
                                    std::shared_ptr<handler::EventHandler> event_handler) :
             cImpl(new CharacteristicImpl(char_uuid, service_uuid, std::move(event_handler))) {}
@@ -39,5 +42,9 @@ namespace bluetooth {
 
     std::string Characteristic::uuid() {
         return cImpl->uuid();
+    }
+
+    uint8_t *Characteristic::read() {
+        return cImpl->read();
     }
 }

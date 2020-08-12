@@ -81,6 +81,14 @@ namespace bluetooth {
 - (NSString *)getPeripheralName;
 
 /**
+ * Read value from characteristic.
+ * @param charUUID the uuid of the characteristic you want to read from.
+ * @param serviceUUID the uuid the characteristic belongs to.
+ * @return byte array.
+ */
+- (uint8_t *)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID;
+
+/**
  * Rotate the table with the given angle in degrees.
  * @param deg the angle you want to rotate the table in degrees.
  */

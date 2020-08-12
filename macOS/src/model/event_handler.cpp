@@ -57,8 +57,9 @@ std::shared_ptr<bluetooth::Service> bluetooth::handler::EventHandler::find_servi
     return s;
 }
 
-std::shared_ptr<bluetooth::Characteristic> bluetooth::handler::EventHandler::find_characteristic(const std::string &char_uuid,
-                                                                                 const std::string &service_uuid) {
+std::shared_ptr<bluetooth::Characteristic>
+bluetooth::handler::EventHandler::find_characteristic(const std::string &char_uuid,
+                                                      const std::string &service_uuid) {
     std::unique_lock<std::mutex> ul(mut);
     bluetooth_object->find_characteristic(char_uuid, service_uuid);
     cv.wait(ul, [this]() { return proceed; }); // wait until proceed is true
@@ -87,13 +88,16 @@ void bluetooth::handler::EventHandler::rotate_by(int degs) {
     std::this_thread::sleep_for(.5s);
 }
 
-
 void bluetooth::handler::EventHandler::set_proceed(bool connected) {
     proceed = connected;
 }
 
 bluetooth::handler::EventHandler::~EventHandler() {
     bluetooth_object = nullptr;
+}
+
+uint8_t *bluetooth::handler::EventHandler::read(const std::string &service_uuid, const std::string &char_uuid) {
+    return bluetooth_object->read(service_uuid, char_uuid);
 }
 
 

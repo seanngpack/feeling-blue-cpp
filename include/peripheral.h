@@ -34,10 +34,9 @@ namespace bluetooth {
         ~Peripheral();
 
         /**
-         * Find service given the uuid.
+         * Find advertised service given the uuid. Return the service if found, otherwise returns nullptr.
          * @param uuid service's uuid.
-         * @return the service, or nullptr if the service cannot be found.
-         * to return to the consumer?
+         * @return the service or nullptr.
          */
         std::shared_ptr<Service> find_service(const std::string &uuid);
 
@@ -45,7 +44,7 @@ namespace bluetooth {
          * After discovering and connecting to services, will store them into a list. This method
          * matches the given uuid and returns the corresponding service.
          * If the service is not found in the peripheral, then return nullptr.
-         * @return service matching the uuid.
+         * @return service matching the uuid or nullptr.
          */
         std::shared_ptr<Service> get_service(const std::string &uuid);
 
