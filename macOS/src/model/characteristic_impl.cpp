@@ -24,6 +24,14 @@ namespace bluetooth {
             return bt->read(service_uuid, char_uuid);
         }
 
+        void write_without_response(uint8_t *data, int length) {
+            bt->write_without_response( data, length, service_uuid, char_uuid);
+        }
+
+        void write_with_response(uint8_t *data, int length) {
+            bt->write_with_response( data, length, service_uuid, char_uuid);
+        }
+
     private:
         std::string char_uuid;
         std::string service_uuid;
@@ -46,4 +54,13 @@ namespace bluetooth {
     uint8_t *Characteristic::read() {
         return cImpl->read();
     }
+
+    void Characteristic::write_without_response(uint8_t *data, int length) {
+        cImpl->write_without_response(data, length);
+    }
+
+    void Characteristic::write_with_response(uint8_t *data,int length) {
+        cImpl->write_with_response(data, length);
+    }
+
 }

@@ -135,7 +135,6 @@ namespace bluetooth {
             [impl->wrapped read:CBChar belongingToService:CBService completion:^{
                 dispatch_semaphore_signal(sem);
             }];
-
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 
             CBCharacteristic *c = [impl->wrapped getCharFromService:CBChar belongingToService:CBService];
@@ -143,6 +142,36 @@ namespace bluetooth {
             return bytes;
         }
 
+        void Wrapper::write_without_response(uint8_t *data,
+                                             int length,
+                                             const std::string service_uuid,
+                                             const std::string char_uuid) {
+            NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
+            NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
+            CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
+            CBUUID *CBService = [CBUUID UUIDWithString:service_s];
+            [impl->wrapped writeWithoutResponse:[NSData dataWithBytes:data length:length]
+                              forCharacteristic:CBChar
+                             belongingToService:CBService];
+        }
+
+        void Wrapper::write_with_response(uint8_t *data,
+                                          int length,
+                                          const std::string service_uuid,
+                                          const std::string char_uuid) {
+            NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
+            NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
+            CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
+            CBUUID *CBService = [CBUUID UUIDWithString:service_s];
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            [impl->wrapped writeWithResponse:[NSData dataWithBytes:data length:length]
+                           forCharacteristic:CBChar
+                          belongingToService:CBService
+                                  completion:^{
+                                      dispatch_semaphore_signal(sem);
+                                  }];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+        }
     }
 }
 
@@ -205,14 +234,28 @@ namespace bluetooth {
 }
 
 
-- (void)rotateTable:(int)degrees {
-    NSData *bytes = [NSData dataWithBytes:&degrees length:sizeof(degrees)];
+- (void)writeWithoutResponse:(NSData *)data
+           forCharacteristic:(CBUUID *)charUUID
+          belongingToService:(CBUUID *)serviceUUID {
     [_peripheral
-            writeValue:bytes
+            writeValue:data
      forCharacteristic:_rotateTableChar
-                  type:CBCharacteristicWriteWithResponse];
+                  type:CBCharacteristicWriteWithoutResponse];
 }
 
+
+- (void)writeWithResponse:(NSData *)data
+        forCharacteristic:(CBUUID *)charUuid
+       belongingToService:(CBUUID *)serviceUuid
+               completion:(semaphoreCompletionBlock)completionBlock {
+    [_peripheral
+            writeValue:data
+     forCharacteristic:_rotateTableChar
+                  type:CBCharacteristicWriteWithResponse];
+
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    completionBlock();
+}
 
 - (NSString *)getPeripheralName {
     return _peripheralName;
@@ -323,14 +366,12 @@ namespace bluetooth {
     NSLog(@"**** DISCONNECTED FROM SWAG SCANNER");
 }
 
-
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
 //    bool found = false;
     NSLog(@"discovered a new service");
     dispatch_semaphore_signal(_semaphore);
-
 }
 
 // peripheral_mac's response to discoverCharacteristics
@@ -342,36 +383,20 @@ namespace bluetooth {
 //            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
 }
 
+- (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+    if (error) {
+        NSLog(@"Error writing to characteristic: %@", [error localizedDescription]);
+    }
+    dispatch_semaphore_signal(_semaphore);
+}
+
 // start receiving data from this method once we set up notifications. Also can be manually
 // called with readValueForCharacteristic
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (error) {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
-    } else {
-        dispatch_semaphore_signal(_semaphore);
     }
-}
-
-- (void)setIsRotating:(NSData *)dataBytes {
-    int theInteger;
-    [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-}
-
-
-- (void)displayRotInfo:(NSData *)dataBytes {
-    int theInteger;
-    [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-}
-
-- (void)displayTablePosInfo:(NSData *)dataBytes {
-    int theInteger;
-    [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-}
-
-- (int)bytesToInt:(NSData *)dataBytes {
-    int theInteger;
-    [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-    return theInteger;
+    dispatch_semaphore_signal(_semaphore);
 }
 
 - (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {

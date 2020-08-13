@@ -37,7 +37,6 @@ typedef void (^semaphoreCompletionBlock)(void);
 // destructor override
 - (void)dealloc;
 
-
 /**
  * Create a new thread. On this thread, allocates a new instance of CBCentralManager to run on that queue.
  * Also creates a runloop.
@@ -83,13 +82,11 @@ typedef void (^semaphoreCompletionBlock)(void);
  */
 - (CBPeripheral *)getPeripheral;
 
-
 /**
  * Get the dispatch semaphore.
  * @return the semaphore.
  */
 - (dispatch_semaphore_t)getSemaphore;
-
 
 /**
  * Read value from characteristic. Blocking method.
@@ -99,31 +96,27 @@ typedef void (^semaphoreCompletionBlock)(void);
 - (void)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
- * Rotate the table with the given angle in degrees.
- * @param deg the angle you want to rotate the table in degrees.
+ * Write value to the characteristic.
+ * @param data the data you want to write.
+ * @param length the number of bytes in the data.
+ * @param charUUID characteristic to write to.
+ * @param serviceUUID service the characteristic belongs to.
  */
-- (void)rotateTable:(int)degrees;
+- (void)writeWithoutResponse:(NSData *)data
+           forCharacteristic:(CBUUID *)charUUID
+          belongingToService:(CBUUID *)serviceUUID;
 
 /**
- * Helper method to call setIsRotating on the Arduino.
- * @param dataBytes the bytes received from isRotating characteristic.
+ * Write value to the characteristic. Waits for the didWriteValueFor callback before returning.
+ * @param data the data you want to write.
+ * @param length the number of bytes in the data.
+ * @param charUUID characteristic to write to.
+ * @param serviceUUID service the characteristic belongs to.
  */
-- (void)setIsRotating:(NSData *)dataBytes;
-
-
-/**
- * Display whether the table is rotating or not.
- * @param dataBytes bytes from notification.
- */
-- (void)displayRotInfo:(NSData *)dataBytes;
-
-
-/**
- * Convert bytes to int.
- * @param dataBytes data from characteristic in bytes.
- * @return int.
- */
-- (int)bytesToInt:(NSData *)dataBytes;
+- (void)writeWithResponse:(NSData *)data
+        forCharacteristic:(CBUUID *)charUUID
+       belongingToService:(CBUUID *)serviceUUID
+               completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
  * After discovering and connecting characteristics, you may want to fetch one.

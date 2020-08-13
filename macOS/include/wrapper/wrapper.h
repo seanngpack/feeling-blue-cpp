@@ -61,7 +61,24 @@ namespace bluetooth {
              */
             std::string get_peripheral_name();
 
+            /**
+             * Read value from characteristics.
+             * @param service_uuid service the characteristic belongs to.
+             * @param char_uuid characteristic you want to read from.
+             * @return the value.
+             */
             uint8_t *read(const std::string &service_uuid, const std::string &char_uuid);
+
+            void write_without_response(uint8_t *data,
+                                        int length,
+                                        const std::string service_uuid,
+                                        const std::string char_uuid);
+
+            void write_with_response(uint8_t *data,
+                                     int length,
+                                     const std::string service_uuid,
+                                     const std::string char_uuid);
+
 
         private:
             WrapperImpl *impl;
