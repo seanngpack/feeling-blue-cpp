@@ -138,7 +138,11 @@ namespace bluetooth {
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 
             CBCharacteristic *c = [impl->wrapped getCharFromService:CBChar belongingToService:CBService];
-            auto *bytes = (uint8_t *) c.value.bytes;
+            NSData *data = c.value;
+            NSLog(@"read value: %@", data);
+            auto size = static_cast<uint8_t>(data.length);
+            auto *bytes = new uint8_t[size];
+            memcpy(bytes, [data bytes], size);
             return bytes;
         }
 
@@ -239,18 +243,18 @@ namespace bluetooth {
           belongingToService:(CBUUID *)serviceUUID {
     [_peripheral
             writeValue:data
-     forCharacteristic:_rotateTableChar
+     forCharacteristic:[self getCharFromService:charUUID belongingToService:serviceUUID]
                   type:CBCharacteristicWriteWithoutResponse];
 }
 
 
 - (void)writeWithResponse:(NSData *)data
-        forCharacteristic:(CBUUID *)charUuid
-       belongingToService:(CBUUID *)serviceUuid
+        forCharacteristic:(CBUUID *)charUUID
+       belongingToService:(CBUUID *)serviceUUID
                completion:(semaphoreCompletionBlock)completionBlock {
     [_peripheral
             writeValue:data
-     forCharacteristic:_rotateTableChar
+     forCharacteristic:[self getCharFromService:charUUID belongingToService:serviceUUID]
                   type:CBCharacteristicWriteWithResponse];
 
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
@@ -404,6 +408,7 @@ namespace bluetooth {
         if (([service.UUID isEqual:serviceUUID])) {
             for (CBCharacteristic *characteristic in service.characteristics) {
                 if (([characteristic.UUID isEqual:charUUID])) {
+//                    NSLog(@"char found%@", characteristic);
                     return characteristic;
                 }
             }

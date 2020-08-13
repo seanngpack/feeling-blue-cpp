@@ -3,6 +3,7 @@
 
 #include <string>
 #include <memory>
+#include <functional>
 
 namespace bluetooth {
 
@@ -46,6 +47,14 @@ namespace bluetooth {
          * @param data
          */
         void write_with_response(uint8_t *data, int length);
+
+        /**
+         * Enable notifications from the characteristic and set callback function to do something
+         * with the data when the device notifies.
+         * @param callback function to do something with notificaiton data.
+         */
+        void notify(const std::function<void(uint8_t)> &callback);
+
 
     private:
         struct CharacteristicImpl;
