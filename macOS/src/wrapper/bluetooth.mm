@@ -1,5 +1,4 @@
 #include "peripheral.h"
-#include "event_handler.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -81,8 +80,6 @@ namespace bluetooth {
             CBUUID *service_cbuuid = [CBUUID UUIDWithString:service_string];
 
             dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
-            std::cout << sem << std::endl;
-//            dispatch_semaphore_t temp = dispatch_semaphore_create(0);
             std::cout << "1" << std::endl;
             [impl->wrapped findAndConnectServiceByUUID:service_cbuuid completion:^{
                 dispatch_semaphore_signal(sem);
@@ -191,7 +188,6 @@ namespace bluetooth {
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
 
     std::cout << "4" << std::endl;
-    std::cout << "this should happen after the service has been discovered" << std::endl;
     completionBlock();
 }
 
@@ -211,7 +207,6 @@ namespace bluetooth {
 
 
 - (void)rotateTable:(int)degrees {
-    _eventHandler->set_proceed(true);
     NSData *bytes = [NSData dataWithBytes:&degrees length:sizeof(degrees)];
     [_peripheral
             writeValue:bytes
@@ -278,7 +273,6 @@ namespace bluetooth {
     if (self = [super init]) {
         _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
         _semaphore = dispatch_semaphore_create(0);
-        std::cout << _semaphore << std::endl;
     }
     return self;
 }
@@ -309,14 +303,7 @@ namespace bluetooth {
             break;
         case CBManagerStatePoweredOn: {
             state = @"Bluetooth LE is turned on and ready for communication.";
-//            std::unique_lock<std::mutex> ul(_eventHandler->mut);
-//            _eventHandler->set_proceed(true);
-//            ul.unlock();
-//            _eventHandler->cv.notify_one();
-//            ul.lock();
             dispatch_semaphore_signal(_semaphore);
-
-
             break;
         }
         case CBManagerStateUnknown:
@@ -358,13 +345,6 @@ namespace bluetooth {
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [_centralManager stopScan];
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
-    std::cout << "didConnectPeripheral" <<std::endl;
-//    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-//    _eventHandler->set_proceed(true);
-//    ul.unlock();
-//    _eventHandler->cv.notify_one();
-//    ul.lock();
-////    NSLog(@"Now looking for services...");
 
     dispatch_semaphore_signal(_semaphore);
 }
@@ -385,38 +365,13 @@ namespace bluetooth {
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
 //    bool found = false;
     NSLog(@"discovered a new service");
-    std::cout << "discovered new service" << std::endl;
-
-    std::cout << "3" << std::endl;
-
     dispatch_semaphore_signal(_semaphore);
 
-    // don't forget to reset
-//    _currentServiceSearchUUID = nil;
-//
-//    _eventHandler->service_found = found;
-
-//    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-//    _eventHandler->set_proceed(truxe);
-//    ul.unlock();
-//    _eventHandler->cv.notify_one();
-//    ul.lock();
 }
 
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
-//    bool found = false;
-//    for (CBCharacteristic *characteristic in service.characteristics) {
-////        NSLog(@"we have this charactersitic in service: %@", characteristic);
-//        if ([characteristic.UUID isEqual:_currentCharSearchUUID]) {
-//            NSLog(@"**** SUCCESSFULLY CONNECTED TO CHARACTERISTIC: %@", characteristic);
-//            found = true;
-//        }
-//    }
-//    if (!found) {
-//        NSLog(@"WARNING, char: %@ not found!", _currentCharSearchUUID);
-//    }
 
     dispatch_semaphore_signal(_semaphore);
 
@@ -467,37 +422,18 @@ namespace bluetooth {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
     } else {
 
-//        // extract the data from the characteristic's value property and display the value based on the characteristic type
-//        NSData *dataBytes = characteristic.value;
-//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
-//            [self displayTablePosInfo:dataBytes];
-//        } else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
-//            [self displayRotInfo:dataBytes];
-//            [self setIsRotating:dataBytes];
-//        }
     }
 }
 
 - (void)setIsRotating:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-//    std::unique_lock<std::mutex> ul(_eventHandler->peripheral_mutex);
-//    _eventHandler->set_is_peripheral_found(theInteger == 1);
-//    ul.unlock();
-//    _eventHandler->peripheral_cv.notify_one();
-//    ul.lock();
 }
 
 
 - (void)displayRotInfo:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-//    if (theInteger == 1) {
-//        std::cout << "table is rotating" << std::endl;
-//    }
-//    else {
-//        std::cout << "table is not rotating" << std::endl;
-//    }
 }
 
 - (void)displayTablePosInfo:(NSData *)dataBytes {
