@@ -10,10 +10,6 @@ namespace bluetooth {
         class Wrapper;
     }
 
-    namespace handler {
-        class EventHandler;
-    }
-
     class Characteristic;
 
     /**
@@ -22,7 +18,7 @@ namespace bluetooth {
     class Service {
     public:
 
-        Service(const std::string &service_uuid, std::shared_ptr<handler::EventHandler> event_handler);
+        Service(const std::string &service_uuid, std::shared_ptr<wrapper::Wrapper> bt);
 
         ~Service();
 

@@ -21,12 +21,14 @@ namespace bluetooth {
 
         /**
          * Find and connect to the peripheral_mac given the service UUIDs advertised by the peripheral_mac.
+         * If the peripheral is not found, return nullptr.
          * @param uuids uuids advertised by the peripheral.
          */
         std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids);
 
         /**
          * Find and connect to a peripheral_mac given the name of it.
+         * If the peripheral is not found, return nullptr.
          * @param name the name advertised by the peripheral_mac.
          */
         std::shared_ptr<Peripheral> find_peripheral(const std::string &name);

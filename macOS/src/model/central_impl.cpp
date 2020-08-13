@@ -1,8 +1,8 @@
 #include "central.h"
 #include "wrapper.h"
 #include "peripheral.h"
-#include "event_handler.h"
 #include <string>
+#include <iostream>
 
 namespace bluetooth {
 
@@ -10,8 +10,7 @@ namespace bluetooth {
     struct Central::CentralImpl {
     public:
         CentralImpl() :
-                event_handler(std::make_shared<handler::EventHandler>()),
-                bluetooth_object(std::make_shared<wrapper::Wrapper>()) {
+                bt(std::make_shared<wrapper::Wrapper>()) {
             // TODO: same with other constructors, check for nullptr
         }
 
@@ -20,22 +19,26 @@ namespace bluetooth {
         }
 
         void start_bluetooth() {
-            event_handler->start_bluetooth();
+            bt->start_bluetooth();
+            std::cout << "finally connected to central, unblocking thread" << std::endl;
         }
 
         std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids) {
-            peripheral = event_handler->find_peripheral(uuids);
-            return peripheral;
+            if (bt->find_peripheral(uuids)) {
+                return std::make_shared<bluetooth::Peripheral>(bt->get_peripheral_name(), bt);
+            }
+            return nullptr;
         }
 
         std::shared_ptr<Peripheral> find_peripheral(const std::string &name) {
-            peripheral = event_handler->find_peripheral(name);
-            return peripheral;
+            if (bt->find_peripheral(name)) {
+                return std::make_shared<bluetooth::Peripheral>(bt->get_peripheral_name(), bt);
+            }
+            return nullptr;
         }
 
     private:
-        std::shared_ptr<handler::EventHandler> event_handler;
-        std::shared_ptr<wrapper::Wrapper> bluetooth_object;
+        std::shared_ptr<wrapper::Wrapper> bt;
         std::shared_ptr<Peripheral> peripheral;
     };
 

@@ -1,8 +1,7 @@
 #include "characteristic.h"
-#include "event_handler.h"
+#include "wrapper.h"
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace bluetooth {
 
@@ -10,8 +9,8 @@ namespace bluetooth {
     public:
         CharacteristicImpl(const std::string &char_uuid,
                            const std::string &service_uuid,
-                           std::shared_ptr<handler::EventHandler> event_handler) :
-                char_uuid(char_uuid), service_uuid(service_uuid), event_handler(std::move(event_handler)) {}
+                           std::shared_ptr<wrapper::Wrapper> bt) :
+                char_uuid(char_uuid), service_uuid(service_uuid), bt(std::move(bt)) {}
 
         ~CharacteristicImpl() {
 
@@ -22,19 +21,19 @@ namespace bluetooth {
         }
 
         uint8_t *read() {
-            return event_handler->read(service_uuid, char_uuid);
+            return bt->read(service_uuid, char_uuid);
         }
 
     private:
         std::string char_uuid;
         std::string service_uuid;
-        std::shared_ptr<handler::EventHandler> event_handler;
+        std::shared_ptr<wrapper::Wrapper> bt;
     };
 
     Characteristic::Characteristic(const std::string &char_uuid,
                                    const std::string &service_uuid,
-                                   std::shared_ptr<handler::EventHandler> event_handler) :
-            cImpl(new CharacteristicImpl(char_uuid, service_uuid, std::move(event_handler))) {}
+                                   std::shared_ptr<wrapper::Wrapper> bt) :
+            cImpl(new CharacteristicImpl(char_uuid, service_uuid, std::move(bt))) {}
 
     Characteristic::~Characteristic() {
         delete cImpl;
