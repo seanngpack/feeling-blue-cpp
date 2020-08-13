@@ -138,12 +138,7 @@ namespace bluetooth {
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 
             CBCharacteristic *c = [impl->wrapped getCharFromService:CBChar belongingToService:CBService];
-            NSData *data = c.value;
-            NSLog(@"read value: %@", data);
-            auto size = static_cast<uint8_t>(data.length);
-            auto *bytes = new uint8_t[size];
-            memcpy(bytes, [data bytes], size);
-            return bytes;
+            return [impl->wrapped NSDataTouint8:c.value];
         }
 
         void Wrapper::write_without_response(uint8_t *data,
@@ -174,6 +169,22 @@ namespace bluetooth {
                                   completion:^{
                                       dispatch_semaphore_signal(sem);
                                   }];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+        }
+
+        void Wrapper::notify(const std::string &service_uuid, const std::string &char_uuid,
+                             std::function<void(uint8_t *)> callback) {
+            NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
+            NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
+            CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
+            CBUUID *CBService = [CBUUID UUIDWithString:service_s];
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            [impl->wrapped setNotify:CBChar
+                  belongingToService:CBService
+                        callbackFunc:callback
+                          completion:^{
+                              dispatch_semaphore_signal(sem);
+                          }];
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
         }
     }
@@ -261,6 +272,23 @@ namespace bluetooth {
     completionBlock();
 }
 
+- (void) setNotify:(CBUUID *)charUUID
+belongingToService:(CBUUID *)serviceUUID
+      callbackFunc:(std::function<void(uint8_t *)>)callback
+        completion:(semaphoreCompletionBlock)completionBlock {
+
+    [self.peripheral setNotifyValue:YES
+                  forCharacteristic:[self getCharFromService:charUUID belongingToService:serviceUUID]];
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+
+    CBCharacteristic *c = [self getCharFromService:charUUID belongingToService:serviceUUID];
+    NSLog(@"set call handler to notification: %@ ", c);
+    std::string char_string = std::string([charUUID.UUIDString UTF8String]);
+    _callbackMap.insert_or_assign(char_string, callback);
+    completionBlock();
+}
+
+
 - (NSString *)getPeripheralName {
     return _peripheralName;
 }
@@ -275,10 +303,12 @@ namespace bluetooth {
 
 - (void)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID completion:(semaphoreCompletionBlock)completionBlock {
     CBCharacteristic *c = [self getCharFromService:charUUID belongingToService:serviceUUID];
+    _readCommand = true;
 
     [_peripheral readValueForCharacteristic:c];
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
     completionBlock();
+    _readCommand = false;
 }
 
 - (id)init {
@@ -378,6 +408,16 @@ namespace bluetooth {
     dispatch_semaphore_signal(_semaphore);
 }
 
+// called when you call [setNotify for:]
+- (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
+    if (error) {
+        NSLog(@"error setting up notifications for characteristic");
+    } else {
+        NSLog(@"sucessfully set up notifications for characteristic");
+    }
+    dispatch_semaphore_signal(_semaphore);
+}
+
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
@@ -400,7 +440,19 @@ namespace bluetooth {
     if (error) {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
     }
-    dispatch_semaphore_signal(_semaphore);
+    if (_readCommand) {
+        NSLog(@"Read characteristic");
+    } else {
+        for (auto const&[key, val] : _callbackMap) {
+            std::string char_string = std::string([characteristic.UUID.UUIDString UTF8String]);
+            if (key == char_string) {
+                uint8_t *data = [self NSDataTouint8:characteristic.value];
+                val(data);
+            }
+        }
+    }
+
+    dispatch_semaphore_signal(_semaphore); // this is dangerous. actually wait maybe not
 }
 
 - (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
@@ -408,13 +460,19 @@ namespace bluetooth {
         if (([service.UUID isEqual:serviceUUID])) {
             for (CBCharacteristic *characteristic in service.characteristics) {
                 if (([characteristic.UUID isEqual:charUUID])) {
-//                    NSLog(@"char found%@", characteristic);
                     return characteristic;
                 }
             }
         }
     }
     return nil;
+}
+
+- (uint8_t *)NSDataTouint8:(NSData *)data {
+    auto size = static_cast<uint8_t>(data.length);
+    auto *uArr = new uint8_t[size];
+    memcpy(uArr, [data bytes], size);
+    return uArr;
 }
 
 

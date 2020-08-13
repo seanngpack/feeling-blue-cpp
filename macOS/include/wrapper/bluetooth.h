@@ -2,6 +2,8 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 
 #include <memory>
+#include <functional>
+#include <map>
 
 namespace bluetooth {
     class Peripheral;
@@ -22,6 +24,8 @@ typedef void (^semaphoreCompletionBlock)(void);
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
 @property(nonatomic, strong) dispatch_semaphore_t semaphore;
 @property(nonatomic, assign) BOOL nameSearch;
+@property(nonatomic, assign) BOOL readCommand;
+@property std::map<std::string, std::function<void(uint8_t *)>> callbackMap;
 
 
 #define SWAG_SCANNER_NAME @"SwagScanner"
@@ -118,6 +122,12 @@ typedef void (^semaphoreCompletionBlock)(void);
        belongingToService:(CBUUID *)serviceUUID
                completion:(semaphoreCompletionBlock)completionBlock;
 
+
+- (void) setNotify:(CBUUID *)charUUID
+belongingToService:(CBUUID *)serviceUUID
+      callbackFunc:(std::function<void(uint8_t *)>)callback
+        completion:(semaphoreCompletionBlock)completionBlock;
+
 /**
  * After discovering and connecting characteristics, you may want to fetch one.
  * Use this helper method to extract a characteristics from the given service.
@@ -125,6 +135,13 @@ typedef void (^semaphoreCompletionBlock)(void);
  * @return the characteristic. Or nil if not found.
  */
 - (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID;
+
+/**
+ * Convert NSData * to uint8_t *.
+ * @param data the data to convert.
+ * @return uint8_t array.
+ */
+- (uint8_t *)NSDataTouint8:(NSData *)data;
 
 @end
 

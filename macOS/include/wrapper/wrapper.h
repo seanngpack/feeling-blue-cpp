@@ -5,6 +5,8 @@
 #include <vector>
 #include <string>
 #include <memory>
+#include <functional>
+#include <map>
 
 namespace bluetooth {
 
@@ -78,6 +80,10 @@ namespace bluetooth {
                                      int length,
                                      const std::string service_uuid,
                                      const std::string char_uuid);
+
+            void notify(const std::string &service_uuid,
+                        const std::string &char_uuid,
+                        std::function<void(uint8_t *)> callback);
 
 
         private:

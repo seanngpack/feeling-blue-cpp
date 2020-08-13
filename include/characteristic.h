@@ -53,7 +53,7 @@ namespace bluetooth {
          * with the data when the device notifies.
          * @param callback function to do something with notificaiton data.
          */
-        void notify(const std::function<void(uint8_t)> &callback);
+        void notify(const std::function<void(uint8_t *)> &callback);
 
 
     private:
