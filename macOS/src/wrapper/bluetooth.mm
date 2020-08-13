@@ -337,45 +337,9 @@ namespace bluetooth {
 // use this to turn on notifications
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
     dispatch_semaphore_signal(_semaphore);
-
-    // don't forget to reset
-//    _currentCharSearchUUID = nil;
-//
-//    _eventHandler->char_found = found;
-
-//    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-//    _eventHandler->set_proceed(true);
-//    ul.unlock();
-//    _eventHandler->cv.notify_one();
-//    ul.lock();
-
-//        uint8_t enableValue = 0;
-//        NSData *enableBytes = [NSData dataWithBytes:&enableValue length:sizeof(uint8_t)];
-//
-//        //TODO: as I'm writing the find_characteristics, these write value stuff don't need to be here
-//
-//        // rotate table
-//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:ROTATE_TABLE_CHAR_UUID]]) {
-//            NSLog(@"Enabled table rotation characteristic: %@", characteristic);
-//            _rotateTableChar = characteristic;
 //            [self.peripheral writeValue:enableBytes forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
-//        }
-//
-//        // table position
-//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
-//            NSLog(@"Enabled table position characteristic with notifications: %@", characteristic);
-////            _tablePosChar = characteristic;
 //            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
-//        }
-//
-//        // table rotation
-//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
-//            NSLog(@"Enabled is table rotation? characteristic with notifications: %@", characteristic);
 //            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
-//        }
-
-
-
 }
 
 // start receiving data from this method once we set up notifications. Also can be manually
@@ -384,7 +348,7 @@ namespace bluetooth {
     if (error) {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
     } else {
-
+        dispatch_semaphore_signal(_semaphore);
     }
 }
 
@@ -402,7 +366,6 @@ namespace bluetooth {
 - (void)displayTablePosInfo:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-//    std::cout << "Table is at position: " + std::to_string(theInteger) << std::endl;
 }
 
 - (int)bytesToInt:(NSData *)dataBytes {

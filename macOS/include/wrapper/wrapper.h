@@ -12,10 +12,6 @@ namespace bluetooth {
 
     class Service;
 
-    namespace handler {
-        class EventHandler;
-    }
-
     namespace wrapper {
         struct WrapperImpl;
 

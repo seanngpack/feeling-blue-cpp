@@ -2,7 +2,6 @@
 #include "wrapper.h"
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace bluetooth {
 
