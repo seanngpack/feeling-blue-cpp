@@ -2,6 +2,8 @@
 #import <CoreBluetooth/CoreBluetooth.h>
 
 #include <memory>
+#include <functional>
+#include <map>
 
 namespace bluetooth {
     class Peripheral;
@@ -22,6 +24,8 @@ typedef void (^semaphoreCompletionBlock)(void);
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
 @property(nonatomic, strong) dispatch_semaphore_t semaphore;
 @property(nonatomic, assign) BOOL nameSearch;
+@property(nonatomic, assign) BOOL readCommand;
+@property std::map<std::string, std::function<void(uint8_t *)>> callbackMap;
 
 
 #define SWAG_SCANNER_NAME @"SwagScanner"
@@ -36,7 +40,6 @@ typedef void (^semaphoreCompletionBlock)(void);
 
 // destructor override
 - (void)dealloc;
-
 
 /**
  * Create a new thread. On this thread, allocates a new instance of CBCentralManager to run on that queue.
@@ -83,13 +86,11 @@ typedef void (^semaphoreCompletionBlock)(void);
  */
 - (CBPeripheral *)getPeripheral;
 
-
 /**
  * Get the dispatch semaphore.
  * @return the semaphore.
  */
 - (dispatch_semaphore_t)getSemaphore;
-
 
 /**
  * Read value from characteristic. Blocking method.
@@ -99,31 +100,33 @@ typedef void (^semaphoreCompletionBlock)(void);
 - (void)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
- * Rotate the table with the given angle in degrees.
- * @param deg the angle you want to rotate the table in degrees.
+ * Write value to the characteristic.
+ * @param data the data you want to write.
+ * @param length the number of bytes in the data.
+ * @param charUUID characteristic to write to.
+ * @param serviceUUID service the characteristic belongs to.
  */
-- (void)rotateTable:(int)degrees;
+- (void)writeWithoutResponse:(NSData *)data
+           forCharacteristic:(CBUUID *)charUUID
+          belongingToService:(CBUUID *)serviceUUID;
 
 /**
- * Helper method to call setIsRotating on the Arduino.
- * @param dataBytes the bytes received from isRotating characteristic.
+ * Write value to the characteristic. Waits for the didWriteValueFor callback before returning.
+ * @param data the data you want to write.
+ * @param length the number of bytes in the data.
+ * @param charUUID characteristic to write to.
+ * @param serviceUUID service the characteristic belongs to.
  */
-- (void)setIsRotating:(NSData *)dataBytes;
+- (void)writeWithResponse:(NSData *)data
+        forCharacteristic:(CBUUID *)charUUID
+       belongingToService:(CBUUID *)serviceUUID
+               completion:(semaphoreCompletionBlock)completionBlock;
 
 
-/**
- * Display whether the table is rotating or not.
- * @param dataBytes bytes from notification.
- */
-- (void)displayRotInfo:(NSData *)dataBytes;
-
-
-/**
- * Convert bytes to int.
- * @param dataBytes data from characteristic in bytes.
- * @return int.
- */
-- (int)bytesToInt:(NSData *)dataBytes;
+- (void) setNotify:(CBUUID *)charUUID
+belongingToService:(CBUUID *)serviceUUID
+      callbackFunc:(std::function<void(uint8_t *)>)callback
+        completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
  * After discovering and connecting characteristics, you may want to fetch one.
@@ -132,6 +135,13 @@ typedef void (^semaphoreCompletionBlock)(void);
  * @return the characteristic. Or nil if not found.
  */
 - (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID;
+
+/**
+ * Convert NSData * to uint8_t *.
+ * @param data the data to convert.
+ * @return uint8_t array.
+ */
+- (uint8_t *)NSDataTouint8:(NSData *)data;
 
 @end
 
