@@ -42,7 +42,7 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(feeling-blue REQUIRED)
 
 add_executable(yourProject main.cpp)
-target_link_libraries(testLib PUBLIC feeling-blue)
+target_link_libraries(yourProject PUBLIC feeling-blue)
 
 ```
 
@@ -54,6 +54,8 @@ to its service and characteristics.
 
 ```
 main.cpp
+
+#include "feeling-blue/feeling-blue.h"
 
 int main() {
     std::unique_ptr<bluetooth::Central> central = std::make_unique<bluetooth::Central>();

@@ -17,31 +17,32 @@ namespace bluetooth {
         class Wrapper;
     }
 
-    namespace handler {
-        class EventHandler;
-    }
-
     class Service;
 
     /**
      * represents a peripheral device.
-     * Owned by central.
      */
     class Peripheral {
     public:
 
-        Peripheral(const std::string &name, std::shared_ptr<handler::EventHandler> event_handler);
+        Peripheral(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt);
 
         ~Peripheral();
 
         /**
-         * Find service given the uuid.
-         * @param uuid service's uuid.
-         * @return the service, or nullptr if the service cannot be found.
-         * TODO: I'm invoking the copy constructor to return a new object...is this appropriate
-         * to return to the consumer?
+         * Find advertised service given the service_uuid. Return the service if found, otherwise returns nullptr.
+         * @param service_uuid service's service_uuid.
+         * @return the service or nullptr.
          */
-        std::shared_ptr<Service> find_service(const std::string &uuid);
+        std::shared_ptr<Service> find_service(const std::string &service_uuid);
+
+        /**
+         * After discovering and connecting to services, will store them into a list. This method
+         * matches the given service_uuid and returns the corresponding service.
+         * If the service is not found in the peripheral, then return nullptr.
+         * @return service matching the service_uuid or nullptr.
+         */
+        std::shared_ptr<Service> get_service(const std::string &service_uuid);
 
 
     private:

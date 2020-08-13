@@ -4,10 +4,12 @@
 
 #include <vector>
 #include <string>
+#include <memory>
 
 namespace bluetooth {
 
     class Peripheral;
+
     class Service;
 
     namespace wrapper {
@@ -26,29 +28,32 @@ namespace bluetooth {
             void start_bluetooth();
 
             /**
-             * See Central method.
+             * Find the peripheral using the advertised uuids.
+             * @return true if the peripheral was found, false otherwise.
              */
-            void find_peripheral(std::vector<std::string> uuids);
+            bool find_peripheral(std::vector<std::string> uuids);
 
             /**
-             * See Central method.
+             * Find the peripheral using the name of the device.
+             * @return true if the peripheral was found, false otherwise.
              */
-            void find_peripheral(std::string name);
+            bool find_peripheral(std::string name);
 
             /**
-             * Find service given the uuid.
-             * @param uuid uuid of the service
+             * Find service given the service_uuid.
+             * @param service_uuid service_uuid of the service
              * @return a pointer
              */
-            void find_service(std::string uuid);
+            bool find_service(std::string service_uuid);
 
             /**
              * Find the characteristic given the uuid of the characteristic and the
              * service that it belongs to.
              * @param char_uuid uuid of the characteristic.
              * @param service_uuid uuid of the service.
+             * @return true if the characteristic is found, false otherwise.
              */
-            void find_characteristic(std::string char_uuid, std::string service_uuid);
+            bool find_characteristic(std::string char_uuid, std::string service_uuid);
 
             /**
              * Return the name of the connected peripheral.
@@ -56,13 +61,7 @@ namespace bluetooth {
              */
             std::string get_peripheral_name();
 
-            /**
-             * Calls on objective c function to set the callback to the arduino handler object.
-             * @param arduino the arduino handler object.
-             * @param obj the wrapped object.
-             */
-            void set_handler(void *central_event_handler);
-
+            uint8_t *read(const std::string &service_uuid, const std::string &char_uuid);
 
         private:
             WrapperImpl *impl;

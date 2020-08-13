@@ -1,5 +1,4 @@
 #include "peripheral.h"
-#include "event_handler.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -33,35 +32,90 @@ namespace bluetooth {
             NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
             [impl->wrapped performSelectorInBackground:@selector(startBluetooth) withObject:nil];
             [pool release];
+
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
         }
 
-        void Wrapper::find_peripheral(std::vector<std::string> uuids) {
+        bool Wrapper::find_peripheral(std::vector<std::string> uuids) {
             NSMutableArray *arr = [[NSMutableArray alloc] init];
             for (int i = 0; i < uuids.size(); i++) {
                 NSString *uuid = [NSString stringWithUTF8String:uuids[i].c_str()];
                 [arr addObject:[CBUUID UUIDWithString:uuid]];
             }
-            [impl->wrapped findAndConnectPeripheralByUUID:(arr)];
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+
+            [impl->wrapped findAndConnectPeripheralByUUID:(arr) completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+            if ([impl->wrapped getPeripheral] == nil) {
+                [arr release];
+                return false;
+            }
             [arr release];
+            return true;
         }
 
-        void Wrapper::find_peripheral(std::string name) {
+        bool Wrapper::find_peripheral(std::string name) {
             NSString *n = [NSString stringWithUTF8String:name.c_str()];
-            [impl->wrapped findAndConnectPeripheralByName:(n)];
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+
+            [impl->wrapped findAndConnectPeripheralByName:(n) completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+            if ([impl->wrapped getPeripheral] == nil) {
+                return false;
+            }
+            return true;
         }
 
-        void Wrapper::find_service(std::string uuid) {
-            NSString *s = [NSString stringWithUTF8String:uuid.c_str()];
-            CBUUID *c = [CBUUID UUIDWithString:s];
-            [impl->wrapped findAndConnectServiceByUUID:(c)];
+        bool Wrapper::find_service(std::string service_uuid) {
+            NSString *service_string = [NSString stringWithUTF8String:service_uuid.c_str()];
+            CBUUID *service_cbuuid = [CBUUID UUIDWithString:service_string];
+
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            [impl->wrapped findAndConnectServiceByUUID:service_cbuuid completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+            CBPeripheral *peripheral = [impl->wrapped getPeripheral];
+
+            for (CBService *service in peripheral.services) {
+                NSLog(@"service.uuid: %@", service);
+                NSLog(@"cbuuid: %@", service);
+                if (([service.UUID isEqual:service_cbuuid])) {
+                    NSLog(@"**** SUCCESSFULLY CONNECTED TO SERVICE: %@", service);
+                    return true;
+                }
+            }
+
+            NSLog(@"Warning, service: %@ not found!", service_string);
+            return false;
         }
 
-        void Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
+        bool Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
-            CBUUID *CBchar = [CBUUID UUIDWithString:char_s];
+            CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
             CBUUID *CBService = [CBUUID UUIDWithString:service_s];
-            [impl->wrapped findAndConnectCharacteristicByUUID:CBchar belongingToService:CBService];
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            [impl->wrapped findAndConnectCharacteristicByUUID:CBChar belongingToService:CBService completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+            if ([impl->wrapped getCharFromService:CBChar belongingToService:CBService] == nil) {
+                NSLog(@"**** WARNING COULD NOT CONNECT TO CHARACTERISTIC: %@", char_s);
+                return false;
+            }
+            NSLog(@"**** SUCCESSFULLY CONNECTED TO CHARACTERISTIC: %@", char_s);
+            return true;
         }
 
         std::string Wrapper::get_peripheral_name() {
@@ -71,9 +125,22 @@ namespace bluetooth {
             return temp;
         }
 
-        void Wrapper::set_handler(void *central_event_handler) {
-            auto *a = static_cast<handler::EventHandler *>(central_event_handler);
-            [impl->wrapped setHandler:a];
+        uint8_t *Wrapper::read(const std::string &service_uuid, const std::string &char_uuid) {
+            NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
+            NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
+            CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
+            CBUUID *CBService = [CBUUID UUIDWithString:service_s];
+
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            [impl->wrapped read:CBChar belongingToService:CBService completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
+
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+            CBCharacteristic *c = [impl->wrapped getCharFromService:CBChar belongingToService:CBService];
+            auto *bytes = (uint8_t *) c.value.bytes;
+            return bytes;
         }
 
     }
@@ -88,7 +155,6 @@ namespace bluetooth {
 @implementation CBluetooth
 
 - (void)startBluetooth {
-    _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
 
     @autoreleasepool {
         dispatch_async(_centralQueue, ^{
@@ -101,36 +167,45 @@ namespace bluetooth {
     };
 }
 
-- (void)findAndConnectPeripheralByName:(NSString *)name {
+- (void)findAndConnectPeripheralByName:(NSString *)name completion:(semaphoreCompletionBlock)completionBlock {
     _nameSearch = true;
     _peripheralName = name;
     [_centralManager scanForPeripheralsWithServices:nil
                                             options:nil];
+
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    completionBlock();
 }
 
-- (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids {
+- (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids completion:(semaphoreCompletionBlock)completionBlock {
     _nameSearch = false;
     [_centralManager scanForPeripheralsWithServices:uuids
                                             options:nil];
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    completionBlock();
 }
 
-- (void)findAndConnectServiceByUUID:(CBUUID *)uuid {
-    _currentServiceSearchUUID = uuid;
+- (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(semaphoreCompletionBlock)completionBlock {
     [_peripheral discoverServices:@[uuid]];
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    completionBlock();
 }
 
-- (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
-    _currentCharSearchUUID = charUUID;
+- (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID
+                        belongingToService:(CBUUID *)serviceUUID
+                                completion:(semaphoreCompletionBlock)completionBlock; {
     for (CBService *service in _peripheral.services) {
         if (([service.UUID isEqual:serviceUUID])) {
             [_peripheral discoverCharacteristics:@[charUUID] forService:service];
+
+            dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+            completionBlock();
         }
     }
 }
 
 
 - (void)rotateTable:(int)degrees {
-    _eventHandler->set_proceed(true);
     NSData *bytes = [NSData dataWithBytes:&degrees length:sizeof(degrees)];
     [_peripheral
             writeValue:bytes
@@ -143,19 +218,30 @@ namespace bluetooth {
     return _peripheralName;
 }
 
-
-- (void)setHandler:(bluetooth::handler::EventHandler *)eventHandler {
-    _eventHandler = eventHandler;
+- (CBPeripheral *)getPeripheral {
+    return _peripheral;
 }
 
+- (dispatch_semaphore_t)getSemaphore {
+    return _semaphore;
+}
+
+- (void)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID completion:(semaphoreCompletionBlock)completionBlock {
+    CBCharacteristic *c = [self getCharFromService:charUUID belongingToService:serviceUUID];
+
+    [_peripheral readValueForCharacteristic:c];
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    completionBlock();
+}
 
 - (id)init {
-    self = [super init];
-    if (self) {
-        return self;
+    if (self = [super init]) {
+        _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
+        _semaphore = dispatch_semaphore_create(0);
     }
     return self;
 }
+
 
 - (void)dealloc {
     std::cout << "destructing this bluetooth_object object";
@@ -182,11 +268,7 @@ namespace bluetooth {
             break;
         case CBManagerStatePoweredOn: {
             state = @"Bluetooth LE is turned on and ready for communication.";
-            std::unique_lock<std::mutex> ul(_eventHandler->mut);
-            _eventHandler->set_proceed(true);
-            ul.unlock();
-            _eventHandler->cv.notify_one();
-            ul.lock();
+            dispatch_semaphore_signal(_semaphore);
             break;
         }
         case CBManagerStateUnknown:
@@ -228,13 +310,8 @@ namespace bluetooth {
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [_centralManager stopScan];
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
-    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-    _eventHandler->set_proceed(true);
-    ul.unlock();
-    _eventHandler->cv.notify_one();
-    ul.lock();
-//    NSLog(@"Now looking for services...");
-//    [peripheral discoverServices:nil];
+
+    dispatch_semaphore_signal(_semaphore);
 }
 
 // called if didDiscoverPeripheral fails to connect
@@ -246,87 +323,23 @@ namespace bluetooth {
     NSLog(@"**** DISCONNECTED FROM SWAG SCANNER");
 }
 
-#pragma mark - CBPeripheralDelegate methods
 
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
-    bool found = false;
-    for (CBService *service in peripheral.services) {
-        if (([service.UUID isEqual:_currentServiceSearchUUID])) {
-            NSLog(@"**** SUCCESSFULLY CONNECTED TO SERVICE: %@", service);
-            found = true;
-        }
-    }
-    if (!found) {
-        NSLog(@"Warning, service: %@ not found!", _currentServiceSearchUUID);
-    }
+//    bool found = false;
+    NSLog(@"discovered a new service");
+    dispatch_semaphore_signal(_semaphore);
 
-    // don't forget to reset
-    _currentServiceSearchUUID = nil;
-
-    _eventHandler->service_found = found;
-
-    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-    _eventHandler->set_proceed(true);
-    ul.unlock();
-    _eventHandler->cv.notify_one();
-    ul.lock();
 }
 
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
-    bool found = false;
-    for (CBCharacteristic *characteristic in service.characteristics) {
-//        NSLog(@"we have this charactersitic in service: %@", characteristic);
-        if ([characteristic.UUID isEqual:_currentCharSearchUUID]) {
-            NSLog(@"**** SUCCESSFULLY CONNECTED TO CHARACTERISTIC: %@", characteristic);
-            found = true;
-        }
-    }
-    if (!found) {
-        NSLog(@"WARNING, char: %@ not found!", _currentCharSearchUUID);
-    }
-
-    // don't forget to reset
-    _currentCharSearchUUID = nil;
-
-    _eventHandler->char_found = found;
-
-    std::unique_lock<std::mutex> ul(_eventHandler->mut);
-    _eventHandler->set_proceed(true);
-    ul.unlock();
-    _eventHandler->cv.notify_one();
-    ul.lock();
-
-//        uint8_t enableValue = 0;
-//        NSData *enableBytes = [NSData dataWithBytes:&enableValue length:sizeof(uint8_t)];
-//
-//        //TODO: as I'm writing the find_characteristics, these write value stuff don't need to be here
-//
-//        // rotate table
-//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:ROTATE_TABLE_CHAR_UUID]]) {
-//            NSLog(@"Enabled table rotation characteristic: %@", characteristic);
-//            _rotateTableChar = characteristic;
+    dispatch_semaphore_signal(_semaphore);
 //            [self.peripheral writeValue:enableBytes forCharacteristic:characteristic type:CBCharacteristicWriteWithResponse];
-//        }
-//
-//        // table position
-//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
-//            NSLog(@"Enabled table position characteristic with notifications: %@", characteristic);
-////            _tablePosChar = characteristic;
 //            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
-//        }
-//
-//        // table rotation
-//        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
-//            NSLog(@"Enabled is table rotation? characteristic with notifications: %@", characteristic);
 //            [self.peripheral setNotifyValue:YES forCharacteristic:characteristic];
-//        }
-
-
-
 }
 
 // start receiving data from this method once we set up notifications. Also can be manually
@@ -335,49 +348,43 @@ namespace bluetooth {
     if (error) {
         NSLog(@"Error changing notification state: %@", [error localizedDescription]);
     } else {
-        // extract the data from the characteristic's value property and display the value based on the characteristic type
-        NSData *dataBytes = characteristic.value;
-        if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:TABLE_POSITION_CHAR_UUID]]) {
-            [self displayTablePosInfo:dataBytes];
-        } else if ([characteristic.UUID isEqual:[CBUUID UUIDWithString:IS_TABLE_ROTATING_CHAR_UUID]]) {
-            [self displayRotInfo:dataBytes];
-            [self setIsRotating:dataBytes];
-        }
+        dispatch_semaphore_signal(_semaphore);
     }
 }
 
 - (void)setIsRotating:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-//    std::unique_lock<std::mutex> ul(_eventHandler->peripheral_mutex);
-//    _eventHandler->set_is_peripheral_found(theInteger == 1);
-//    ul.unlock();
-//    _eventHandler->peripheral_cv.notify_one();
-//    ul.lock();
 }
 
 
 - (void)displayRotInfo:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-//    if (theInteger == 1) {
-//        std::cout << "table is rotating" << std::endl;
-//    }
-//    else {
-//        std::cout << "table is not rotating" << std::endl;
-//    }
 }
 
 - (void)displayTablePosInfo:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
-//    std::cout << "Table is at position: " + std::to_string(theInteger) << std::endl;
 }
 
 - (int)bytesToInt:(NSData *)dataBytes {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
     return theInteger;
+}
+
+- (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
+    for (CBService *service in _peripheral.services) {
+        if (([service.UUID isEqual:serviceUUID])) {
+            for (CBCharacteristic *characteristic in service.characteristics) {
+                if (([characteristic.UUID isEqual:charUUID])) {
+                    return characteristic;
+                }
+            }
+        }
+    }
+    return nil;
 }
 
 

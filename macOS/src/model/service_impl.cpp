@@ -1,6 +1,6 @@
 #include "service.h"
 #include "characteristic.h"
-#include "event_handler.h"
+#include "wrapper.h"
 #include <utility>
 #include <vector>
 
@@ -8,31 +8,48 @@ namespace bluetooth {
 
     struct Service::ServiceImpl {
     public:
-        ServiceImpl(const std::string &uuid, std::shared_ptr<handler::EventHandler> event_handler)
-                :
-                uuid(uuid), event_handler(event_handler) {}
+        ServiceImpl(const std::string &service_uuid, std::shared_ptr<wrapper::Wrapper> bt)
+                : service_uuid(service_uuid), bt(bt) {}
 
-        std::shared_ptr<Characteristic> find_characteristic(const std::string &char_uuid) {
-            std::shared_ptr<Characteristic> c = event_handler->find_characteristic(char_uuid, uuid);
-            characteristics.push_back(c);
-            return c;
-        }
 
         ~ServiceImpl() {
 
         }
 
+        std::shared_ptr<Characteristic> find_characteristic(const std::string &uuid) {
+            if (bt->find_characteristic(uuid, service_uuid)) {
+                std::shared_ptr<bluetooth::Characteristic> c = std::make_shared<bluetooth::Characteristic>(uuid,
+                                                                                                           service_uuid,
+                                                                                                           bt);
+                characteristics.push_back(c);
+                return c;
+            }
+            return nullptr;
+        }
+
+        std::shared_ptr<Characteristic> get_characteristic(const std::string &uuid) {
+            for (auto c : characteristics) {
+                if (uuid == c->uuid()) {
+                    return c;
+                }
+            }
+            return nullptr;
+        }
+
+        std::string uuid() {
+            return service_uuid;
+        }
+
+
     private:
-        std::string uuid;
+        std::string service_uuid;
         std::vector<std::shared_ptr<Characteristic>> characteristics;
-        std::shared_ptr<handler::EventHandler> event_handler;
+        std::shared_ptr<wrapper::Wrapper> bt;
     };
 
-    // Wrapper implementation //
-
     Service::Service(const std::string &uuid,
-                     std::shared_ptr<handler::EventHandler> event_handler) :
-            sImpl(new ServiceImpl(uuid, std::move(event_handler))) {}
+                     std::shared_ptr<wrapper::Wrapper> bt) :
+            sImpl(new ServiceImpl(uuid, std::move(bt))) {}
 
     Service::~Service() {
         delete sImpl;
@@ -42,5 +59,11 @@ namespace bluetooth {
         return sImpl->find_characteristic(uuid);
     }
 
+    std::shared_ptr<Characteristic> Service::get_characteristic(const std::string &uuid) {
+        return sImpl->find_characteristic(uuid);
+    }
 
+    std::string Service::uuid() {
+        return sImpl->uuid();
+    }
 }
