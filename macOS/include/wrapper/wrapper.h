@@ -67,14 +67,6 @@ namespace bluetooth {
 
             uint8_t *read(const std::string &service_uuid, const std::string &char_uuid);
 
-            /**
-             * Calls on objective c function to set the callback to the arduino handler object.
-             * @param event_handler the arduino handler object.
-             * @param obj the wrapped object.
-             */
-            void set_handler(std::shared_ptr<handler::EventHandler> _event_handler);
-
-
         private:
             WrapperImpl *impl;
         };

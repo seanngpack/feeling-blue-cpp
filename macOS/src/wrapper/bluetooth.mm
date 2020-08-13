@@ -80,13 +80,11 @@ namespace bluetooth {
             CBUUID *service_cbuuid = [CBUUID UUIDWithString:service_string];
 
             dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
-            std::cout << "1" << std::endl;
             [impl->wrapped findAndConnectServiceByUUID:service_cbuuid completion:^{
                 dispatch_semaphore_signal(sem);
             }];
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
 
-            std::cout << "5" << std::endl;
             CBPeripheral *peripheral = [impl->wrapped getPeripheral];
 
             for (CBService *service in peripheral.services) {
@@ -102,20 +100,21 @@ namespace bluetooth {
             return false;
         }
 
-
         bool Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
             CBUUID *CBService = [CBUUID UUIDWithString:service_s];
             dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
-            std::cout << "we still food" << std::endl;
             [impl->wrapped findAndConnectCharacteristicByUUID:CBChar belongingToService:CBService completion:^{
                 dispatch_semaphore_signal(sem);
             }];
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
             if ([impl->wrapped getCharFromService:CBChar belongingToService:CBService] == nil) {
+                NSLog(@"**** WARNING COULD NOT CONNECT TO CHARACTERISTIC: %@", char_s);
                 return false;
             }
+            NSLog(@"**** SUCCESSFULLY CONNECTED TO CHARACTERISTIC: %@", char_s);
             return true;
         }
 
@@ -131,13 +130,18 @@ namespace bluetooth {
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
             CBUUID *CBService = [CBUUID UUIDWithString:service_s];
-            return [impl->wrapped read:CBChar belongingToService:CBService];
-        }
 
-        void Wrapper::set_handler(std::shared_ptr<handler::EventHandler> event_handler) {
-            [impl->wrapped setHandler:event_handler];
-        }
+            dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
+            [impl->wrapped read:CBChar belongingToService:CBService completion:^{
+                dispatch_semaphore_signal(sem);
+            }];
 
+            dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
+
+            CBCharacteristic *c = [impl->wrapped getCharFromService:CBChar belongingToService:CBService];
+            auto *bytes = (uint8_t *) c.value.bytes;
+            return bytes;
+        }
 
     }
 }
@@ -182,19 +186,14 @@ namespace bluetooth {
 }
 
 - (void)findAndConnectServiceByUUID:(CBUUID *)uuid completion:(semaphoreCompletionBlock)completionBlock {
-    std::cout << "2" << std::endl;
-
     [_peripheral discoverServices:@[uuid]];
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
-
-    std::cout << "4" << std::endl;
     completionBlock();
 }
 
 - (void)findAndConnectCharacteristicByUUID:(CBUUID *)charUUID
                         belongingToService:(CBUUID *)serviceUUID
                                 completion:(semaphoreCompletionBlock)completionBlock; {
-    _currentCharSearchUUID = charUUID;
     for (CBService *service in _peripheral.services) {
         if (([service.UUID isEqual:serviceUUID])) {
             [_peripheral discoverCharacteristics:@[charUUID] forService:service];
@@ -227,47 +226,13 @@ namespace bluetooth {
     return _semaphore;
 }
 
-- (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
-    for (CBService *service in _peripheral.services) {
-        if (([service.UUID isEqual:serviceUUID])) {
-            for (CBCharacteristic *characteristic in service.characteristics) {
-                if (([characteristic.UUID isEqual:charUUID])) {
-                    return characteristic;
-                }
-            }
-        }
-    }
-    return nil;
+- (void)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID completion:(semaphoreCompletionBlock)completionBlock {
+    CBCharacteristic *c = [self getCharFromService:charUUID belongingToService:serviceUUID];
+
+    [_peripheral readValueForCharacteristic:c];
+    dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
+    completionBlock();
 }
-
-- (uint8_t *)read:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID; {
-    CBCharacteristic *c = nil;
-    for (CBService *service in _peripheral.services) {
-        if (([service.UUID isEqual:serviceUUID])) {
-            for (CBCharacteristic *characteristic in service.characteristics) {
-                if (([characteristic.UUID isEqual:charUUID])) {
-                    c = characteristic;
-                }
-            }
-        }
-    }
-    dispatch_sync(dispatch_get_main_queue(), ^{
-        [_peripheral readValueForCharacteristic:c];
-    });
-
-//    NSUInteger size = [charData length] / sizeof(unsigned char);
-//    auto* byte_array = (unsigned char*) [charData bytes];
-
-//    std::vector<std::byte> bytes(byte_array, byte_array + [charData length]);
-    auto *bytes = (uint8_t *) c.value.bytes;
-    return bytes;
-}
-
-
-- (void)setHandler:(std::shared_ptr<bluetooth::handler::EventHandler>)eventHandler {
-    _eventHandler = eventHandler;
-}
-
 
 - (id)init {
     if (self = [super init]) {
@@ -358,7 +323,6 @@ namespace bluetooth {
     NSLog(@"**** DISCONNECTED FROM SWAG SCANNER");
 }
 
-#pragma mark - CBPeripheralDelegate methods
 
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
@@ -372,7 +336,6 @@ namespace bluetooth {
 // peripheral_mac's response to discoverCharacteristics
 // use this to turn on notifications
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverCharacteristicsForService:(CBService *)service error:(NSError *)error {
-
     dispatch_semaphore_signal(_semaphore);
 
     // don't forget to reset
@@ -446,6 +409,19 @@ namespace bluetooth {
     int theInteger;
     [dataBytes getBytes:&theInteger length:sizeof(theInteger)];
     return theInteger;
+}
+
+- (CBCharacteristic *)getCharFromService:(CBUUID *)charUUID belongingToService:(CBUUID *)serviceUUID {
+    for (CBService *service in _peripheral.services) {
+        if (([service.UUID isEqual:serviceUUID])) {
+            for (CBCharacteristic *characteristic in service.characteristics) {
+                if (([characteristic.UUID isEqual:charUUID])) {
+                    return characteristic;
+                }
+            }
+        }
+    }
+    return nil;
 }
 
 
