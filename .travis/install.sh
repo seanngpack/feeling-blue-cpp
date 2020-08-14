@@ -1,13 +1,9 @@
 #!/bin/bash
 
-if [ $TRAVIS_OS_NAME = 'osx' ];
-then
-
-    # Install some custom requirements on macOS
-    # e.g. brew install pyenv-virtualenv
-
-    echo "we're on macos"
-
+if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "we're on mac"
+elif [[ "$OSTYPE" == "windowsnt"* ]]; then
+        echo "we're on windows"
 else
-    # Install some custom requirements on Linux
+        echo "this OS is not supported"
 fi
