@@ -19,6 +19,4 @@ before_script:
   - mkdir $PARENTDIR/build && cd $PARENTDIR/build
 
 script:
-  - cd $PARENTDIR/build
-  - cmake $PARENTDIR
   - make
