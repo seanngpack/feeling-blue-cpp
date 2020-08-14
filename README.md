@@ -1,6 +1,8 @@
 # ![feeling-blue-logo](doc/img/feeling_blue_cpp.png)
 C++ library for BluetoothLE usage on MacOS or Windows. One of the only bluetooth libraries for MacOS.
 
+[![TravisCI](https://github.com/seanngpack/feeling-blue-cpp/tree/master)](https://travis-ci.org/github/seanngpack/feeling-blue-cpp)
+
 ## Table of Contents
 
 - [Features](#features)
