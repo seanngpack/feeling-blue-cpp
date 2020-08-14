@@ -1,5 +1,10 @@
 language: cpp
 
+branches:
+  only:
+    - gh-pages
+    - /.*/
+
 matrix:
   include:
     - os: osx
@@ -15,8 +20,9 @@ install:
 
 before_script:
   - g++ --version
-  - PARENTDIR=$(pwd)
-  - mkdir $PARENTDIR/build && cd $PARENTDIR/build
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir build
 
 script:
-  - make
+  - cd build
+  - cmake ..
