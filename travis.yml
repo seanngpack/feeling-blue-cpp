@@ -1,0 +1,26 @@
+language: cpp
+
+matrix:
+  include:
+    - os: osx
+      osx_image: xcode11.6
+      env:
+        - MATRIX_EVAL="brew install gcc && CC=gcc-7 && CXX=g++-7"
+
+dist: trusty
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+install:
+  - ./.travis/install.sh
+
+before_script:
+  - g++ --version
+  - PARENTDIR=$(pwd)
+  - mkdir $PARENTDIR/build && cd $PARENTDIR/build
+
+script:
+  - cd $PARENTDIR/build
+  - cmake $PARENTDIR
+  - make
