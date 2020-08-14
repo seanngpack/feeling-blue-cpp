@@ -15,6 +15,7 @@ C++ library for BluetoothLE usage on MacOS or Windows. One of the only bluetooth
 * Blocking API. Calls to find services, characteristics, etc block the calling thread until the process is complete.
 Blocking methods are documented.
 * Non-intrusive namespace. The API is encapsulated in ```bluetooth::``` so your global namespace does not get polluted.
+* User-defined callbacks on notifications received by device.
 * Simple and straightfoward API.
 
 ## Installation
@@ -49,11 +50,19 @@ target_link_libraries(yourProject PUBLIC feeling-blue)
 
 
 ## Time to start using it!
-Below is an example of finding your device and connecting
-to its service and characteristics.
+Below is a brief example of finding your device and connecting
+to its service and characteristics. is_rotating_char supports notifications
+so we enable them and pass a callback function to do something with the data
+that it receives on notification.
 
 ```
 main.cpp
+
+void print_data(uint8_t *data) {
+        int value;
+        std::memcpy(&value, data, sizeof(int));
+        std::cout << value << std::endl;
+    }
 
 #include "feeling-blue/feeling-blue.h"
 
@@ -65,8 +74,12 @@ int main() {
     std::shared_ptr<bluetooth::Characteristic> rotate_char = service->find_characteristic("5ffba522-2363-41da-92f5-46adc56b2d37");
     std::shared_ptr<bluetooth::Characteristic> position_char = service->find_characteristic("5ffba523-2363-41da-92f5-46adc56b2d37");
 
+    is_rotating_char->set_notify(print_data);
+
     // some mechanism to keep your main thread alive
   
     return 0;
 }
 ```
+
+Examples in ./examples go into more detail about how to use this library. 
