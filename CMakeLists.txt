@@ -9,7 +9,13 @@ include(GNUInstallDirs)
 
 set(SOURCE_FILES macOS/src/main.cpp)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
+
+# --------------------------------------------------------------------------------
+#                          Build options
+# --------------------------------------------------------------------------------
+
 option(BUILD_DOCUMENTATION "Create the API documentation" OFF)
+option(BUILD_TESTS "Build the tests" OFF)
 
 # --------------------------------------------------------------------------------
 #                          Public headers API
@@ -39,9 +45,11 @@ enable_testing()
 # --------------------------------------------------------------------------------
 
 add_subdirectory(macOS)
-add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest-release-1.10.0)
-add_subdirectory(test)
 
+if (BUILD_TESTS)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest-release-1.10.0)
+    add_subdirectory(test)
+endif()
 
 
 # --------------------------------------------------------------------------------
@@ -51,8 +59,6 @@ add_subdirectory(test)
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
-
-
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES

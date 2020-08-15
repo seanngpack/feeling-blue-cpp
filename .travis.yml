@@ -4,7 +4,6 @@ branches:
   only:
     - gh-pages
     - master
-    - CI-implementation
 
 matrix:
   include:
@@ -34,7 +33,7 @@ before_script:
 
 script:
   - cd build
-  - cmake -DBUILD_DOCUMENTATION=ON ..
+  - cmake -DBUILD_DOCUMENTATION=ON -DBUILD_TESTS=ON ..
   - make
   - ctest
 
