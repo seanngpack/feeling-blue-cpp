@@ -4,6 +4,7 @@ branches:
   only:
     - gh-pages
     - master
+    - CI-implementation
 
 matrix:
   include:
