@@ -31,7 +31,5 @@ before_script:
 script:
   - cd build
   - cmake -DBUILD_DOCUMENTATION=ON ..
-  - ls
-  - cd test
-  - ls
+  - make
   - ctest

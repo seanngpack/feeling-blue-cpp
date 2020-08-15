@@ -14,4 +14,4 @@ include_directories(
 add_executable(${TEST_MAIN} ${TEST_SRC_FILES})
 target_link_libraries(${TEST_MAIN} gtest gtest_main)
 
-add_test(UnitTests ${TEST_MAIN})
+add_test(${TEST_MAIN} ${TEST_MAIN})
