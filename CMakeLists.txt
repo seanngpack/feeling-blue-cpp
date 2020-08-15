@@ -8,6 +8,7 @@ project(feeling-blue
 include(GNUInstallDirs)
 
 set(SOURCE_FILES macOS/src/main.cpp)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 option(BUILD_DOCUMENTATION "Create the API documentation" OFF)
 
 # --------------------------------------------------------------------------------

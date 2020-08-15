@@ -1,5 +1,8 @@
 #!/bin/bash
 
+pip install sphinx_rtd_theme
+pip install breathe
+
 if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "we're on mac"
 elif [[ "$OSTYPE" == "windowsnt"* ]]; then
