@@ -9,6 +9,7 @@ branches:
 matrix:
   include:
     - os: osx
+      python: 3.7
       osx_image: xcode11.6
       addons:
         homebrew:
@@ -18,9 +19,10 @@ matrix:
 dist: trusty
 
 before_install:
-  - sudo apt-get update
-  - sudo apt-get install python3
   - chmod +x ./.travis/install.sh
+  - python3 --version
+  - pip3 install sphinx_rtd_theme
+  - pip3 install breathe
 
 install:
   - ./.travis/install.sh
