@@ -3,7 +3,7 @@ language: cpp
 branches:
   only:
     - gh-pages
-    - /.*/
+    - master
 
 matrix:
   include:
@@ -25,4 +25,5 @@ before_script:
 
 script:
   - cd build
-  - cmake ..
+  - cmake -DBUILD_DOCUMENTATION=ON ..
+  - ctest
