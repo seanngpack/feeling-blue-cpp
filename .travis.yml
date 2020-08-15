@@ -10,6 +10,10 @@ matrix:
   include:
     - os: osx
       osx_image: xcode11.6
+    - addons:
+        homebrew:
+          packages:
+            - doxygen
 
 dist: trusty
 
