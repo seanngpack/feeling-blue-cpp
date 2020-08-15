@@ -9,7 +9,9 @@ include(GNUInstallDirs)
 
 set(SOURCE_FILES macOS/src/main.cpp)
 
-# set the public headers you want the client to user!
+# --------------------------------------------------------------------------------
+#                          Public headers API
+# --------------------------------------------------------------------------------
 set(macOS_PUBLIC_HEADERS
         ./include/feeling-blue.h
         )
@@ -21,20 +23,32 @@ set(macOS_PRIVATE_HEADERS
         ./include/characteristic.h
         )
 
+# --------------------------------------------------------------------------------
+#                          Enable Testing
+# --------------------------------------------------------------------------------
+
+include(CTest)
+enable_testing()
+
+# --------------------------------------------------------------------------------
+#                          Subdirectories
+# --------------------------------------------------------------------------------
+
 add_subdirectory(macOS)
+add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest-release-1.10.0)
+add_subdirectory(test)
 
 
-message(CMAKE_INSTALL_DIR = ${CMAKE_INSTALL_LIBDIR})
-message(CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR})
-message(CMAKE_INSTALL_DATAROOTDIR = ${CMAKE_INSTALL_DATAROOTDIR})
-message(CMAKE_INSTALL_INCLUDEDIR = ${CMAKE_INSTALL_INCLUDEDIR})
-message(where_is_this = ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-message(CMAKE_CURRENT_LIST_DIR = ${CMAKE_CURRENT_LIST_DIR})
-
+# --------------------------------------------------------------------------------
+#                          Add directories
+# --------------------------------------------------------------------------------
+#include_directories(
+#        ${PROJECT_SOURCE_DIR}/test)
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
+
 
 
 set_target_properties(${PROJECT_NAME}
@@ -43,6 +57,9 @@ set_target_properties(${PROJECT_NAME}
         PRIVATE_HEADER "${macOS_PRIVATE_HEADERS}"
         )
 
+# --------------------------------------------------------------------------------
+#                          Install library
+# --------------------------------------------------------------------------------
 install(TARGETS ${PROJECT_NAME}
         EXPORT feeling-blueConfig
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
