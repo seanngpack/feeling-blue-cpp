@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 pip install sphinx_rtd_theme
 pip install breathe
