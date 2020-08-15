@@ -37,3 +37,11 @@ script:
   - cmake -DBUILD_DOCUMENTATION=ON ..
   - make
   - ctest
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: ${TRAVIS_BUILD_DIR}/build/docs/sphinx
+  github_token: $GH_REPO_TOKEN
+  on:
+    branch: CI-implementation
