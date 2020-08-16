@@ -27,7 +27,3 @@ and link the library. Here is what your CMakeLists.txt might look like:
 
     add_executable(yourProject main.cpp)
     target_link_libraries(yourProject PUBLIC feeling-blue)
-
-For more installation options, you may refer to `installing feeling-blue`_
-
-.. _installing feeling-blue: https://sphinx-rtd-theme.readthedocs.io/en/latest/installing.html

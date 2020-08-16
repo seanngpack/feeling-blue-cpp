@@ -1,8 +1,9 @@
-**********
-Examples!
-**********
+************************
+How to use and examples!
+************************
 
 .. contents:: Table of Contents
+    :local:
 
 Read this before starting
 =========================
@@ -64,7 +65,7 @@ To connect to a service, you call the ``find_service`` method and pass in its UU
 Search for characteristics
 --------------------------
 
-Characteristics hold a value. feeling-blue stores this value as a 8-bit integer array, or byte array. It is up to you
+A Characteristic holds a value. feeling-blue stores this value as a 8-bit integer array, or byte array. It is up to you
 to know how to convert this data into something human-readable. Future updates will include built-in functionality
 with the option to make it human-readable, but for now just byte the bullet.
 
@@ -148,12 +149,12 @@ has notification support and that it's enabled. If it's enabled, when a value in
 ping your central that its value has been changed with a payload of the new value. When that happens, you can
 use that payload and write your own function to do something with it!
 
-non-member function
--------------------
+Non-member function callback
+----------------------------
 
 Let's write a callback function that takes in a ``uint8_t *`` and enable notifications, passing the function as a parameter.
 
-IMPORTANT! All callback functions must follow this signature: void (uint8_t *)
+IMPORTANT! All callback functions must follow this signature: ``void (uint8_t *)``
 
 .. code:: c++
 
@@ -166,8 +167,8 @@ IMPORTANT! All callback functions must follow this signature: void (uint8_t *)
     characteristic->set_notify(print_data);
 
 
-member function
----------------
+Member function callback
+------------------------
 
 member functions are a little trickier to write, but you just have to bind their class to std::function
 and add a placeholder parameter, then pass it like normal.
@@ -192,8 +193,8 @@ and add a placeholder parameter, then pass it like normal.
         std::shared_ptr<bluetooth::Characteristic> characteristic;
     };
 
-The notify allback is asynchronous and will return at any point in time.
+The notify callback is asynchronous and will return at any point in time.
 Passing member functions is really powerful because you can do things such as update an instance variable when notified.
 
 If you're passing the same function to multiple characteristic notifications, then just make sure your funciton is thread-safe, this
-applied to both member and non-member functions.
+applies to both member and non-member functions.

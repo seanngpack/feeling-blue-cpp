@@ -1,17 +1,18 @@
 .. include:: intro.rst
 
-.. include:: demo.rst
+.. include:: demo/demo.rst
 
 .. toctree::
    :caption: Documentation
    :maxdepth: 2
+   :hidden:
 
    installing
 
 .. toctree::
-    :maxdepth: 2
-    :numbered:
-    :caption: Examples
+    :maxdepth: 4
+    :caption: Usage and examples
+    :hidden:
 
-    demo
+    demo/demo
 

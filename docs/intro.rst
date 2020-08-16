@@ -5,6 +5,9 @@ feeling-blue Documentation
 .. image:: https://travis-ci.org/seanngpack/feeling-blue-cpp.svg?branch=master
     :target: https://travis-ci.org/seanngpack/feeling-blue-cpp
    :alt: Build Status
+.. image:: https://img.shields.io/github/license/seanngpack/feeling-blue-cpp
+    :target: https://github.com/seanngpack/feeling-blue-cpp
+   :alt: license
 
 feeling-blue_ was created because of a lack of resources for the non-expert on how
 to connect to a bluetooth device using C++. The API was carefully designed to be easy-to-use,
@@ -42,6 +45,3 @@ and link the library. Here is what your CMakeLists.txt might look like:
     add_executable(yourProject main.cpp)
     target_link_libraries(yourProject PUBLIC feeling-blue)
 
-For more installation options, you may refer to `installing feeling-blue`_
-
-.. _installing feeling-blue: https://sphinx-rtd-theme.readthedocs.io/en/latest/installing.html
