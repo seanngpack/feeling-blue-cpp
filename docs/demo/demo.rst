@@ -35,8 +35,8 @@ Search for peripheral
 The peripheral represents the device you want to connect to. There is a limit to one
 peripheral per central. You can spawn more instances of central to connect to more devices.
 
-To connect to a peripheral, you call the ``find_peripheral()`` method. If you know the device name
-you can pass the name as a string:
+To connect to a peripheral, you call the ``find_peripheral()`` method. If you know the device name and your peripheral
+is configured to advertise it, you can pass the name as a string:
 
 .. code:: c++
 

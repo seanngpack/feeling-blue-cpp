@@ -359,6 +359,7 @@ belongingToService:(CBUUID *)serviceUUID
 // call this during scanning when it finds a peripheral_mac
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     NSString *pName = advertisementData[@"kCBAdvDataLocalName"];
+    DLog(@"sd%@",advertisementData );
     DLog(@"NEXT PERIPHERAL: %@ (%@)", pName,
          peripheral.identifier.UUIDString); // cannot predict UUIDSTRING, it is seeded
     DLog(@"NAME: %@ ", peripheral.name);
@@ -369,27 +370,31 @@ belongingToService:(CBUUID *)serviceUUID
                 self.peripheral = peripheral;
                 self.peripheral.delegate = self;
                 [_centralManager stopScan];
-                NSLog(@"SCANNING STOPPED");
+                NSLog(@"FOUND DEVICE, SCANNING STOPPED");
                 [self.centralManager connectPeripheral:self.peripheral options:nil];
             }
         }
     } else {
-        _peripheral = peripheral;
-        _peripheralName = peripheral.name;
-        _peripheral.delegate = self;
+        self.peripheral = peripheral;
+        self.peripheral.delegate = self;
+        self.peripheralName = @"None"; // seems like a corebluetooth bug where if you scan for peripherals
+        // using UUIDs, it removes the localName advertisement key.
         [_centralManager stopScan];
-        NSLog(@"SCANNING STOPPED");
-        [_centralManager connectPeripheral:_peripheral options:nil];
+        NSLog(@"FOUND DEVICE, SCANNING STOPPED");
+        [self.centralManager connectPeripheral:self.peripheral options:nil];
     }
 }
 
 // called after peripheral_mac is connected
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
-    [_centralManager stopScan];
     NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL: %@", peripheral);
 
     dispatch_semaphore_signal(_semaphore);
 }
+
+- (void)peripheralDidUpdateName:(CBPeripheral *)peripheral {
+    NSLog(@"**** PERIPHERAL UPDATED NAME: %@", peripheral);
+    }
 
 // called if didDiscoverPeripheral fails to connect
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
@@ -445,6 +450,7 @@ belongingToService:(CBUUID *)serviceUUID
             std::string char_string = std::string([characteristic.UUID.UUIDString UTF8String]);
             if (key == char_string) {
                 std::vector<std::byte> data_received = [self NSDataToVector:characteristic.value];
+                NSLog(@"NOTIFICATION RECEIVED FROM CHARACTERISTIC: %@", characteristic);
                 val(data_received);
             }
         }

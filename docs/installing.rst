@@ -13,7 +13,15 @@ Download and build:
     $ cmake ..
     $ sudo make install
 
-To use feeling-blue in your project, you gotta use cmake. Just call ``find_package``
+If you don't want any console messages from feeling-blue
+then pass the compiler flag:
+
+.. code:: console
+
+    $ cmake -DVERBOSE_MODE=OFF ..
+
+
+To use feeling-blue in your project, just call ``find_package``
 and link the library. Here is what your CMakeLists.txt might look like:
 
 .. code:: console

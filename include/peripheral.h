@@ -38,6 +38,19 @@ namespace bluetooth {
          */
         std::shared_ptr<Service> get_service(const std::string &service_uuid);
 
+        /**
+         * Set the name for your peripheral device. Use this if you discovered your peripheral via
+         * find_peripheral(std::vector<std::string) because the name functionality is bugged right now.
+         * @param n the name of your peripheral.
+         */
+        void set_name(const std::string &n);
+
+        /**
+         * Get the name of your peripheral.
+         * @return the name of your peripheral.
+         */
+        std::string get_name();
+
 
     private:
         struct PeripheralImpl;
