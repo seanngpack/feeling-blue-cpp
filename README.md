@@ -23,10 +23,9 @@ the nuisances of bluetoothLE.
 
 ## Features
 
-* Blocking API. Calls to find services, characteristics, etc block the calling thread until the process is complete.
-Blocking methods are documented.
-* Non-intrusive namespace. The API is encapsulated in ```bluetooth::``` so your global namespace does not get polluted.
-* Read, write, notify commands.
+* Blocking & non-blocking API. Calls to find services, characteristics, etc block the calling thread until the process is complete.
+* Non-intrusive namespace. The API is encapsulated in ```bluetooth::``` so your global namespace doesn't get polluted.
+* Read, write, and notify commands.
 * User-defined callbacks on notifications received by device.
 * Simple and straightfoward API.
 
