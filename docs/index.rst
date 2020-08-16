@@ -5,20 +5,23 @@
 .. include:: API/API.rst
 
 .. toctree::
-   :caption: Documentation
+   :caption: Installation
    :maxdepth: 2
+   :hidden:
 
    installing
 
 .. toctree::
-    :maxdepth: 4
     :caption: Usage and examples
+    :maxdepth: 4
+    :hidden:
 
     demo/demo
 
 .. toctree::
-    :maxdepth: 4
     :caption: API Documentation
+    :maxdepth: 4
+    :hidden:
 
     API/API
     API/central

@@ -13,7 +13,7 @@ namespace bluetooth {
     class Characteristic;
 
     /**
-     * Represents a uuid service.
+     * Represents a service.
      */
     class Service {
     public:
@@ -24,6 +24,7 @@ namespace bluetooth {
 
         /**
          * Scan the device for given advertised characteristic. Return the characteristic if found, otherwise returns a nullptr.
+         *
          * @param uuid uuid of the characteristic.
          * @return the characteristic or nullptr.
          */
@@ -32,6 +33,7 @@ namespace bluetooth {
         /**
          * The service stores connected characteristics into a list. This method retrieves the characteristic
          * matching the given uuid.
+         *
          * @param char_uuid uuid of characteristic.
          * @return the characteristic or nullptr.
          */

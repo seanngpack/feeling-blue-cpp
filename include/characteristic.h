@@ -29,6 +29,7 @@ namespace bluetooth {
 
         /**
          * Read the characteristic.
+         *
          * @return a byte vector.
          */
         std::vector<std::byte> read();
@@ -36,14 +37,16 @@ namespace bluetooth {
         /**
          * Write to characteristic. Performs this action asynchronously and will not print error if write fails.
          * You can transmit more data with this method than write_with_response().
+         *
+         * @note asynchronous.
          * @param data byte vector of your data.
          */
         void write_without_response(const std::vector<std::byte> &data);
 
         /**
-         * Write to characteristic with response. Blocks calling thread until write_without_response is confirmed to
-         * be either success or failure. If the write_without_response fails, the console will print an error and
-         * the program will continue running.
+         * Write to characteristic with response. If the write_without_response fails and verbose mode is on,
+         * the console will print an error and the program will continue running.
+         *
          * @param byte vector of your data.
          */
         void write_with_response(const std::vector<std::byte> &data);
@@ -51,6 +54,9 @@ namespace bluetooth {
         /**
          * Enable notifications from the characteristic and set callback function to do something
          * with the data when the device notifies.
+         *
+         * @note this method returns when the callback is sucessfully set. Your callback is asynchronously called whenever
+         * a notification is triggered.
          * @param callback function to do something with notificaiton data.
          */
         void notify(const std::function<void(std::vector<std::byte>)>& callback);
