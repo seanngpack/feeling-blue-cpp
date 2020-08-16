@@ -25,6 +25,7 @@ if(BUILD_DOCUMENTATION)
     #Replace variables inside @@ with the current values
     configure_file(${DOXYFILE_IN} ${DOXYFILE_OUT} @ONLY)
     file(MAKE_DIRECTORY ${DOXYGEN_OUTPUT_DIR}) #Doxygen won't create this for us
+    message(Created doxygen output dir=${DOXYGEN_OUTPUT_DIR})
 
     add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
             DEPENDS ${FEELING_BLUE_PUBLIC_HEADERS}
@@ -53,8 +54,8 @@ if(BUILD_DOCUMENTATION)
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDS
             # Other docs files you want to track should go here (or in some variable)
-            ${CMAKE_CURRENT_SOURCE_DIR}/index.rst
-            ${DOXYGEN_INDEX_FILE}
+                ${CMAKE_CURRENT_SOURCE_DIR}/index.rst
+                ${DOXYGEN_INDEX_FILE}
             MAIN_DEPENDENCY ${SPHINX_SOURCE}/conf.py
             COMMENT "Generating documentation with Sphinx")
 

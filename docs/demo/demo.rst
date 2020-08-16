@@ -14,6 +14,9 @@ your program will exit immediately before you get to make bluetooth calls. If yo
 and dirty way to demo the library, then just use a simple ``while`` loop to keep your main thread
 busy.
 
+feeling-blue uses NSLog to display messages to your console. These messages may display out of order
+relative to your cout statements. But the code still runs in the order that you write it.
+
 Connecting to your device
 =========================
 

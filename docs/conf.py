@@ -27,6 +27,13 @@ def configureDoxyfile(input_dir, output_dir):
     with open('Doxyfile', 'w') as file:
         file.write(filedata)
 
+breathe_projects = {}
+input_dir = '../macOS'
+output_dir = 'build'
+configureDoxyfile(input_dir, output_dir)
+subprocess.call('doxygen', shell=True)
+breathe_projects['feeling-blue'] = output_dir + '/xml'
+
 
 
 # -- Project information -----------------------------------------------------

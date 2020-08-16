@@ -213,8 +213,9 @@ namespace bluetooth {
     _nameSearch = true;
     _peripheralName = name;
     NSLog(@"SCANNING FOR: %@", name);
+    NSDictionary *dictionary = @{CBCentralManagerScanOptionAllowDuplicatesKey: @1};
     [_centralManager scanForPeripheralsWithServices:nil
-                                            options:nil];
+                                            options:dictionary];
 
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
     completionBlock();
@@ -223,8 +224,9 @@ namespace bluetooth {
 - (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids completion:(semaphoreCompletionBlock)completionBlock {
     _nameSearch = false;
     NSLog(@"SCANNING FOR PERIPHERAL WITH UUIDS");
+    NSDictionary *dictionary = @{CBCentralManagerScanOptionAllowDuplicatesKey: @1};
     [_centralManager scanForPeripheralsWithServices:uuids
-                                            options:nil];
+                                            options:dictionary];
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
     completionBlock();
 }

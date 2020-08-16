@@ -39,8 +39,9 @@ namespace bluetooth {
             name = n;
         }
 
-        std::string get_name() {}
-        return name;
+        std::string get_name() {
+            return name;
+        }
 
     private:
         std::string name;
