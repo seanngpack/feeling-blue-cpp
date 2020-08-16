@@ -36,6 +36,8 @@ script:
   - cmake -DBUILD_DOCUMENTATION=ON -DBUILD_TESTS=ON ..
   - make
   - ctest
+  - cd ${TRAVIS_BUILD_DIR}/build/docs/sphinx
+  - touch .nojekyll
 
 deploy:
   provider: pages
