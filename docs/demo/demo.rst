@@ -65,9 +65,9 @@ To connect to a service, you call the ``find_service`` method and pass in its UU
 Search for characteristics
 --------------------------
 
-A Characteristic holds a value. feeling-blue stores this value as a 8-bit integer array, or byte array. It is up to you
-to know how to convert this data into something human-readable. Future updates will include built-in functionality
-with the option to make it human-readable, but for now just byte the bullet.
+A Characteristic holds a value. feeling-blue stores this as a byte array. It is up to you
+to know how to convert this data into something human-readable, a string representation for instance.
+Future updates will include built-in functionality with the option to make it human-readable, but for now just byte the bullet.
 
 Characteristic values can be read or written. A characteristic may also have **notifications** enabled
 meaning when the value is updated, it will notify your peripheral and send data to it.
@@ -115,7 +115,7 @@ the calling thread until the data has been read from your characteristic and ass
 
 .. code:: c++
 
-    uint8_t *data = characteristic->read();
+    std::vector<std::byte> data = characteristic->read();
 
 
 Writing to characteristic
@@ -123,8 +123,7 @@ Writing to characteristic
 
 There are two options to write to your device. First we can ``write_without_response()`` which writes to your
 devices asynchronously and does not block your calling thread. If your write fails, you will not get a message
-telling you that it failed. You must provide this method the data as a ``uint8_t *`` and the length. The length is the
-number of bytes in your data array.
+telling you that it failed. You must provide this method the data as a ``std::vector<std::byte>``
 
 .. code:: c++
 
@@ -152,16 +151,16 @@ use that payload and write your own function to do something with it!
 Non-member function callback
 ----------------------------
 
-Let's write a callback function that takes in a ``uint8_t *`` and enable notifications, passing the function as a parameter.
+Let's write a callback function that takes in a ``std::vector<std::byte>`` and enable notifications, passing the function as a parameter.
 
-IMPORTANT! All callback functions must follow this signature: ``void (uint8_t *)``
+IMPORTANT! All callback functions must follow this signature: ``void (std::vector<std::byte>)``
 
 .. code:: c++
 
-    void print_data(uint8_t *data) {
-        int value;
-        std::memcpy(&value, data, sizeof(int));
-        std::cout << value << std::endl;
+    void print_data(std::vector<std::byte> data) {
+        for (auto const &b : data) {
+            std::cout << (int)b << std::endl;
+        }
     }
 
     characteristic->set_notify(print_data);
@@ -177,15 +176,15 @@ and add a placeholder parameter, then pass it like normal.
 
     class A {
     public:
-        void print_data(uint8_t *data) {
-            int value;
-            std::memcpy(&value, data, sizeof(int));
-            std::cout << value << std::endl;
+        void print_data(std::vector<std::byte> data) {
+            for (auto const &b : data) {
+                std::cout << (int)b << std::endl;
+            }
         }
 
         void set_notify(std::shared_ptr<bluetooth::Characteristic> c) {
             using namespace std::placeholders;
-            std::function<void(uint8_t *data)> binded_print_data = std::bind(&A::print_data, this, std::placeholders::_1);
+            std::function<void(std::vector<std::byte>)> binded_print_data = std::bind(&A::print_data, this, std::placeholders::_1);
             characteristic->notify(binded_print_data);
         }
 
@@ -196,5 +195,5 @@ and add a placeholder parameter, then pass it like normal.
 The notify callback is asynchronous and will return at any point in time.
 Passing member functions is really powerful because you can do things such as update an instance variable when notified.
 
-If you're passing the same function to multiple characteristic notifications, then just make sure your funciton is thread-safe, this
-applies to both member and non-member functions.
+If you're passing the same function to multiple characteristic notifications, then just make sure your function contents are
+thread-safe, this applies to both member and non-member functions.

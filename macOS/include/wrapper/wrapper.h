@@ -67,23 +67,21 @@ namespace bluetooth {
              * Read value from characteristics.
              * @param service_uuid service the characteristic belongs to.
              * @param char_uuid characteristic you want to read from.
-             * @return the value.
+             * @return byte vector.
              */
-            uint8_t *read(const std::string &service_uuid, const std::string &char_uuid);
+            std::vector<std::byte> read(const std::string &service_uuid, const std::string &char_uuid);
 
-            void write_without_response(uint8_t *data,
-                                        int length,
+            void write_without_response(std::vector<std::byte> data,
                                         const std::string service_uuid,
                                         const std::string char_uuid);
 
-            void write_with_response(uint8_t *data,
-                                     int length,
+            void write_with_response(std::vector<std::byte> data,
                                      const std::string service_uuid,
                                      const std::string char_uuid);
 
             void notify(const std::string &service_uuid,
                         const std::string &char_uuid,
-                        std::function<void(uint8_t *)> callback);
+                        std::function<void(std::vector<std::byte>)> callback);
 
 
         private:
