@@ -1,0 +1,46 @@
+language: cpp
+
+branches:
+  only:
+    - gh-pages
+    - master
+
+matrix:
+  include:
+    - os: osx
+      python: 3.7
+      osx_image: xcode11.6
+      addons:
+        homebrew:
+          packages:
+            - doxygen
+
+dist: trusty
+
+before_install:
+  - chmod +x ./.travis/install.sh
+  - python3 --version
+  - pip3 install sphinx_rtd_theme
+  - pip3 install breathe
+
+install:
+  - ./.travis/install.sh
+
+before_script:
+  - g++ --version
+  - cd ${TRAVIS_BUILD_DIR}
+  - mkdir build
+
+script:
+  - cd build
+  - cmake -DBUILD_DOCUMENTATION=ON -DBUILD_TESTS=ON ..
+  - make
+  - ctest
+
+deploy:
+  provider: pages
+  skip_cleanup: true
+  local_dir: ${TRAVIS_BUILD_DIR}/build/docs/sphinx
+  github_token: $GH_REPO_TOKEN
+  on:
+    branch: master

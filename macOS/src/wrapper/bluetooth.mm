@@ -149,7 +149,7 @@ namespace bluetooth {
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
             CBUUID *CBService = [CBUUID UUIDWithString:service_s];
-            [impl->wrapped writeWithoutResponse:[NSData dataWithBytes:data length:length]
+            [impl->wrapped writeWithoutResponse:[NSData dataWithBytes:data length:length * sizeof(uint8_t)]
                               forCharacteristic:CBChar
                              belongingToService:CBService];
         }
@@ -163,7 +163,7 @@ namespace bluetooth {
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
             CBUUID *CBService = [CBUUID UUIDWithString:service_s];
             dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
-            [impl->wrapped writeWithResponse:[NSData dataWithBytes:data length:length]
+            [impl->wrapped writeWithResponse:[NSData dataWithBytes:data length:length * sizeof(uint8_t)]
                            forCharacteristic:CBChar
                           belongingToService:CBService
                                   completion:^{

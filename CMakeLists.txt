@@ -8,34 +8,57 @@ project(feeling-blue
 include(GNUInstallDirs)
 
 set(SOURCE_FILES macOS/src/main.cpp)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
-# set the public headers you want the client to user!
+# --------------------------------------------------------------------------------
+#                          Build options
+# --------------------------------------------------------------------------------
+
+option(BUILD_DOCUMENTATION "Create the API documentation" OFF)
+option(BUILD_TESTS "Build the tests" OFF)
+
+# --------------------------------------------------------------------------------
+#                          Public headers API
+# --------------------------------------------------------------------------------
 set(macOS_PUBLIC_HEADERS
         ./include/feeling-blue.h
-        )
-
-set(macOS_PRIVATE_HEADERS
         ./include/central.h
         ./include/peripheral.h
         ./include/service.h
         ./include/characteristic.h
         )
 
+set(macOS_PRIVATE_HEADERS
+
+        )
+
+# --------------------------------------------------------------------------------
+#                          Enable Testing
+# --------------------------------------------------------------------------------
+
+include(CTest)
+enable_testing()
+
+
+# --------------------------------------------------------------------------------
+#                          Subdirectories
+# --------------------------------------------------------------------------------
+
 add_subdirectory(macOS)
 
+if (BUILD_TESTS)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest-release-1.10.0)
+    add_subdirectory(test)
+endif()
 
-message(CMAKE_INSTALL_DIR = ${CMAKE_INSTALL_LIBDIR})
-message(CMAKE_BINARY_DIR = ${CMAKE_BINARY_DIR})
-message(CMAKE_INSTALL_DATAROOTDIR = ${CMAKE_INSTALL_DATAROOTDIR})
-message(CMAKE_INSTALL_INCLUDEDIR = ${CMAKE_INSTALL_INCLUDEDIR})
-message(where_is_this = ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
-message(CMAKE_CURRENT_LIST_DIR = ${CMAKE_CURRENT_LIST_DIR})
 
+# --------------------------------------------------------------------------------
+#                          Add directories
+# --------------------------------------------------------------------------------
 
 target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
-
 
 set_target_properties(${PROJECT_NAME}
         PROPERTIES
@@ -43,11 +66,19 @@ set_target_properties(${PROJECT_NAME}
         PRIVATE_HEADER "${macOS_PRIVATE_HEADERS}"
         )
 
+# --------------------------------------------------------------------------------
+#                          Doxygen Subdirectory
+# --------------------------------------------------------------------------------
+
+add_subdirectory(docs)
+
+# --------------------------------------------------------------------------------
+#                          Install library
+# --------------------------------------------------------------------------------
 install(TARGETS ${PROJECT_NAME}
         EXPORT feeling-blueConfig
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
-        PRIVATE_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
+        PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME})
 
 install(EXPORT feeling-blueConfig DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/feeling-blue/cmake)
 

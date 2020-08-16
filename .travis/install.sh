@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env sh
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
         echo "we're on mac"
