@@ -16,6 +16,8 @@ set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/cmake" ${CMAKE_MODULE_PATH})
 
 option(BUILD_DOCUMENTATION "Create the API documentation" OFF)
 option(BUILD_TESTS "Build the tests" OFF)
+option(VERBOSE_MODE "NSLog what your bluetooth device is doing" ON)
+
 
 # --------------------------------------------------------------------------------
 #                          Public headers API
@@ -47,6 +49,7 @@ enable_testing()
 add_subdirectory(macOS)
 
 if (BUILD_TESTS)
+    message("enabled building tests")
     add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest-release-1.10.0)
     add_subdirectory(test)
 endif()

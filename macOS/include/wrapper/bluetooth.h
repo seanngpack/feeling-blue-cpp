@@ -12,6 +12,19 @@ namespace bluetooth {
 
 typedef void (^semaphoreCompletionBlock)(void);
 
+// enables DLog if in debug mode
+#if DEBUG_MODE==1
+#define DLog( s, ... ) NSLog( @"<%p %@:(%d)> %@", self, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] )
+#else
+#define DLog(s, ...)
+#endif
+
+// disables NSLog if verbose mode is off
+#if VERBOSE_MODE==0
+#define NSLog(...)
+#endif
+
+
 /**
  * Represents a class that manages corebluetooth functionality.
  */

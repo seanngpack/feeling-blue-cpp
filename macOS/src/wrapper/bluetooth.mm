@@ -88,8 +88,6 @@ namespace bluetooth {
             CBPeripheral *peripheral = [impl->wrapped getPeripheral];
 
             for (CBService *service in peripheral.services) {
-                NSLog(@"service.uuid: %@", service);
-                NSLog(@"cbuuid: %@", service);
                 if (([service.UUID isEqual:service_cbuuid])) {
                     NSLog(@"**** SUCCESSFULLY CONNECTED TO SERVICE: %@", service);
                     return true;
@@ -214,6 +212,7 @@ namespace bluetooth {
 - (void)findAndConnectPeripheralByName:(NSString *)name completion:(semaphoreCompletionBlock)completionBlock {
     _nameSearch = true;
     _peripheralName = name;
+    NSLog(@"SCANNING FOR: %@", name);
     [_centralManager scanForPeripheralsWithServices:nil
                                             options:nil];
 
@@ -223,6 +222,7 @@ namespace bluetooth {
 
 - (void)findAndConnectPeripheralByUUID:(NSArray<CBUUID *> *)uuids completion:(semaphoreCompletionBlock)completionBlock {
     _nameSearch = false;
+    NSLog(@"SCANNING FOR PERIPHERAL WITH UUIDS");
     [_centralManager scanForPeripheralsWithServices:uuids
                                             options:nil];
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
@@ -282,7 +282,7 @@ belongingToService:(CBUUID *)serviceUUID
     dispatch_semaphore_wait(_semaphore, DISPATCH_TIME_FOREVER);
 
     CBCharacteristic *c = [self getCharFromService:charUUID belongingToService:serviceUUID];
-    NSLog(@"set call handler to notification: %@ ", c);
+    DLog(@"set call handler to notification: %@ ", c);
     std::string char_string = std::string([charUUID.UUIDString UTF8String]);
     _callbackMap.insert_or_assign(char_string, callback);
     completionBlock();
@@ -359,9 +359,9 @@ belongingToService:(CBUUID *)serviceUUID
 // call this during scanning when it finds a peripheral_mac
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     NSString *pName = advertisementData[@"kCBAdvDataLocalName"];
-    NSLog(@"NEXT PERIPHERAL: %@ (%@)", pName,
-          peripheral.identifier.UUIDString); // cannot predict UUIDSTRING, it is seeded
-    NSLog(@"NAME: %@ ", peripheral.name);
+    DLog(@"NEXT PERIPHERAL: %@ (%@)", pName,
+         peripheral.identifier.UUIDString); // cannot predict UUIDSTRING, it is seeded
+    DLog(@"NAME: %@ ", peripheral.name);
 
     if (_nameSearch) {
         if (pName) {
@@ -369,7 +369,7 @@ belongingToService:(CBUUID *)serviceUUID
                 self.peripheral = peripheral;
                 self.peripheral.delegate = self;
                 [_centralManager stopScan];
-                NSLog(@"Scanning stopped");
+                NSLog(@"SCANNING STOPPED");
                 [self.centralManager connectPeripheral:self.peripheral options:nil];
             }
         }
@@ -378,7 +378,7 @@ belongingToService:(CBUUID *)serviceUUID
         _peripheralName = peripheral.name;
         _peripheral.delegate = self;
         [_centralManager stopScan];
-        NSLog(@"Scanning stopped");
+        NSLog(@"SCANNING STOPPED");
         [_centralManager connectPeripheral:_peripheral options:nil];
     }
 }
@@ -386,7 +386,7 @@ belongingToService:(CBUUID *)serviceUUID
 // called after peripheral_mac is connected
 - (void)centralManager:(CBCentralManager *)central didConnectPeripheral:(CBPeripheral *)peripheral {
     [_centralManager stopScan];
-    NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL");
+    NSLog(@"**** SUCCESSFULLY CONNECTED TO PERIPHERAL: %@", peripheral);
 
     dispatch_semaphore_signal(_semaphore);
 }
@@ -397,23 +397,23 @@ belongingToService:(CBUUID *)serviceUUID
 }
 
 - (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    NSLog(@"**** DISCONNECTED FROM SWAG SCANNER");
+    NSLog(@"**** DISCONNECTED");
 }
 
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services
 - (void)peripheral:(CBPeripheral *)peripheral didDiscoverServices:(NSError *)error {
 //    bool found = false;
-    NSLog(@"discovered a new service");
+    DLog(@"discovered a new service");
     dispatch_semaphore_signal(_semaphore);
 }
 
 // called when you call [setNotify for:]
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateNotificationStateForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (error) {
-        NSLog(@"error setting up notifications for characteristic");
+        NSLog(@"**** ERROR SETTING UP NOTIFICATIONS FOR CHARACTERISTIC: %@", characteristic);
     } else {
-        NSLog(@"successfully set up notifications for characteristic");
+        NSLog(@"**** SUCCESSFULLY SET UP NOTIFICATIONS FOR CHARACTERISTIC: %@", characteristic);
     }
     dispatch_semaphore_signal(_semaphore);
 }
@@ -426,7 +426,7 @@ belongingToService:(CBUUID *)serviceUUID
 
 - (void)peripheral:(CBPeripheral *)peripheral didWriteValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (error) {
-        NSLog(@"Error writing to characteristic: %@", [error localizedDescription]);
+        NSLog(@"**** ERROR WRITING TO CHARACTERISTIC: %@", [error localizedDescription]);
     }
     dispatch_semaphore_signal(_semaphore);
 }
@@ -435,11 +435,12 @@ belongingToService:(CBUUID *)serviceUUID
 // called with readValueForCharacteristic
 - (void)peripheral:(CBPeripheral *)peripheral didUpdateValueForCharacteristic:(CBCharacteristic *)characteristic error:(NSError *)error {
     if (error) {
-        NSLog(@"Error changing notification state: %@", [error localizedDescription]);
+        NSLog(@"**** ERROR CHANGING NOTIFICATION STATE: %@", [error localizedDescription]);
     }
     if (_readCommand) {
-        NSLog(@"Read characteristic");
+        DLog(@"read triggered by read()");
     } else {
+        DLog(@"read triggered by notification");
         for (auto const&[key, val] : _callbackMap) {
             std::string char_string = std::string([characteristic.UUID.UUIDString UTF8String]);
             if (key == char_string) {
