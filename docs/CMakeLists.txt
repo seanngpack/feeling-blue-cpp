@@ -16,7 +16,7 @@ if(BUILD_DOCUMENTATION)
     file(GLOB_RECURSE FEELING_BLUE_PUBLIC_HEADERS
             ${FEELING_BLUE_PUBLIC_HEADER_DIR}/*.h)
 
-    set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/macOS) # NOTE: might change this in future
+    set(DOXYGEN_INPUT_DIR ${PROJECT_SOURCE_DIR}/macOS ) # NOTE: might change this in future
     set(DOXYGEN_OUTPUT_DIR ${CMAKE_CURRENT_BINARY_DIR}/doxygen)
     set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_DIR}/xml/index.xml)
     set(DOXYFILE_IN ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in)
