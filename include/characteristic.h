@@ -37,14 +37,16 @@ namespace bluetooth {
          * Write to characteristic. Performs this action asynchronously and does not
          * give any indication of write_without_response failure. Can write_without_response more data to your device than if you used
          * write_with_response.
-         * @param data the data you want to write_without_response.
+         * @param data the data you want to write.
+         * @param length how many elements in the data array (not to be confused with the total size)
          */
         void write_without_response(uint8_t *data, int length);
 
         /**
          * Write to characteristic with response. Blocks calling thread until write_without_response is confirmed to
          * be either success or failure. If the write_without_response fails, you will be alerted.
-         * @param data
+         * @param data the data you want to write.
+         * @param length how many elements in the data array (not to be confused with the total size)
          */
         void write_with_response(uint8_t *data, int length);
 

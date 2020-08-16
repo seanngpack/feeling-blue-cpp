@@ -1,27 +1,17 @@
-.. feeling-blue documentation master file, created by
-   sphinx-quickstart on Sat Aug 15 12:25:35 2020.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+.. include:: intro.rst
 
-Welcome to feeling-blue's documentation!
-========================================
+.. include:: demo.rst
 
 .. toctree::
+   :caption: Documentation
    :maxdepth: 2
-   :caption: Contents:
 
+   installing
 
+.. toctree::
+    :maxdepth: 2
+    :numbered:
+    :caption: Examples
 
-Indices and tables
-==================
+    demo
 
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
-
-
-API Docs
-=========
-
-.. doxygennamespace:: bluetooth
-   :members:

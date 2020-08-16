@@ -1,5 +1,13 @@
 # ![feeling-blue-logo](docs/img/feeling_blue_cpp.png)
-C++ library for BluetoothLE usage on MacOS or Windows. One of the only bluetooth libraries for MacOS.
+C++ library for BluetoothLE usage on MacOS or Windows. 
+
+
+feeling-blue was created because of a lack of resources for the non-expert on how
+to connect to a bluetooth device using C++. The API was carefully designed to be easy-to-use,
+yet feature-rich so you can take advantage of your bluetooth peripherals without learning
+the nuisances of bluetoothLE.
+
+[Full documentation here](https://seanngpack.github.io/feeling-blue-cpp/)
 
 ![TravisCI](https://img.shields.io/travis/seanngpack/feeling-blue-cpp)
 
@@ -24,7 +32,7 @@ Blocking methods are documented.
 
 > Download and build
 ```
-$ git clone https://github.com/seanngpack/feeling-blue-cpp/tree/macos
+$ https://github.com/seanngpack/feeling-blue-cpp
 $ cd feeling-blue-cpp
 $ mkdir build
 $ cd build
@@ -32,7 +40,7 @@ $ cmake ..
 $ sudo make install
 ```
 
-> Add library to your project
+> Add library to your project, you just need to add ```find_package()``` and ```targeet_link_libraries()```.
 
 * Example of cmakelists.txt in your project:
 
