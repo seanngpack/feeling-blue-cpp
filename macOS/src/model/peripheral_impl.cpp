@@ -9,9 +9,9 @@ namespace bluetooth {
 
     struct Peripheral::PeripheralImpl {
     public:
-        PeripheralImpl(const std::string &name,
+        PeripheralImpl(std::string name,
                        std::shared_ptr<wrapper::Wrapper> bt) :
-                name(name), bt(std::move(bt)) {}
+                name(std::move(name)), bt(std::move(bt)) {}
 
         ~PeripheralImpl() {
 

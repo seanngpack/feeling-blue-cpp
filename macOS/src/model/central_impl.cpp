@@ -9,9 +9,8 @@ namespace bluetooth {
 
     struct Central::CentralImpl {
     public:
-        CentralImpl() :
-                bt(std::make_shared<wrapper::Wrapper>()) {
-            // TODO: same with other constructors, check for nullptr
+        CentralImpl()
+                : bt(std::make_shared<wrapper::Wrapper>()) {
         }
 
         ~CentralImpl() {
@@ -20,7 +19,6 @@ namespace bluetooth {
 
         void start_bluetooth() {
             bt->start_bluetooth();
-            std::cout << "finally connected to central, unblocking thread" << std::endl;
         }
 
         std::shared_ptr<Peripheral> find_peripheral(const std::vector<std::string> &uuids) {

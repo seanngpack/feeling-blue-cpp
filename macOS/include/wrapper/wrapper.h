@@ -33,20 +33,20 @@ namespace bluetooth {
              * Find the peripheral using the advertised uuids.
              * @return true if the peripheral was found, false otherwise.
              */
-            bool find_peripheral(std::vector<std::string> uuids);
+            bool find_peripheral(const std::vector<std::string> &uuids);
 
             /**
              * Find the peripheral using the name of the device.
              * @return true if the peripheral was found, false otherwise.
              */
-            bool find_peripheral(std::string name);
+            bool find_peripheral(const std::string &name);
 
             /**
              * Find service given the service_uuid.
              * @param service_uuid service_uuid of the service
              * @return a pointer
              */
-            bool find_service(std::string service_uuid);
+            bool find_service(const std::string &service_uuid);
 
             /**
              * Find the characteristic given the uuid of the characteristic and the
@@ -55,7 +55,7 @@ namespace bluetooth {
              * @param service_uuid uuid of the service.
              * @return true if the characteristic is found, false otherwise.
              */
-            bool find_characteristic(std::string char_uuid, std::string service_uuid);
+            bool find_characteristic(const std::string &char_uuid, const std::string &service_uuid);
 
             /**
              * Return the name of the connected peripheral.
@@ -71,17 +71,17 @@ namespace bluetooth {
              */
             std::vector<std::byte> read(const std::string &service_uuid, const std::string &char_uuid);
 
-            void write_without_response(std::vector<std::byte> data,
-                                        const std::string service_uuid,
-                                        const std::string char_uuid);
+            void write_without_response(const std::vector<std::byte> &data,
+                                        const std::string &service_uuid,
+                                        const std::string &char_uuid);
 
-            void write_with_response(std::vector<std::byte> data,
-                                     const std::string service_uuid,
-                                     const std::string char_uuid);
+            void write_with_response(const std::vector<std::byte> &data,
+                                     const std::string &service_uuid,
+                                     const std::string &char_uuid);
 
             void notify(const std::string &service_uuid,
                         const std::string &char_uuid,
-                        std::function<void(std::vector<std::byte>)> callback);
+                        const std::function<void(std::vector<std::byte>)> &callback);
 
 
         private:

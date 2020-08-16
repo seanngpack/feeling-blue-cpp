@@ -38,7 +38,7 @@ namespace bluetooth {
          * You can transmit more data with this method than write_with_response().
          * @param data byte vector of your data.
          */
-        void write_without_response(std::vector<std::byte> data);
+        void write_without_response(const std::vector<std::byte> &data);
 
         /**
          * Write to characteristic with response. Blocks calling thread until write_without_response is confirmed to
@@ -46,14 +46,14 @@ namespace bluetooth {
          * the program will continue running.
          * @param byte vector of your data.
          */
-        void write_with_response(std::vector<std::byte> data);
+        void write_with_response(const std::vector<std::byte> &data);
 
         /**
          * Enable notifications from the characteristic and set callback function to do something
          * with the data when the device notifies.
          * @param callback function to do something with notificaiton data.
          */
-        void notify(const std::function<void(std::vector<std::byte>)> &callback);
+        void notify(const std::function<void(std::vector<std::byte>)>& callback);
 
 
     private:

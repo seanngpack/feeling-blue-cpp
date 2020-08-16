@@ -114,7 +114,14 @@ typedef void (^semaphoreCompletionBlock)(void);
        belongingToService:(CBUUID *)serviceUUID
                completion:(semaphoreCompletionBlock)completionBlock;
 
-
+/**
+ * Enables notifications for the given characteristic.
+ * Creates a copy of the function callback before adding the function to the callbackmap.
+ * @param charUUID the characteristic's uuid.
+ * @param serviceUUID the service's uuid.
+ * @param callback callback function to call on notification.
+ * @param completionBlock semaphore signal callback.
+ */
 - (void) setNotify:(CBUUID *)charUUID
 belongingToService:(CBUUID *)serviceUUID
       callbackFunc:(std::function<void(std::vector<std::byte>)>)callback

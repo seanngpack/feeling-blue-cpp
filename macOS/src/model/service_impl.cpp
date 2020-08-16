@@ -8,8 +8,8 @@ namespace bluetooth {
 
     struct Service::ServiceImpl {
     public:
-        ServiceImpl(const std::string &service_uuid, std::shared_ptr<wrapper::Wrapper> bt)
-                : service_uuid(service_uuid), bt(bt) {}
+        ServiceImpl(std::string service_uuid, std::shared_ptr<wrapper::Wrapper> bt)
+                : service_uuid(std::move(service_uuid)), bt(std::move(bt)) {}
 
 
         ~ServiceImpl() {

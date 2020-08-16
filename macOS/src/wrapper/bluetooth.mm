@@ -37,7 +37,7 @@ namespace bluetooth {
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
         }
 
-        bool Wrapper::find_peripheral(std::vector<std::string> uuids) {
+        bool Wrapper::find_peripheral(const std::vector<std::string> &uuids) {
             NSMutableArray *arr = [[NSMutableArray alloc] init];
             for (auto const &i : uuids) {
                 NSString *uuid = [NSString stringWithUTF8String:i.c_str()];
@@ -59,7 +59,7 @@ namespace bluetooth {
             return true;
         }
 
-        bool Wrapper::find_peripheral(std::string name) {
+        bool Wrapper::find_peripheral(const std::string &name) {
             NSString *n = [NSString stringWithUTF8String:name.c_str()];
             dispatch_semaphore_t sem = [impl->wrapped getSemaphore];
 
@@ -75,7 +75,7 @@ namespace bluetooth {
             return true;
         }
 
-        bool Wrapper::find_service(std::string service_uuid) {
+        bool Wrapper::find_service(const std::string &service_uuid) {
             NSString *service_string = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *service_cbuuid = [CBUUID UUIDWithString:service_string];
 
@@ -100,7 +100,7 @@ namespace bluetooth {
             return false;
         }
 
-        bool Wrapper::find_characteristic(std::string char_uuid, std::string service_uuid) {
+        bool Wrapper::find_characteristic(const std::string &char_uuid, const std::string &service_uuid) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
@@ -141,9 +141,9 @@ namespace bluetooth {
             return [impl->wrapped NSDataToVector:c.value];
         }
 
-        void Wrapper::write_without_response(std::vector<std::byte> data,
-                                             const std::string service_uuid,
-                                             const std::string char_uuid) {
+        void Wrapper::write_without_response(const std::vector<std::byte> &data,
+                                             const std::string &service_uuid,
+                                             const std::string &char_uuid) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
@@ -154,9 +154,9 @@ namespace bluetooth {
                              belongingToService:CBService];
         }
 
-        void Wrapper::write_with_response(std::vector<std::byte> data,
-                                          const std::string service_uuid,
-                                          const std::string char_uuid) {
+        void Wrapper::write_with_response(const std::vector<std::byte> &data,
+                                          const std::string &service_uuid,
+                                          const std::string &char_uuid) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];
@@ -173,7 +173,7 @@ namespace bluetooth {
 
         void Wrapper::notify(const std::string &service_uuid,
                              const std::string &char_uuid,
-                             std::function<void(std::vector<std::byte>)> callback) {
+                             const std::function<void(std::vector<std::byte>)> &callback) {
             NSString *char_s = [NSString stringWithUTF8String:char_uuid.c_str()];
             NSString *service_s = [NSString stringWithUTF8String:service_uuid.c_str()];
             CBUUID *CBChar = [CBUUID UUIDWithString:char_s];

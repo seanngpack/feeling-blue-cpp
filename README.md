@@ -67,10 +67,11 @@ Below is a brief example that finds a device and reads, writes, and sets notific
 main.cpp
 
 void print_data(std::vector<std::byte> data) {
-        for (auto const &b : data) {
-            std::cout << (int)b << std::endl;
-        }
+    std::cout << "the size of the data is: " << data.size() << std::endl;
+    for (auto const &b : data) {
+        std::cout << (int)b << std::endl;
     }
+}
 
 #include "feeling-blue/feeling-blue.h"
 
