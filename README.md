@@ -26,6 +26,7 @@ the nuisances of bluetoothLE.
 * Blocking API. Calls to find services, characteristics, etc block the calling thread until the process is complete.
 Blocking methods are documented.
 * Non-intrusive namespace. The API is encapsulated in ```bluetooth::``` so your global namespace does not get polluted.
+* Read, write, notify commands.
 * User-defined callbacks on notifications received by device.
 * Simple and straightfoward API.
 
@@ -96,3 +97,9 @@ int main() {
 
 [Go to the documentation for more comprehensive examples!](https://seanngpack.github.io/feeling-blue-cpp/)
 
+
+## Upcoming features:
+- more human readable way to send and receive data from characteristics
+- methods to get status of peripherals, characteristics, etc
+- better error logging
+- Windows support
