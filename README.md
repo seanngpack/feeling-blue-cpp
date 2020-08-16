@@ -9,7 +9,7 @@ the nuisances of bluetoothLE.
 
 [Full documentation here](https://seanngpack.github.io/feeling-blue-cpp/)
 
-![TravisCI](https://img.shields.io/travis/seanngpack/feeling-blue-cpp)
+[![Build Status](https://travis-ci.com/seanngpack/feeling-blue-cpp.svg?branch=master)](https://travis-ci.com/seanngpack/feeling-blue-cpp)
 ![license](https://img.shields.io/github/license/seanngpack/feeling-blue-cpp)
 
 ## Table of Contents
