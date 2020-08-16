@@ -37,7 +37,7 @@ $ git clone https://github.com/seanngpack/feeling-blue-cpp
 $ cd feeling-blue-cpp
 $ mkdir build
 $ cd build
-$ cmake ..
+$ cmake .. // use -DVERBOSE_MODE=OFF to turn off all console logging from feeling-blue
 $ sudo make install
 ```
 
