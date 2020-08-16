@@ -12,6 +12,19 @@ namespace bluetooth {
 
 typedef void (^semaphoreCompletionBlock)(void);
 
+// enables DLog if in debug mode
+#if DEBUG_MODE==1
+#define DLog( s, ... ) NSLog( @"<%p %@:(%d)> %@", self, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] )
+#else
+#define DLog(s, ...)
+#endif
+
+// disables NSLog if verbose mode is off
+#if VERBOSE_MODE==0
+#define NSLog(...)
+#endif
+
+
 /**
  * Represents a class that manages corebluetooth functionality.
  */
@@ -20,19 +33,11 @@ typedef void (^semaphoreCompletionBlock)(void);
 @property(strong, nonatomic) CBCentralManager *centralManager;
 @property(strong, nonatomic) CBPeripheral *peripheral;
 @property(nonatomic, strong) NSString *peripheralName;
-@property(strong, nonatomic) CBCharacteristic *rotateTableChar;
 @property(nonatomic, strong) dispatch_queue_t centralQueue;
 @property(nonatomic, strong) dispatch_semaphore_t semaphore;
 @property(nonatomic, assign) BOOL nameSearch;
 @property(nonatomic, assign) BOOL readCommand;
-@property std::map<std::string, std::function<void(uint8_t *)>> callbackMap;
-
-
-#define SWAG_SCANNER_NAME @"SwagScanner"
-#define UART_SERVICE_UUID @"5ffba521-2363-41da-92f5-46adc56b2d37"
-#define ROTATE_TABLE_CHAR_UUID @"5ffba522-2363-41da-92f5-46adc56b2d37"
-#define TABLE_POSITION_CHAR_UUID @"5ffba523-2363-41da-92f5-46adc56b2d37"
-#define IS_TABLE_ROTATING_CHAR_UUID @"5ffba524-2363-41da-92f5-46adc56b2d37"
+@property std::map<std::string, std::function<void(std::vector<std::byte>)>> callbackMap;
 
 
 // constructor override
@@ -122,10 +127,17 @@ typedef void (^semaphoreCompletionBlock)(void);
        belongingToService:(CBUUID *)serviceUUID
                completion:(semaphoreCompletionBlock)completionBlock;
 
-
+/**
+ * Enables notifications for the given characteristic.
+ * Creates a copy of the function callback before adding the function to the callbackmap.
+ * @param charUUID the characteristic's uuid.
+ * @param serviceUUID the service's uuid.
+ * @param callback callback function to call on notification.
+ * @param completionBlock semaphore signal callback.
+ */
 - (void) setNotify:(CBUUID *)charUUID
 belongingToService:(CBUUID *)serviceUUID
-      callbackFunc:(std::function<void(uint8_t *)>)callback
+      callbackFunc:(std::function<void(std::vector<std::byte>)>)callback
         completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
@@ -142,6 +154,13 @@ belongingToService:(CBUUID *)serviceUUID
  * @return uint8_t array.
  */
 - (uint8_t *)NSDataTouint8:(NSData *)data;
+
+/**
+ * Convert NSData * to vector of bytes.
+ * @param data the data to convert.
+ * @return a vector of bytes.
+ */
+- (std::vector<std::byte>)NSDataToVector:(NSData *)data;
 
 @end
 

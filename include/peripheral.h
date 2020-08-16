@@ -7,12 +7,6 @@
 
 namespace bluetooth {
 
-    // forward declare here is exposing wrapper
-    // might want to choose a different namespace.
-    // or make wrapper a subclass
-    // or add a helper method in the implementation file
-    // or ask stackoverflow
-    // or this might be fine tbh, they can't do anything with wrapper.
     namespace wrapper {
         class Wrapper;
     }
@@ -31,7 +25,8 @@ namespace bluetooth {
 
         /**
          * Find advertised service given the service_uuid. Return the service if found, otherwise returns nullptr.
-         * @param service_uuid service's service_uuid.
+         *
+         * @param service_uuid service uuid.
          * @return the service or nullptr.
          */
         std::shared_ptr<Service> find_service(const std::string &service_uuid);
@@ -40,9 +35,26 @@ namespace bluetooth {
          * After discovering and connecting to services, will store them into a list. This method
          * matches the given service_uuid and returns the corresponding service.
          * If the service is not found in the peripheral, then return nullptr.
+         *
+         * @param service_uuid service uuid.
          * @return service matching the service_uuid or nullptr.
          */
         std::shared_ptr<Service> get_service(const std::string &service_uuid);
+
+        /**
+         * Set the name for your peripheral device. Use this if you discovered your peripheral via
+         * find_peripheral(std::vector<std::string) because the name functionality is bugged right now.
+         *
+         * @param n the name of your peripheral.
+         */
+        void set_name(const std::string &n);
+
+        /**
+         * Get the name of your peripheral.
+         *
+         * @return the name of your peripheral.
+         */
+        std::string get_name();
 
 
     private:

@@ -9,9 +9,9 @@ namespace bluetooth {
 
     struct Peripheral::PeripheralImpl {
     public:
-        PeripheralImpl(const std::string &name,
+        PeripheralImpl(std::string name,
                        std::shared_ptr<wrapper::Wrapper> bt) :
-                name(name), bt(std::move(bt)) {}
+                name(std::move(name)), bt(std::move(bt)) {}
 
         ~PeripheralImpl() {
 
@@ -35,6 +35,14 @@ namespace bluetooth {
             return nullptr;
         }
 
+        void set_name(const std::string &n) {
+            name = n;
+        }
+
+        std::string get_name() {
+            return name;
+        }
+
     private:
         std::string name;
         std::vector<std::shared_ptr<Service>> services;
@@ -55,5 +63,13 @@ namespace bluetooth {
 
     std::shared_ptr<Service> Peripheral::get_service(const std::string &service_uuid) {
         return pImpl->get_service(service_uuid);
+    }
+
+    void Peripheral::set_name(const std::string &n) {
+        pImpl->set_name(n);
+    }
+
+    std::string Peripheral::get_name() {
+        return pImpl->get_name();
     }
 }

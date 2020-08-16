@@ -33,7 +33,7 @@ the nuisances of bluetoothLE.
 
 > Download and build
 ```
-$ https://github.com/seanngpack/feeling-blue-cpp
+$ git clone https://github.com/seanngpack/feeling-blue-cpp
 $ cd feeling-blue-cpp
 $ mkdir build
 $ cd build
@@ -66,11 +66,12 @@ Below is a brief example that finds a device and reads, writes, and sets notific
 ```
 main.cpp
 
-void print_data(uint8_t *data) {
-        int value;
-        std::memcpy(&value, data, sizeof(int));
-        std::cout << value << std::endl;
+void print_data(std::vector<std::byte> data) {
+    std::cout << "the size of the data is: " << data.size() << std::endl;
+    for (auto const &b : data) {
+        std::cout << (int)b << std::endl;
     }
+}
 
 #include "feeling-blue/feeling-blue.h"
 
@@ -83,7 +84,7 @@ int main() {
     std::shared_ptr<bluetooth::Characteristic> position_char = service->find_characteristic("5ffba523-2363-41da-92f5-46adc56b2d37");
 
     rotate_char->set_notify(print_data);
-    uint8_t *data = position_char.read();
+    std::vector<std::byte> data = position_char.read();
     rotate_char->write_without_response(data, 1);
 
     while (true) {

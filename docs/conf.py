@@ -16,16 +16,25 @@
 
 import subprocess
 
-def configureDoxyfile(input_dir, output_dir):
+def configureDoxyfile(input_dir1, input_dir2, output_dir):
 
     with open('Doxyfile.in', 'r') as file :
         filedata = file.read()
 
-    filedata = filedata.replace('@DOXYGEN_INPUT_DIR@', input_dir)
+    filedata = filedata.replace('@DOXYGEN_INPUT_DIR1@', input_dir1)
+    filedata = filedata.replace('@DOXYGEN_INPUT_DIR2@', input_dir2)
     filedata = filedata.replace('@DOXYGEN_OUTPUT_DIR@', output_dir)
 
     with open('Doxyfile', 'w') as file:
         file.write(filedata)
+
+breathe_projects = {}
+input_dir1 = '../macOS'
+input_dir2 = '../include'
+output_dir = 'build'
+configureDoxyfile(input_dir1, input_dir2, output_dir)
+subprocess.call('doxygen', shell=True)
+breathe_projects['feeling-blue'] = output_dir + '/xml'
 
 
 
