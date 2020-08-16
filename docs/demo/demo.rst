@@ -124,7 +124,7 @@ Writing to characteristic
 There are two options to write to your device. First we can ``write_without_response()`` which writes to your
 devices asynchronously and does not block your calling thread. If your write fails, you will not get a message
 telling you that it failed. You must provide this method the data as a ``uint8_t *`` and the length. The length is the
-number of elements in your data array. Be sure you pass the length and **not** the total byte size of the array.
+number of bytes in your data array.
 
 .. code:: c++
 

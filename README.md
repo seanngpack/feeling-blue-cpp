@@ -33,7 +33,7 @@ the nuisances of bluetoothLE.
 
 > Download and build
 ```
-$ https://github.com/seanngpack/feeling-blue-cpp
+$ git clone https://github.com/seanngpack/feeling-blue-cpp
 $ cd feeling-blue-cpp
 $ mkdir build
 $ cd build

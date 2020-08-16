@@ -4,6 +4,7 @@ branches:
   only:
     - gh-pages
     - master
+    - macos
 
 matrix:
   include:
