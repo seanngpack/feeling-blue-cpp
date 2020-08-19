@@ -28,7 +28,31 @@ namespace bluetooth {
             bt->write_without_response(data, service_uuid, char_uuid);
         }
 
+        void write_without_response(int data) {
+            bt->write_without_response(data, service_uuid, char_uuid);
+        }
+
+        void write_without_response(uint8_t data) {
+            bt->write_without_response(data, service_uuid, char_uuid);
+        }
+
+        void write_without_response(const std::string &data) {
+            bt->write_without_response(data, service_uuid, char_uuid);
+        }
+
         void write_with_response(const std::vector<std::byte> &data) {
+            bt->write_with_response(data, service_uuid, char_uuid);
+        }
+
+        void write_with_response(int data) {
+            bt->write_with_response(data, service_uuid, char_uuid);
+        }
+
+        void write_with_response(uint8_t data) {
+            bt->write_with_response(data, service_uuid, char_uuid);
+        }
+
+        void write_with_response(const std::string &data) {
             bt->write_with_response(data, service_uuid, char_uuid);
         }
 
@@ -63,7 +87,31 @@ namespace bluetooth {
         cImpl->write_without_response(data);
     }
 
+    void Characteristic::write_without_response(int data) {
+        cImpl->write_without_response(data);
+    }
+
+    void Characteristic::write_without_response(uint8_t data) {
+        cImpl->write_without_response(data);
+    }
+
+    void Characteristic::write_without_response(const std::string &data) {
+        cImpl->write_without_response(data);
+    }
+
     void Characteristic::write_with_response(const std::vector<std::byte> &data) {
+        cImpl->write_with_response(data);
+    }
+
+    void Characteristic::write_with_response(int data) {
+        cImpl->write_with_response(data);
+    }
+
+    void Characteristic::write_with_response(uint8_t data) {
+        cImpl->write_with_response(data);
+    }
+
+    void Characteristic::write_with_response(const std::string &data) {
         cImpl->write_with_response(data);
     }
 
