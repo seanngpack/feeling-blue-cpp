@@ -12,9 +12,7 @@ namespace bluetooth {
                 : service_uuid(std::move(service_uuid)), bt(std::move(bt)) {}
 
 
-        ~ServiceImpl() {
-
-        }
+        ~ServiceImpl() = default;
 
         std::shared_ptr<Characteristic> find_characteristic(const std::string &uuid) {
             if (bt->find_characteristic(uuid, service_uuid)) {
@@ -27,7 +25,7 @@ namespace bluetooth {
             return nullptr;
         }
 
-        std::shared_ptr<Characteristic> get_characteristic(const std::string &uuid) {
+        std::shared_ptr<Characteristic> characteristic(const std::string &uuid) {
             for (auto c : characteristics) {
                 if (uuid == c->uuid()) {
                     return c;
@@ -59,8 +57,8 @@ namespace bluetooth {
         return sImpl->find_characteristic(uuid);
     }
 
-    std::shared_ptr<Characteristic> Service::get_characteristic(const std::string &uuid) {
-        return sImpl->find_characteristic(uuid);
+    std::shared_ptr<Characteristic> Service::chacteristic(const std::string &uuid) {
+        return sImpl->characteristic(uuid);
     }
 
     std::string Service::uuid() {

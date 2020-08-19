@@ -12,6 +12,9 @@ namespace bluetooth {
 
 typedef void (^semaphoreCompletionBlock)(void);
 
+// define red color
+#define RED     "\033[31m"
+
 // enables DLog if in debug mode
 #if DEBUG_MODE==1
 #define DLog( s, ... ) NSLog( @"<%p %@:(%d)> %@", self, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] )

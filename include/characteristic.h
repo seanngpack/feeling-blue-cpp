@@ -139,9 +139,9 @@ namespace bluetooth {
          * Enable notifications from the characteristic and set callback function to do something
          * with the data when the device notifies.
          *
-         * @note this method returns when the callback is sucessfully set. Your callback is asynchronously called whenever
+         * @note this method returns when the callback is successfully set. Your callback is asynchronously called whenever
          * a notification is triggered.
-         * @param callback function to do something with notificaiton data.
+         * @param callback function to do something with notification data.
          */
         void notify(const std::function<void(std::vector<std::byte>)> &callback);
 

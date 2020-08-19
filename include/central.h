@@ -38,6 +38,14 @@ namespace bluetooth {
          */
         std::shared_ptr<Peripheral> find_peripheral(const std::string &name);
 
+        /**
+         * Return the discovered peripheral. If the peripheral hasn't been discovered and connected yet
+         * then return nullptr.
+         * @param uuid uuid of the peripheral.
+         * @return the peripheral or nullptr.
+         */
+        std::shared_ptr<Peripheral> peripheral(const std::string &uuid);
+
 
     private:
         struct CentralImpl;
