@@ -1,5 +1,5 @@
 # ![feeling-blue-logo](docs/img/feeling_blue_cpp.png)
-C++ library for BluetoothLE usage on MacOS or Windows. 
+C++ library for BluetoothLE usage on MacOS or (soon) Windows. 
 
 
 feeling-blue was created because of a lack of resources for the non-expert on how

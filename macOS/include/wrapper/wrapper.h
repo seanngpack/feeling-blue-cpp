@@ -82,6 +82,11 @@ namespace bluetooth {
                         const std::string &char_uuid,
                         const std::function<void(std::vector<std::byte>)> &callback);
 
+            /**
+             * Disconnect the peripheral.
+             */
+            void disconnect();
+
 
         private:
             WrapperImpl *impl;

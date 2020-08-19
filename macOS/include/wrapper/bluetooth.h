@@ -141,6 +141,12 @@ belongingToService:(CBUUID *)serviceUUID
         completion:(semaphoreCompletionBlock)completionBlock;
 
 /**
+ * Disconnect the peripheral.
+ */
+- (void)disconnect;
+
+
+/**
  * After discovering and connecting characteristics, you may want to fetch one.
  * Use this helper method to extract a characteristics from the given service.
  * @param service uuid of the service containing the characteristic.

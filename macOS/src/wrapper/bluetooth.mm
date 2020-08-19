@@ -185,6 +185,10 @@ namespace bluetooth {
                           }];
             dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
         }
+
+        void Wrapper::disconnect() {
+            [impl->wrapped disconnect];
+        }
     }
 }
 
@@ -290,6 +294,10 @@ belongingToService:(CBUUID *)serviceUUID
     completionBlock();
 }
 
+- (void)disconnect {
+    [_centralManager cancelPeripheralConnection:_peripheral];
+}
+
 
 - (NSString *)getPeripheralName {
     return _peripheralName;
@@ -361,7 +369,7 @@ belongingToService:(CBUUID *)serviceUUID
 // call this during scanning when it finds a peripheral_mac
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     NSString *pName = advertisementData[@"kCBAdvDataLocalName"];
-    DLog(@"sd%@",advertisementData );
+    DLog(@"sd%@", advertisementData);
     DLog(@"NEXT PERIPHERAL: %@ (%@)", pName,
          peripheral.identifier.UUIDString); // cannot predict UUIDSTRING, it is seeded
     DLog(@"NAME: %@ ", peripheral.name);
@@ -396,15 +404,17 @@ belongingToService:(CBUUID *)serviceUUID
 
 - (void)peripheralDidUpdateName:(CBPeripheral *)peripheral {
     NSLog(@"**** PERIPHERAL UPDATED NAME: %@", peripheral);
-    }
+}
 
 // called if didDiscoverPeripheral fails to connect
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     NSLog(@"**** CONNECTION FAILED!!!");
 }
 
-- (void)centralManager:(CBCentralManager *)central didDisconnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
-    NSLog(@"**** DISCONNECTED");
+- (void) centralManager:(CBCentralManager *)central
+didDisconnectPeripheral:(CBPeripheral *)peripheral
+                  error:(NSError *)error {
+    NSLog(@"**** DISCONNECTED PERIPHERAL");
 }
 
 // When the specified services are discovered, this is called.
