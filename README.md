@@ -1,5 +1,5 @@
 # ![feeling-blue-logo](docs/img/feeling_blue_cpp.png)
-C++ library for BluetoothLE usage on MacOS or Windows. 
+C++ library for BluetoothLE usage on MacOS or (soon) Windows. 
 
 
 feeling-blue was created because of a lack of resources for the non-expert on how
@@ -17,6 +17,9 @@ the nuisances of bluetoothLE.
 - [Features](#features)
 - [Installation](#installation)
 - [Usage](#Time-to-start-using-it)
+- [Upcoming Features](#Upcoming-features)
+- [Help & bug reports](#Help-&-bug-reports)
+- [Contributing](#Contributing)
 
 
 ---
@@ -25,8 +28,8 @@ the nuisances of bluetoothLE.
 
 * Blocking & non-blocking API. Calls to find services, characteristics, etc block the calling thread until the process is complete.
 * Non-intrusive namespace. The API is encapsulated in ```bluetooth::``` so your global namespace doesn't get polluted.
-* Read, write, and notify commands.
-* User-defined callbacks on notifications received by device.
+* Supports connecting to multiple bluetoth devices.
+* User-defined event handlers for device notifications.
 * Simple and straightfoward API.
 
 ## Installation
@@ -99,7 +102,21 @@ int main() {
 
 
 ## Upcoming features:
-- more human readable way to send and receive data from characteristics
 - methods to get status of peripherals, characteristics, etc
 - better error logging
 - Windows support
+
+## Help & bug reports
+
+Just open a new [issue](https://github.com/seanngpack/feeling-blue-cpp/issues)!
+
+
+## Contributing
+
+1. Fork the repo
+2. Clone your fork somewhere on your computer ```git clone https://github.com/<your-username>/pcl.git```
+3. ```cd feeling-blue-cpp```
+4. add upstream to original repo ```git remote add upstream https://github.com/seanngpack/feeling-blue-cpp.git```
+5. implement your new changes on your fork
+6. pull from upstream master to make sure you are up to date with the newest release of feeling-blue-cpp
+7. open pull request

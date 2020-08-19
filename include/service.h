@@ -31,13 +31,12 @@ namespace bluetooth {
         std::shared_ptr<Characteristic> find_characteristic(const std::string &uuid);
 
         /**
-         * The service stores connected characteristics into a list. This method retrieves the characteristic
-         * matching the given uuid.
+         * Retrieved connected characteristic. If the characteristic isn't discovered and connected yet, then return nullptr.
          *
          * @param char_uuid uuid of characteristic.
          * @return the characteristic or nullptr.
          */
-        std::shared_ptr<Characteristic> get_characteristic(const std::string &uuid);
+        std::shared_ptr<Characteristic> characteristic(const std::string &uuid);
 
         std::string uuid();
 

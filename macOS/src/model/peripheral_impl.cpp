@@ -43,6 +43,10 @@ namespace bluetooth {
             return name;
         }
 
+        void disconnect() {
+            bt->disconnect();
+        }
+
     private:
         std::string name;
         std::vector<std::shared_ptr<Service>> services;
@@ -71,5 +75,9 @@ namespace bluetooth {
 
     std::string Peripheral::get_name() {
         return pImpl->get_name();
+    }
+
+    void Peripheral::disconnect() {
+        pImpl->disconnect();
     }
 }

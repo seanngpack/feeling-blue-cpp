@@ -12,6 +12,9 @@ namespace bluetooth {
 
 typedef void (^semaphoreCompletionBlock)(void);
 
+// define red color
+#define RED     "\033[31m"
+
 // enables DLog if in debug mode
 #if DEBUG_MODE==1
 #define DLog( s, ... ) NSLog( @"<%p %@:(%d)> %@", self, [[NSString stringWithUTF8String:__FILE__] lastPathComponent], __LINE__, [NSString stringWithFormat:(s), ##__VA_ARGS__] )
@@ -139,6 +142,12 @@ typedef void (^semaphoreCompletionBlock)(void);
 belongingToService:(CBUUID *)serviceUUID
       callbackFunc:(std::function<void(std::vector<std::byte>)>)callback
         completion:(semaphoreCompletionBlock)completionBlock;
+
+/**
+ * Disconnect the peripheral.
+ */
+- (void)disconnect;
+
 
 /**
  * After discovering and connecting characteristics, you may want to fetch one.

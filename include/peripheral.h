@@ -42,6 +42,11 @@ namespace bluetooth {
         std::shared_ptr<Service> get_service(const std::string &service_uuid);
 
         /**
+         * Disconnect the peripheral.
+         */
+        void disconnect();
+
+        /**
          * Set the name for your peripheral device. Use this if you discovered your peripheral via
          * find_peripheral(std::vector<std::string) because the name functionality is bugged right now.
          *
