@@ -16,9 +16,7 @@ namespace bluetooth {
                            std::shared_ptr<wrapper::Wrapper> bt) :
                 char_uuid(std::move(char_uuid)), service_uuid(std::move(service_uuid)), bt(std::move(bt)) {}
 
-        ~CharacteristicImpl() {
-
-        }
+        ~CharacteristicImpl() = default;
 
         std::string uuid() {
             return char_uuid;

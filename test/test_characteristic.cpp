@@ -1,24 +1,26 @@
 #include <gtest/gtest.h>
 #include <iostream>
 #include <cstddef>
-#import <Foundation/Foundation.h>
+#include "characteristic.h"
+
+#define private public
 #include <characteristic.h>
 
-class CharacteristicTest : public ::testing::Test
-{
+class CharacteristicTest : public ::testing::Test {
 protected:
-     bluetooth::Characteristic *characteristic;
-    virtual void SetUp()
-    {
+
+    virtual void SetUp() {
         characteristic = new bluetooth::Characteristic();
     }
 
-    virtual void TearDown()
-    {
+    virtual void TearDown() {
         delete characteristic;
     }
+
+    bluetooth::Characteristic *characteristic;
 };
 
 
-TEST(CharacteristicTest, testNSDataToVectorBytes) {
+TEST_F(CharacteristicTest, testIntConversions) {
+
 }
