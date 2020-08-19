@@ -28,7 +28,7 @@ the nuisances of bluetoothLE.
 
 * Blocking & non-blocking API. Calls to find services, characteristics, etc block the calling thread until the process is complete.
 * Non-intrusive namespace. The API is encapsulated in ```bluetooth::``` so your global namespace doesn't get polluted.
-* Supports connecting to multiple bluetoth devices.
+* Supports connecting to multiple bluetooth devices.
 * User-defined event handlers for device notifications.
 * Simple and straightfoward API.
 
