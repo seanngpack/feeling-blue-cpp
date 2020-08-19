@@ -17,4 +17,6 @@ target_link_libraries(${TEST_MAIN} gtest gtest_main
         "-framework Foundation"
         "-framework CoreBluetooth")
 
+target_link_libraries(${TEST_MAIN} feeling-blue)
+
 add_test(${TEST_MAIN} ${TEST_MAIN})

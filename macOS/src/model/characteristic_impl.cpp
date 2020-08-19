@@ -28,25 +28,50 @@ namespace bluetooth {
 
         int read_int() {
             std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            if (data.size() > 4) {
+            if (data.empty()) {
+                std::clog
+                        << "warning: read returned data of 0 bytes."
+                        << std::endl;
+                return 0;
+            } else if (data.size() > 4) {
                 std::clog
                         << "warning: read data is greater than four bytes, will only use first four bytes to convert to int."
                         << std::endl;
+            }
+                // do error handling if size < 4
+            else if (data.size() < 4) {
+                std::clog
+                        << "warning: read data is less than four bytes, will only use first byte to convert to int."
+                        << std::endl;
+                return (int) data[0];
             }
             return bytes_to_int(data);
         }
 
         uint8_t read_uint8() {
             std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
+            if (data.empty()) {
+                std::clog
+                        << "warning: read returned data of 0 bytes."
+                        << std::endl;
+                return 0;
+            }
             if (data.size() > 1) {
-                std::clog << "warning: read data is greater than one byte, will only use first byte as return."
+                std::clog << "warning: read data is greater than one byte, will only use the last byte as return."
                           << std::endl;
             }
-            return (uint8_t) data[0];
+            return (uint8_t) data[data.size()-1];
         }
 
         std::string read_string() {
-            return bytes_to_string(bt->read(service_uuid, char_uuid));
+            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
+            if (data.empty()) {
+                std::clog
+                        << "warning: read returned data of 0 bytes."
+                        << std::endl;
+                return "";
+            }
+            return bytes_to_string(data);
         }
 
         void write_without_response(const std::vector<std::byte> &data) {

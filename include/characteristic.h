@@ -39,6 +39,8 @@ namespace bluetooth {
 
         /**
          * Read the characteristic. Convert the byte response to integer assuming little endian order.
+         * If your device sends more than four bytes, then it will use display a warning and use
+         * the leftmost four bytes (little endian order) to convert to an int.
          *
          * @note blocking.
          * @return byte response as an integer.
@@ -47,6 +49,8 @@ namespace bluetooth {
 
         /**
          * Read the characteristic. Convert the byte response to uint8_t.
+         * If your device sends more than one byte of data then it will display a warning
+         * use the rightmost byte (little endian order) for the return.
          *
          * @note blocking.
          * @return byte response as uint8_t.
@@ -71,7 +75,7 @@ namespace bluetooth {
         void write_without_response(const std::vector<std::byte> &data);
 
         /**
-         * Write integer to characteristic. Will not print error if write fails.
+         * Write integer to characteristic in little endian order. Will not print error if write fails.
          * You can transmit more data with this method than write_with_response().
          *
          * @note asynchronous.
@@ -90,7 +94,7 @@ namespace bluetooth {
         void write_without_response(uint8_t data);
 
         /**
-         * Write string to characteristic. Will not print error if write fails.
+         * Write string to characteristic in little endian order. Will not print error if write fails.
          * You can transmit more data with this method than write_with_response().
          *
          * @note asynchronous.
@@ -107,7 +111,7 @@ namespace bluetooth {
         void write_with_response(const std::vector<std::byte> &data);
 
         /**
-         * Write to characteristic with response. If the write_without_response fails and verbose mode is on,
+         * Write to characteristic with response in little endian order. If the write_without_response fails and verbose mode is on,
          * the console will print an error and the program will continue running.
          *
          * @param data int you want to send.
@@ -124,7 +128,7 @@ namespace bluetooth {
         void write_with_response(uint8_t data);
 
         /**
-         * Write to characteristic with response. If the write_without_response fails and verbose mode is on,
+         * Write to characteristic with response in little endian order. If the write_without_response fails and verbose mode is on,
          * the console will print an error and the program will continue running.
          *
          * @param data string you want to send

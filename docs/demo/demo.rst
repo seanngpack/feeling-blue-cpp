@@ -110,6 +110,40 @@ Code
     }
 
 
+Connecting to multiple devices
+==============================
+
+Okay, so you have multiple devices you want to connect to--no problem! As mentioned, a central can only manage one
+peripheral at a time. So to connect more, just instantiate more centrals and run through the connection and discovery
+steps again.
+
+Below is some code creating two centrals and connecting them to their respective devices(I'll leave connecting to services
+and characteristics to you):
+
+.. code:: c++
+
+    main.cpp
+
+    int main() {
+
+        std::unique_ptr<bluetooth::Central> smart_watch_central = std::make_unique<bluetooth::Central>();
+        smart_watch_central->start_bluetooth();
+        std::shared_ptr<bluetooth::Peripheral> smart_watch = smart_watch_central->find_peripheral("SmartWatch");
+        ...find services and characteristics
+
+        std::unique_ptr<bluetooth::Central> smart_clock_central = std::make_unique<bluetooth::Central>();
+        smart_clock_central->start_bluetooth();
+        std::shared_ptr<bluetooth::Peripheral> smart_clock = smart_clock_central->find_peripheral("SmartClock");
+        ...find services and characteristics
+
+        while (true) {
+            ...blah blah
+        }
+
+        return 0;
+    }
+
+
 Reading characteristic value
 ============================
 
@@ -147,16 +181,15 @@ Notifying characteristic
 
 
 If your device and characteristic supports notifications, then let's use it. First, just double check that your characteristic
-has notification support and that it's enabled. If it's enabled, when a value in your characteristic gets updated then it will
-ping your central that its value has been changed with a payload of the new value. When that happens, you can
-use that payload and write your own function to do something with it!
+has notification support and that it's enabled. So now when your device sends your computer notifications with a data payload you can capture
+that payload and write your own function to do something with it!
 
-Non-member function callback
+Non-member function event handler
 ----------------------------
 
-Let's write a callback function that takes in a ``std::vector<std::byte>`` and enable notifications, passing the function as a parameter.
+Let's write a callback event handler that takes in a ``std::vector<std::byte>`` and enable notifications, passing the function as a parameter.
 
-IMPORTANT! All callback functions must follow this signature: ``void (std::vector<std::byte>)``
+IMPORTANT! All event handlers must follow this signature: ``void (std::vector<std::byte>)``
 
 .. code:: c++
 
@@ -169,7 +202,7 @@ IMPORTANT! All callback functions must follow this signature: ``void (std::vecto
     characteristic->set_notify(print_data);
 
 
-Member function callback
+Member function event handler
 ------------------------
 
 member functions are a little trickier to write, but you just have to bind their class to std::function
@@ -195,7 +228,6 @@ and add a placeholder parameter, then pass it like normal.
         std::shared_ptr<bluetooth::Characteristic> characteristic;
     };
 
-The notify callback is asynchronous and will return at any point in time.
 Passing member functions is really powerful because you can do things such as update an instance variable when notified.
 
 If you're passing the same function to multiple characteristic notifications, then just make sure your function contents are
