@@ -57,7 +57,7 @@ namespace bluetooth {
         return sImpl->find_characteristic(uuid);
     }
 
-    std::shared_ptr<Characteristic> Service::chacteristic(const std::string &uuid) {
+    std::shared_ptr<Characteristic> Service::characteristic(const std::string &uuid) {
         return sImpl->characteristic(uuid);
     }
 
