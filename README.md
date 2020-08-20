@@ -80,14 +80,14 @@ void print_data(std::vector<std::byte> data) {
 int main() {
     std::unique_ptr<bluetooth::Central> central = std::make_unique<bluetooth::Central>();
     central->start_bluetooth();
-    std::shared_ptr<bluetooth::Peripheral> peripheral = central->find_peripheral("SwagScanner");
-    std::shared_ptr<bluetooth::Service> service = peripheral->find_service("5ffba521-2363-41da-92f5-46adc56b2d37");
-    std::shared_ptr<bluetooth::Characteristic> rotate_char = service->find_characteristic("5ffba522-2363-41da-92f5-46adc56b2d37");
-    std::shared_ptr<bluetooth::Characteristic> position_char = service->find_characteristic("5ffba523-2363-41da-92f5-46adc56b2d37");
+    std::shared_ptr<bluetooth::Peripheral> temperature_device = central->find_peripheral("NameOfYourDevice");
+    std::shared_ptr<bluetooth::Service> service = temperature_device->find_service("someUUID");
+    std::shared_ptr<bluetooth::Characteristic> current_temp_char = service->find_characteristic("someUUID");
+    std::shared_ptr<bluetooth::Characteristic> units_char = service->find_characteristic("someUUID");
 
-    rotate_char->set_notify(print_data);
-    std::vector<std::byte> data = position_char.read();
-    rotate_char->write_without_response(data, 1);
+    current_temp_char->set_notify(print_data);
+    std::vector<std::byte> data = current_temp_char.read();
+    units_char->write_without_response("kelvin");
 
     while (true) {
         ...
