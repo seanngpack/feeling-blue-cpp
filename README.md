@@ -68,11 +68,12 @@ Below is a brief example that finds a device and reads, writes, and sets notific
 ```
 main.cpp
 
-void print_data(std::vector<std::byte> data) {
+void print_temp(std::vector<std::byte> data) {
     std::cout << "the size of the data is: " << data.size() << std::endl;
     for (auto const &b : data) {
         std::cout << (int)b << std::endl;
     }
+    std::cout << "the current temperature is: " << bytes_to_int(data) << "degrees" << std::endl;
 }
 
 #include "feeling-blue/feeling-blue.h"
@@ -85,8 +86,8 @@ int main() {
     std::shared_ptr<bluetooth::Characteristic> current_temp_char = service->find_characteristic("someUUID");
     std::shared_ptr<bluetooth::Characteristic> units_char = service->find_characteristic("someUUID");
 
-    current_temp_char->set_notify(print_data);
-    std::vector<std::byte> data = current_temp_char.read();
+    current_temp_char->set_notify(print_temp);
+    std::string units = units_char.read_string();
     units_char->write_without_response("kelvin");
 
     while (true) {
