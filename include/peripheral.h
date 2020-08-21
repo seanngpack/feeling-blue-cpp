@@ -32,34 +32,28 @@ namespace bluetooth {
         std::shared_ptr<Service> find_service(const std::string &service_uuid);
 
         /**
-         * After discovering and connecting to services, will store them into a list. This method
-         * matches the given service_uuid and returns the corresponding service.
-         * If the service is not found in the peripheral, then return nullptr.
+         * Returns the discovered service. If the service has not been found and connected via find_service() yet,
+         * then this will return nullptr.
          *
          * @param service_uuid service uuid.
          * @return service matching the service_uuid or nullptr.
          */
-        std::shared_ptr<Service> get_service(const std::string &service_uuid);
+        std::shared_ptr<Service> service(const std::string &service_uuid);
 
         /**
          * Disconnect the peripheral.
+         *
+         * @note not blocking.
          */
         void disconnect();
 
         /**
-         * Set the name for your peripheral device. Use this if you discovered your peripheral via
-         * find_peripheral(std::vector<std::string) because the name functionality is bugged right now.
-         *
-         * @param n the name of your peripheral.
-         */
-        void set_name(const std::string &n);
-
-        /**
          * Get the name of your peripheral.
+         * Will return empty if you discovered your peripheral via UUID.
          *
          * @return the name of your peripheral.
          */
-        std::string get_name();
+        std::string name();
 
 
     private:

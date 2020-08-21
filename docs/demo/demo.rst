@@ -38,8 +38,8 @@ Search for peripheral
 The peripheral represents the device you want to connect to. There is a limit to one
 peripheral per central. You can spawn more instances of central to connect to more devices.
 
-To connect to a peripheral, you call the ``find_peripheral()`` method. If you know the device name and your peripheral
-is configured to advertise it, you can pass the name as a string:
+To connect to a peripheral, you call the ``find_peripheral()`` method. If you know your device is advertising its localName,
+you can pass its name to find it:
 
 .. code:: c++
 
@@ -154,18 +154,26 @@ the calling thread until the data has been read from your characteristic and ass
 
     std::vector<std::byte> data = characteristic->read();
 
+There are additional read methods available to convert the payload into human-readable datatypes. If your device is sending
+four bytes representing an integer, you can it directly as an integer instead of doing the conversion yourself:
+
+.. code:: c++
+
+    int data = characteristic->read_int();
+
+
+
 
 Writing to characteristic
 =========================
 
-There are two options to write to your device. First we can ``write_without_response()`` which writes to your
+There are two main options to write to your device. First we can ``write_without_response()`` which writes to your
 devices asynchronously and does not block your calling thread. If your write fails, you will not get a message
 telling you that it failed. You must provide this method the data as a ``std::vector<std::byte>``
 
 .. code:: c++
 
-
-    characteristic->write_without_response(data, 1);
+    characteristic->write_without_response(data);
 
 
 And if you write with a response, then the method will block your calling thread and wait until your data has been
@@ -173,7 +181,16 @@ successfully written to the device.
 
 .. code:: c++
 
-    rotate_char->write_with_response(data, 1);
+    rotate_char->write_with_response(data);
+
+There are convenience overloaded methods to write to your device if you'd rather send a human-readable datatype rather
+than a vector of bytes. If you use these convenience methods, just make on the other end, your device is configured to handle
+this information. These convenience methods assume little-endian ordering of bytes.
+
+.. code:: c++
+
+    std::string data = "Celcius";
+    switch_units_char->write_with_response(data);
 
 
 Notifying characteristic
