@@ -117,10 +117,7 @@ namespace bluetooth {
         }
 
         std::string Wrapper::get_peripheral_name() {
-            auto *n = new std::string([[impl->wrapped getPeripheralName] UTF8String]);
-            std::string temp = *n;
-            delete n;
-            return temp;
+            return std::string([[impl->wrapped getPeripheralName] UTF8String]);
         }
 
         std::vector<std::byte> Wrapper::read(const std::string &service_uuid, const std::string &char_uuid) {

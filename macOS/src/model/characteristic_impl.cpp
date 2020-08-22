@@ -26,6 +26,29 @@ namespace bluetooth {
             return bt->read(service_uuid, char_uuid);
         }
 
+        float read_float() {
+            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
+            if (data.empty()) {
+                std::clog
+                        << "warning: read returned data of 0 bytes."
+                        << std::endl;
+                return 0;
+            } else if (data.size() > 4) {
+                std::clog
+                        << "warning: read data is greater than four bytes, returning 0"
+                        << std::endl;
+                return 0;
+            }
+                // do error handling if size < 4
+            else if (data.size() < 4) {
+                std::clog
+                        << "warning: read data is less than four bytes, returning 0"
+                        << std::endl;
+                return 0;
+            }
+            return bytes_to_float(data);
+        }
+
         int read_int() {
             std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
             if (data.empty()) {
@@ -60,7 +83,7 @@ namespace bluetooth {
                 std::clog << "warning: read data is greater than one byte, will only use the last byte as return."
                           << std::endl;
             }
-            return (uint8_t) data[data.size()-1];
+            return (uint8_t) data[data.size() - 1];
         }
 
         std::string read_string() {
@@ -78,6 +101,10 @@ namespace bluetooth {
             bt->write_without_response(data, service_uuid, char_uuid);
         }
 
+        void write_without_response(float data) {
+            bt->write_without_response(float_to_bytes(data), service_uuid, char_uuid);
+        }
+
         void write_without_response(int data) {
             bt->write_without_response(int_to_bytes(data), service_uuid, char_uuid);
         }
@@ -92,6 +119,10 @@ namespace bluetooth {
 
         void write_with_response(const std::vector<std::byte> &data) {
             bt->write_with_response(data, service_uuid, char_uuid);
+        }
+
+        void write_with_response(float data) {
+            bt->write_with_response(float_to_bytes(data), service_uuid, char_uuid);
         }
 
         void write_with_response(int data) {
@@ -115,6 +146,12 @@ namespace bluetooth {
         std::string service_uuid;
         std::shared_ptr<wrapper::Wrapper> bt;
 
+        std::vector<std::byte> float_to_bytes(float data) {
+            std::vector<std::byte> bytes(sizeof(data));
+            std::memcpy(bytes.data(), &data, sizeof(data));
+            return bytes;
+        }
+
         /**
          * Convert integer to bytes in little endian order.
          * @param data integer to convert.
@@ -136,6 +173,7 @@ namespace bluetooth {
             std::vector<std::byte> byte_vector(data.size());
             std::transform(data.begin(), data.end(), byte_vector.begin(),
                            [](char c) { return std::byte(c); });
+            std::cout << std::endl;
             return byte_vector;
         }
 
@@ -146,7 +184,14 @@ namespace bluetooth {
                        (unsigned char) (bytes[3]));
         }
 
+        float bytes_to_float(const std::vector<std::byte> &bytes) {
+            float f;
+            memcpy(&f, bytes.data(), sizeof(f));
+            return f;
+        }
+
         std::string bytes_to_string(const std::vector<std::byte> &bytes) {
+            std::cout << std::endl;
             return std::string(reinterpret_cast<char const *>(&bytes[0]), bytes.size());
         }
     };
@@ -170,6 +215,10 @@ namespace bluetooth {
         return cImpl->read();
     }
 
+    float Characteristic::read_float() {
+        return cImpl->read_float();
+    }
+
     int Characteristic::read_int() {
         return cImpl->read_int();
     }
@@ -186,6 +235,10 @@ namespace bluetooth {
         cImpl->write_without_response(data);
     }
 
+    void Characteristic::write_without_response(float data) {
+        cImpl->write_without_response(data);
+    }
+
     void Characteristic::write_without_response(int data) {
         cImpl->write_without_response(data);
     }
@@ -199,6 +252,10 @@ namespace bluetooth {
     }
 
     void Characteristic::write_with_response(const std::vector<std::byte> &data) {
+        cImpl->write_with_response(data);
+    }
+
+    void Characteristic::write_with_response(float data) {
         cImpl->write_with_response(data);
     }
 

@@ -9,13 +9,11 @@ namespace bluetooth {
 
     struct Peripheral::PeripheralImpl {
     public:
-        PeripheralImpl(std::string name,
+        PeripheralImpl(std::string peripheral_name,
                        std::shared_ptr<wrapper::Wrapper> bt) :
-                name(std::move(name)), bt(std::move(bt)) {}
+                peripheral_name(std::move(peripheral_name)), bt(std::move(bt)) {}
 
-        ~PeripheralImpl() {
-
-        }
+        ~PeripheralImpl() = default;
 
         std::shared_ptr<Service> find_service(const std::string &service_uuid) {
             if (bt->find_service(service_uuid)) {
@@ -26,7 +24,7 @@ namespace bluetooth {
             return nullptr;
         }
 
-        std::shared_ptr<Service> get_service(const std::string &uuid) {
+        std::shared_ptr<Service> service(const std::string &uuid) {
             for (auto s : services) {
                 if (uuid == s->uuid()) {
                     return s;
@@ -35,12 +33,8 @@ namespace bluetooth {
             return nullptr;
         }
 
-        void set_name(const std::string &n) {
-            name = n;
-        }
-
-        std::string get_name() {
-            return name;
+        std::string name() {
+            return peripheral_name;
         }
 
         void disconnect() {
@@ -48,7 +42,7 @@ namespace bluetooth {
         }
 
     private:
-        std::string name;
+        std::string peripheral_name;
         std::vector<std::shared_ptr<Service>> services;
         std::shared_ptr<wrapper::Wrapper> bt;
     };
@@ -65,16 +59,12 @@ namespace bluetooth {
         return pImpl->find_service(service_uuid);
     }
 
-    std::shared_ptr<Service> Peripheral::get_service(const std::string &service_uuid) {
-        return pImpl->get_service(service_uuid);
+    std::shared_ptr<Service> Peripheral::service(const std::string &service_uuid) {
+        return pImpl->service(service_uuid);
     }
 
-    void Peripheral::set_name(const std::string &n) {
-        pImpl->set_name(n);
-    }
-
-    std::string Peripheral::get_name() {
-        return pImpl->get_name();
+    std::string Peripheral::name() {
+        return pImpl->name();
     }
 
     void Peripheral::disconnect() {

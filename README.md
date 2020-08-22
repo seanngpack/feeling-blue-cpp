@@ -43,7 +43,7 @@ $ cmake .. // use -DVERBOSE_MODE=OFF to turn off all console logging from feelin
 $ sudo make install
 ```
 
-> Add library to your project, you just need to add ```find_package()``` and ```targeet_link_libraries()```.
+> Add library to your project, you just need to add ```find_package()``` and ```target_link_libraries()```.
 
 * Example of cmakelists.txt in your project:
 
@@ -86,9 +86,13 @@ int main() {
     std::shared_ptr<bluetooth::Characteristic> current_temp_char = service->find_characteristic("someUUID");
     std::shared_ptr<bluetooth::Characteristic> units_char = service->find_characteristic("someUUID");
 
-    current_temp_char->set_notify(print_temp);
+    current_temp_char->set_notify(print_temp); // will call print_temp() whenever device notifies
+    
     std::string units = units_char.read_string();
+    std::cout << "the current temperature unit is: " << units << std::endl
     units_char->write_without_response("kelvin");
+    units = units_char.read_string();
+    std::cout << "the new temperature unit is: " << units << std::endl
 
     while (true) {
         ...
