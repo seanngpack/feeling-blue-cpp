@@ -21,7 +21,7 @@ namespace bluetooth {
              * @param data uint8_t to convert.
              * @return vector of byte.
              */
-            std::vector<std::byte> int_to_bytes(uint8_t data) {
+            std::vector<std::byte> uint8_to_bytes(uint8_t data) {
                 return std::vector<std::byte>{(std::byte) data};
             }
 

@@ -24,39 +24,63 @@ namespace bluetooth {
         }
 
         template<typename T>
-        T read() {
-            if constexpr(std::is_same_v<T, int>) {
-                return detail::conversion::bytes_to_int(bt->read(service_uuid, char_uuid));
-            } else if constexpr(std::is_same_v<T, uint8_t>) {
-                return detail::conversion::bytes_to_uint8(bt->read(service_uuid, char_uuid));
-            } else if constexpr(std::is_same_v<T, float>) {
-                return detail::conversion::bytes_to_float(bt->read(service_uuid, char_uuid));
-            } else if constexpr(std::is_same_v<T, std::string>) {
-                return detail::conversion::bytes_to_string(bt->read(service_uuid, char_uuid));
-            } else if constexpr(std::is_same_v<T, std::byte>) {
-                return bt->read(service_uuid, char_uuid);
+        struct Getter {
+            Getter(Characteristic::CharacteristicImpl *impl) : impl(impl) {}
+
+            T get() {
+                std::cout << "NON VECTOR CALLED" << std::endl;
+                if constexpr(std::is_same_v<T, int>) {
+                    return detail::conversion::bytes_to_int(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, uint8_t>) {
+                    return detail::conversion::bytes_to_uint8(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, float>) {
+                    return detail::conversion::bytes_to_float(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, std::string>) {
+                    return detail::conversion::bytes_to_string(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                }
             }
 
+            Characteristic::CharacteristicImpl *impl;
+        };
+
+        template<typename T>
+        struct Getter<std::vector<T> > {
+            Getter(Characteristic::CharacteristicImpl *impl) : impl(impl) {}
+
+            std::vector<T> get() {
+                std::cout << "VECTOR CALLED" << std::endl;
+                if constexpr(std::is_same_v<T, std::byte>) {
+                    return impl->bt->read(impl->service_uuid, impl->char_uuid);
+                }
+            }
+
+            Characteristic::CharacteristicImpl *impl;
+        };
+
+        template<typename T>
+        T read() {
+            return Getter<T>(this).get();
         }
 
-        void write_without_response(const std::vector<std::byte> &data) {
-            bt->write_without_response(data, service_uuid, char_uuid);
+
+        template<typename T>
+        void write_without_response(T data) {
+            if constexpr(std::is_same_v<T, int>) {
+                bt->write_without_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, uint8_t>) {
+                bt->write_without_response(detail::conversion::uint8_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, float>) {
+                bt->write_without_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, std::string>) {
+                bt->write_without_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
+            }
         }
 
-        void write_without_response(float data) {
-            bt->write_without_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_without_response(int data) {
-            bt->write_without_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_without_response(uint8_t data) {
-            bt->write_without_response(std::vector<std::byte>{(std::byte) data}, service_uuid, char_uuid);
-        }
-
-        void write_without_response(const std::string &data) {
-            bt->write_without_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
+        template<typename T>
+        void write_without_response(const std::vector<T> &data) {
+            if constexpr(std::is_same_v<T, std::byte>) {
+                bt->write_without_response(data, service_uuid, char_uuid);
+            }
         }
 
         void write_with_response(const std::vector<std::byte> &data) {
@@ -110,24 +134,14 @@ namespace bluetooth {
         return cImpl->read<T>();
     }
 
-    void Characteristic::write_without_response(const std::vector<std::byte> &data) {
-        cImpl->write_without_response(data);
+    template<typename T>
+    void Characteristic::write_without_response(T data) {
+        cImpl->write_without_response<T>(data);
     }
 
-    void Characteristic::write_without_response(float data) {
-        cImpl->write_without_response(data);
-    }
-
-    void Characteristic::write_without_response(int data) {
-        cImpl->write_without_response(data);
-    }
-
-    void Characteristic::write_without_response(uint8_t data) {
-        cImpl->write_without_response(data);
-    }
-
-    void Characteristic::write_without_response(const std::string &data) {
-        cImpl->write_without_response(data);
+    template<typename T>
+    void Characteristic::write_without_response(const std::vector<T> &data) {
+        cImpl->write_without_response<T>(data);
     }
 
     void Characteristic::write_with_response(const std::vector<std::byte> &data) {
@@ -156,9 +170,40 @@ namespace bluetooth {
 
     ///@cond INTERNAL
     // explicit template instantiation, also above statement tells doxygen to ignore these
+    // read methods
     template int Characteristic::read<int>();
+
     template uint8_t Characteristic::read<uint8_t>();
+
     template float Characteristic::read<float>();
+
     template std::string Characteristic::read<std::string>();
+
+    template std::vector<std::byte> Characteristic::read<std::vector<std::byte>>();
+
+    //write_without_response methods
+    template void Characteristic::write_without_response<uint8_t>(uint8_t data);
+
+    template void Characteristic::write_without_response<int>(int data);
+
+    template void Characteristic::write_without_response<float>(float data);
+
+    template void Characteristic::write_without_response<std::string>(std::string data);
+
+    template void Characteristic::write_without_response<std::byte>(const std::vector<std::byte> &data);
+
+//    template
+//    class Getter<uint8_t>;
+//
+//    template
+//    class Getter<int>;
+//
+//    template
+//    class Getter<float>;
+//
+//    template
+//    class Getter<std::string>;
+
+
     ///@endcond
 }

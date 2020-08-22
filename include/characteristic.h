@@ -47,6 +47,7 @@ namespace bluetooth {
         template<typename T>
         T read();
 
+
         /**
          * Write to characteristic using a vector of bytes. Will not print error if write fails.
          * You can transmit more data with this method than write_with_response().
@@ -54,44 +55,12 @@ namespace bluetooth {
          * @note asynchronous.
          * @param data byte vector of your data.
          */
-        void write_without_response(const std::vector<std::byte> &data);
+        template<typename T>
+        void write_without_response(T data);
 
-        /**
-         * Write float32 to characteristic in little endian order. Will not print error if write fails.
-         * You can transmit more data with this method than write_with_response().
-         *
-         * @note asynchronous.
-         * @param data int you want to send.
-         */
-        void write_without_response(float data);
+        template<typename T>
+        void write_without_response(const std::vector<T> &data);
 
-        /**
-         * Write integer to characteristic in little endian order. Will not print error if write fails.
-         * You can transmit more data with this method than write_with_response().
-         *
-         * @note asynchronous.
-         * @param data int you want to send.
-         */
-        void write_without_response(int data);
-
-
-        /**
-         * Write uint8_t to characteristic. Will not print error if write fails.
-         * You can transmit more data with this method than write_with_response().
-         *
-         * @note asynchronous.
-         * @param data uint8_t you want to send.
-         */
-        void write_without_response(uint8_t data);
-
-        /**
-         * Write string to characteristic in little endian order. Will not print error if write fails.
-         * You can transmit more data with this method than write_with_response().
-         *
-         * @note asynchronous.
-         * @param data string you want to write.
-         */
-        void write_without_response(const std::string &data);
 
         /**
          * Write to characteristic with response. If the write_without_response fails and verbose mode is on,
@@ -153,6 +122,7 @@ namespace bluetooth {
         struct CharacteristicImpl;
         CharacteristicImpl *cImpl;
     };
+
 }
 
 #endif //FEELING_BLUE_CHARACTERISTIC_H
