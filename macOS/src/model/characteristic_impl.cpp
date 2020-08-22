@@ -13,7 +13,7 @@ namespace bluetooth {
 
         CharacteristicImpl(std::string char_uuid,
                            std::string service_uuid,
-                           std::shared_ptr<wrapper::Wrapper> bt) :
+                           std::shared_ptr<detail::wrapper::Wrapper> bt) :
                 char_uuid(std::move(char_uuid)), service_uuid(std::move(service_uuid)), bt(std::move(bt)) {}
 
         ~CharacteristicImpl() = default;
@@ -144,7 +144,7 @@ namespace bluetooth {
     private:
         std::string char_uuid;
         std::string service_uuid;
-        std::shared_ptr<wrapper::Wrapper> bt;
+        std::shared_ptr<detail::wrapper::Wrapper> bt;
 
         std::vector<std::byte> float_to_bytes(float data) {
             std::vector<std::byte> bytes(sizeof(data));
@@ -200,7 +200,7 @@ namespace bluetooth {
 
     Characteristic::Characteristic(const std::string &char_uuid,
                                    const std::string &service_uuid,
-                                   std::shared_ptr<wrapper::Wrapper> bt) :
+                                   std::shared_ptr<detail::wrapper::Wrapper> bt) :
             cImpl(new CharacteristicImpl(char_uuid, service_uuid, std::move(bt))) {}
 
     Characteristic::~Characteristic() {

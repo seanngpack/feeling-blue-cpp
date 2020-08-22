@@ -7,8 +7,10 @@
 
 namespace bluetooth {
 
-    namespace wrapper {
-        class Wrapper;
+    namespace detail {
+        namespace wrapper {
+            class Wrapper;
+        }
     }
 
     class Service;
@@ -23,7 +25,7 @@ namespace bluetooth {
 
         Characteristic(const std::string &char_uuid,
                        const std::string &service_uuid,
-                       std::shared_ptr<wrapper::Wrapper> bt);
+                       std::shared_ptr<detail::wrapper::Wrapper> bt);
 
         ~Characteristic();
 

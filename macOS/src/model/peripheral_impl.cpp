@@ -10,7 +10,7 @@ namespace bluetooth {
     struct Peripheral::PeripheralImpl {
     public:
         PeripheralImpl(std::string peripheral_name,
-                       std::shared_ptr<wrapper::Wrapper> bt) :
+                       std::shared_ptr<detail::wrapper::Wrapper> bt) :
                 peripheral_name(std::move(peripheral_name)), bt(std::move(bt)) {}
 
         ~PeripheralImpl() = default;
@@ -44,11 +44,11 @@ namespace bluetooth {
     private:
         std::string peripheral_name;
         std::vector<std::shared_ptr<Service>> services;
-        std::shared_ptr<wrapper::Wrapper> bt;
+        std::shared_ptr<detail::wrapper::Wrapper> bt;
     };
 
     Peripheral::Peripheral(const std::string &name,
-                           std::shared_ptr<wrapper::Wrapper> bt) :
+                           std::shared_ptr<detail::wrapper::Wrapper> bt) :
             pImpl(new PeripheralImpl(name, std::move(bt))) {}
 
     Peripheral::~Peripheral() {

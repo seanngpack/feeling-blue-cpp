@@ -9,7 +9,7 @@ namespace bluetooth {
     struct Central::CentralImpl {
     public:
         CentralImpl()
-                : bt(std::make_shared<wrapper::Wrapper>()) {
+                : bt(std::make_shared<detail::wrapper::Wrapper>()) {
         }
 
         ~CentralImpl() = default;
@@ -39,7 +39,7 @@ namespace bluetooth {
         }
 
     private:
-        std::shared_ptr<wrapper::Wrapper> bt;
+        std::shared_ptr<detail::wrapper::Wrapper> bt;
         std::shared_ptr<Peripheral> periph;
     };
 
