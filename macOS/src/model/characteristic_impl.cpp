@@ -1,5 +1,6 @@
 #include "characteristic.h"
 #include "wrapper.h"
+#include "conversions.h"
 #include <string>
 #include <utility>
 #include <iostream>
@@ -46,7 +47,7 @@ namespace bluetooth {
                         << std::endl;
                 return 0;
             }
-            return bytes_to_float(data);
+            return detail::conversion::bytes_to_float(data);
         }
 
         int read_int() {
@@ -68,7 +69,7 @@ namespace bluetooth {
                         << std::endl;
                 return (int) data[0];
             }
-            return bytes_to_int(data);
+            return detail::conversion::bytes_to_int(data);
         }
 
         uint8_t read_uint8() {
@@ -94,7 +95,7 @@ namespace bluetooth {
                         << std::endl;
                 return "";
             }
-            return bytes_to_string(data);
+            return detail::conversion::bytes_to_string(data);
         }
 
         void write_without_response(const std::vector<std::byte> &data) {
@@ -102,11 +103,11 @@ namespace bluetooth {
         }
 
         void write_without_response(float data) {
-            bt->write_without_response(float_to_bytes(data), service_uuid, char_uuid);
+            bt->write_without_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
         }
 
         void write_without_response(int data) {
-            bt->write_without_response(int_to_bytes(data), service_uuid, char_uuid);
+            bt->write_without_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
         }
 
         void write_without_response(uint8_t data) {
@@ -114,7 +115,7 @@ namespace bluetooth {
         }
 
         void write_without_response(const std::string &data) {
-            bt->write_without_response(string_to_bytes(data), service_uuid, char_uuid);
+            bt->write_without_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
         }
 
         void write_with_response(const std::vector<std::byte> &data) {
@@ -122,11 +123,11 @@ namespace bluetooth {
         }
 
         void write_with_response(float data) {
-            bt->write_with_response(float_to_bytes(data), service_uuid, char_uuid);
+            bt->write_with_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
         }
 
         void write_with_response(int data) {
-            bt->write_with_response(int_to_bytes(data), service_uuid, char_uuid);
+            bt->write_with_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
         }
 
         void write_with_response(uint8_t data) {
@@ -134,7 +135,7 @@ namespace bluetooth {
         }
 
         void write_with_response(const std::string &data) {
-            bt->write_with_response(string_to_bytes(data), service_uuid, char_uuid);
+            bt->write_with_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
         }
 
         void notify(const std::function<void(std::vector<std::byte>)> &callback) {
@@ -146,54 +147,6 @@ namespace bluetooth {
         std::string service_uuid;
         std::shared_ptr<detail::wrapper::Wrapper> bt;
 
-        std::vector<std::byte> float_to_bytes(float data) {
-            std::vector<std::byte> bytes(sizeof(data));
-            std::memcpy(bytes.data(), &data, sizeof(data));
-            return bytes;
-        }
-
-        /**
-         * Convert integer to bytes in little endian order.
-         * @param data integer to convert.
-         * @return vector of bytes.
-         */
-        std::vector<std::byte> int_to_bytes(int data) {
-            std::vector<std::byte> byte_vector(4);
-            for (int i = 0; i < 4; i++)
-                byte_vector[3 - i] = std::byte((data >> (i * 8)));
-            return byte_vector;
-        }
-
-        /**
-         * Convert string to byte in little endian order.
-         * @param data string to convert.
-         * @return vector of bytes.
-         */
-        std::vector<std::byte> string_to_bytes(const std::string &data) {
-            std::vector<std::byte> byte_vector(data.size());
-            std::transform(data.begin(), data.end(), byte_vector.begin(),
-                           [](char c) { return std::byte(c); });
-            std::cout << std::endl;
-            return byte_vector;
-        }
-
-        int bytes_to_int(const std::vector<std::byte> &bytes) {
-            return int((unsigned char) (bytes[0]) << 24 |
-                       (unsigned char) (bytes[1]) << 16 |
-                       (unsigned char) (bytes[2]) << 8 |
-                       (unsigned char) (bytes[3]));
-        }
-
-        float bytes_to_float(const std::vector<std::byte> &bytes) {
-            float f;
-            memcpy(&f, bytes.data(), sizeof(f));
-            return f;
-        }
-
-        std::string bytes_to_string(const std::vector<std::byte> &bytes) {
-            std::cout << std::endl;
-            return std::string(reinterpret_cast<char const *>(&bytes[0]), bytes.size());
-        }
     };
 
     Characteristic::Characteristic() : cImpl(new CharacteristicImpl()) {}

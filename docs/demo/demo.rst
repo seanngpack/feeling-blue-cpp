@@ -202,7 +202,7 @@ has notification support and that it's enabled. So now when your device sends yo
 that payload and write your own function to do something with it!
 
 Non-member function event handler
-----------------------------
+---------------------------------
 
 Let's write a callback event handler that takes in a ``std::vector<std::byte>`` and enable notifications, passing the function as a parameter.
 
@@ -220,7 +220,7 @@ IMPORTANT! All event handlers must follow this signature: ``void (std::vector<st
 
 
 Member function event handler
-------------------------
+-----------------------------
 
 member functions are a little trickier to write, but you just have to bind their class to std::function
 and add a placeholder parameter, then pass it like normal.
