@@ -34,48 +34,18 @@ namespace bluetooth {
         /**
          * Read the characteristic.
          *
+         * @tparam T the type your want the data to be read as. Currently supports:
+         * std::byte
+         * std::string
+         * int
+         * uint8_t
+         * float
+         *
          * @note blocking.
          * @return a byte vector.
          */
-        std::vector<std::byte> read();
-
-        /**
-         * Read the characteristic. Convert the byte response to float32 assuming little endian order.
-         * If your device sends more than four bytes, then it will use display a warning and use
-         * the leftmost four bytes to convert to an int.
-         *
-         * @note blocking.
-         * @return byte response as an integer.
-         */
-        float read_float();
-
-        /**
-         * Read the characteristic. Convert the byte response to integer assuming little endian order.
-         * If your device sends more than four bytes, then it will use display a warning and use
-         * the leftmost four bytes (little endian order) to convert to an int.
-         *
-         * @note blocking.
-         * @return byte response as an integer.
-         */
-        int read_int();
-
-        /**
-         * Read the characteristic. Convert the byte response to uint8_t.
-         * If your device sends more than one byte of data then it will display a warning
-         * use the leftmost byte (little endian order) for the return.
-         *
-         * @note blocking.
-         * @return byte response as uint8_t.
-         */
-        uint8_t read_uint8();
-
-        /**
-         * Read the characteristic. Convert the byte response to string assuming little endian order.
-         *
-         * @note blocking.
-         * @return byte response as string.
-         */
-        std::string read_string();
+        template<typename T>
+        T read();
 
         /**
          * Write to characteristic using a vector of bytes. Will not print error if write fails.

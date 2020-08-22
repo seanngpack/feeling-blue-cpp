@@ -23,28 +23,20 @@ namespace bluetooth {
             return char_uuid;
         }
 
-        std::vector<std::byte> read() {
-            return bt->read(service_uuid, char_uuid);
-        }
+        template<typename T>
+        T read() {
+            if constexpr(std::is_same_v<T, int>) {
+                return detail::conversion::bytes_to_int(bt->read(service_uuid, char_uuid));
+            } else if constexpr(std::is_same_v<T, uint8_t>) {
+                return detail::conversion::bytes_to_uint8(bt->read(service_uuid, char_uuid));
+            } else if constexpr(std::is_same_v<T, float>) {
+                return detail::conversion::bytes_to_float(bt->read(service_uuid, char_uuid));
+            } else if constexpr(std::is_same_v<T, std::string>) {
+                return detail::conversion::bytes_to_string(bt->read(service_uuid, char_uuid));
+            } else if constexpr(std::is_same_v<T, std::byte>) {
+                return bt->read(service_uuid, char_uuid);
+            }
 
-        float read_float() {
-            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            return detail::conversion::bytes_to_float(data);
-        }
-
-        int read_int() {
-            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            return detail::conversion::bytes_to_int(data);
-        }
-
-        uint8_t read_uint8() {
-            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            return detail::conversion::bytes_to_uint8(data);
-        }
-
-        std::string read_string() {
-            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            return detail::conversion::bytes_to_string(data);
         }
 
         void write_without_response(const std::vector<std::byte> &data) {
@@ -113,24 +105,9 @@ namespace bluetooth {
         return cImpl->uuid();
     }
 
-    std::vector<std::byte> Characteristic::read() {
-        return cImpl->read();
-    }
-
-    float Characteristic::read_float() {
-        return cImpl->read_float();
-    }
-
-    int Characteristic::read_int() {
-        return cImpl->read_int();
-    }
-
-    uint8_t Characteristic::read_uint8() {
-        return cImpl->read_uint8();
-    }
-
-    std::string Characteristic::read_string() {
-        return cImpl->read_string();
+    template<typename T>
+    T Characteristic::read() {
+        return cImpl->read<T>();
     }
 
     void Characteristic::write_without_response(const std::vector<std::byte> &data) {
@@ -177,4 +154,11 @@ namespace bluetooth {
         cImpl->notify(callback);
     }
 
+    ///@cond INTERNAL
+    // explicit template instantiation, also above statement tells doxygen to ignore these
+    template int Characteristic::read<int>();
+    template uint8_t Characteristic::read<uint8_t>();
+    template float Characteristic::read<float>();
+    template std::string Characteristic::read<std::string>();
+    ///@endcond
 }

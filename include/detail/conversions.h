@@ -17,14 +17,12 @@ namespace bluetooth {
             ---------------------------------------------------------*/
 
             /**
-             * Convert the float to bytes. Assumes little endian order.
-             * @param data float to convert.
-             * @return vector of bytes.
+             * Convert uint8_t to vector of byte.
+             * @param data uint8_t to convert.
+             * @return vector of byte.
              */
-            std::vector<std::byte> float_to_bytes(float data) {
-                std::vector<std::byte> bytes(sizeof(data));
-                std::memcpy(bytes.data(), &data, sizeof(data));
-                return bytes;
+            std::vector<std::byte> int_to_bytes(uint8_t data) {
+                return std::vector<std::byte>{(std::byte) data};
             }
 
             /**
@@ -37,6 +35,17 @@ namespace bluetooth {
                 for (int i = 0; i < 4; i++)
                     byte_vector[3 - i] = std::byte((data >> (i * 8)));
                 return byte_vector;
+            }
+
+            /**
+             * Convert the float to bytes. Assumes little endian order.
+             * @param data float to convert.
+             * @return vector of bytes.
+             */
+            std::vector<std::byte> float_to_bytes(float data) {
+                std::vector<std::byte> bytes(sizeof(data));
+                std::memcpy(bytes.data(), &data, sizeof(data));
+                return bytes;
             }
 
             /**
