@@ -59,22 +59,22 @@ int main() {
     current_temp_char->notify(print_data);
 
     // or read it without waiting for updates
-    std::cout << "the current temperature is: " << current_temp_char->read_float() << std::endl;
+    std::cout << "the current temperature is: " << current_temp_char->read<float>() << std::endl;
 
     // read the battery level
-    std::vector<std::byte> a = battery_level_char->read();
+    std::vector<std::byte> a = battery_level_char->read<std::byte>();
     std::cout << "printing bytes of battery" <<std::endl;
     for (auto &x: a) {
         std::cout << " " << (int)x;
     }
     std::cout << std::endl;
-    std::cout << "the battery level is: " << battery_level_char->read_int() << std::endl;
+    std::cout << "the battery level is: " << battery_level_char->read<int>() << std::endl;
 
     // current value is "fahrenheit"
-    std::string unit = temp_units_char->read_string();
+    std::string unit = temp_units_char->read<std::string>();
     std::cout << "the current unit is: " << unit << std::endl;
     // write to the characteristic to change units.
-    temp_units_char->write_with_response("celsius");
+    temp_units_char->write_with_response<std::string>("celsius");
 
 
     using namespace std::chrono_literals;
