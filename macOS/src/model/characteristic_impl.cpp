@@ -23,18 +23,25 @@ namespace bluetooth {
             return char_uuid;
         }
 
+        ///@cond INTERNAL
+
+        /**
+         * Specialized template to return type T.
+         * @tparam T type.
+         */
         template<typename T>
         struct Getter {
             Getter(Characteristic::CharacteristicImpl *impl) : impl(impl) {}
 
             T get() {
-                std::cout << "NON VECTOR CALLED" << std::endl;
                 if constexpr(std::is_same_v<T, int>) {
                     return detail::conversion::bytes_to_int(impl->bt->read(impl->service_uuid, impl->char_uuid));
                 } else if constexpr(std::is_same_v<T, uint8_t>) {
                     return detail::conversion::bytes_to_uint8(impl->bt->read(impl->service_uuid, impl->char_uuid));
                 } else if constexpr(std::is_same_v<T, float>) {
                     return detail::conversion::bytes_to_float(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, double>) {
+                    return detail::conversion::bytes_to_double(impl->bt->read(impl->service_uuid, impl->char_uuid));
                 } else if constexpr(std::is_same_v<T, std::string>) {
                     return detail::conversion::bytes_to_string(impl->bt->read(impl->service_uuid, impl->char_uuid));
                 }
@@ -43,12 +50,15 @@ namespace bluetooth {
             Characteristic::CharacteristicImpl *impl;
         };
 
+        /**
+         * Specialized template to return vector<T>.
+         * @tparam T type.
+         */
         template<typename T>
         struct Getter<std::vector<T> > {
             Getter(Characteristic::CharacteristicImpl *impl) : impl(impl) {}
 
             std::vector<T> get() {
-                std::cout << "VECTOR CALLED" << std::endl;
                 if constexpr(std::is_same_v<T, std::byte>) {
                     return impl->bt->read(impl->service_uuid, impl->char_uuid);
                 }
@@ -56,12 +66,17 @@ namespace bluetooth {
 
             Characteristic::CharacteristicImpl *impl;
         };
+        ///@endcond
 
+        /**
+         * Creates instance of specialized template to return either T or vector<T>.
+         * @tparam T type.
+         * @return T or vector<T>
+         */
         template<typename T>
         T read() {
             return Getter<T>(this).get();
         }
-
 
         template<typename T>
         void write_without_response(T data) {
@@ -71,6 +86,8 @@ namespace bluetooth {
                 bt->write_without_response(detail::conversion::uint8_to_bytes(data), service_uuid, char_uuid);
             } else if constexpr(std::is_same_v<T, float>) {
                 bt->write_without_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, double>) {
+                bt->write_without_response(detail::conversion::double_to_bytes(data), service_uuid, char_uuid);
             } else if constexpr(std::is_same_v<T, std::string>) {
                 bt->write_without_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
             }
@@ -91,6 +108,8 @@ namespace bluetooth {
                 bt->write_with_response(detail::conversion::uint8_to_bytes(data), service_uuid, char_uuid);
             } else if constexpr(std::is_same_v<T, float>) {
                 bt->write_with_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, double>) {
+                bt->write_with_response(detail::conversion::double_to_bytes(data), service_uuid, char_uuid);
             } else if constexpr(std::is_same_v<T, std::string>) {
                 bt->write_with_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
             }
@@ -168,6 +187,8 @@ namespace bluetooth {
 
     template float Characteristic::read<float>();
 
+    template double Characteristic::read<double>();
+
     template std::string Characteristic::read<std::string>();
 
     template std::vector<std::byte> Characteristic::read<std::vector<std::byte>>();
@@ -178,6 +199,8 @@ namespace bluetooth {
     template void Characteristic::write_without_response<int>(int data);
 
     template void Characteristic::write_without_response<float>(float data);
+
+    template void Characteristic::write_without_response<double>(double data);
 
     template void Characteristic::write_without_response<std::string>(std::string data);
 
@@ -190,22 +213,11 @@ namespace bluetooth {
 
     template void Characteristic::write_with_response<float>(float data);
 
+    template void Characteristic::write_with_response<double>(double data);
+
     template void Characteristic::write_with_response<std::string>(std::string data);
 
     template void Characteristic::write_with_response<std::byte>(const std::vector<std::byte> &data);
-
-//    template
-//    class Getter<uint8_t>;
-//
-//    template
-//    class Getter<int>;
-//
-//    template
-//    class Getter<float>;
-//
-//    template
-//    class Getter<std::string>;
-
 
     ///@endcond
 }

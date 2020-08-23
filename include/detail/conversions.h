@@ -49,6 +49,17 @@ namespace bluetooth {
             }
 
             /**
+             * Convert the double to bytes. Assumes little endian order.
+             * @param data double to convert.
+             * @return vector of bytes.
+             */
+            std::vector<std::byte> double_to_bytes(double data) {
+                std::vector<std::byte> bytes(sizeof(data));
+                std::memcpy(bytes.data(), &data, sizeof(data));
+                return bytes;
+            }
+
+            /**
              * Convert a non-terminated std::string to byte in little endian order.
              * @param data string to convert.
              * @return vector of bytes.
@@ -109,6 +120,22 @@ namespace bluetooth {
                     float f;
                     memcpy(&f, bytes.data(), sizeof(f));
                     return f;
+                }
+                return 0;
+            }
+
+            /**
+             * Convert vector of bytes to signed 8-byte double. Assumes little endian order.
+             * If bytes is not 8, then return 0.
+             *
+             * @param bytes vector of bytes to convert.
+             * @return double.
+             */
+            double bytes_to_double(const std::vector<std::byte> &bytes) {
+                if (bytes.size() == 8) {
+                    double d;
+                    memcpy(&d, bytes.data(), sizeof(d));
+                    return d;
                 }
                 return 0;
             }

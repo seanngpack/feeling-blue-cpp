@@ -34,12 +34,7 @@ namespace bluetooth {
         /**
          * Read the characteristic.
          *
-         * @tparam T the type your want the data to be read as. Currently supports:
-         * std::byte
-         * std::string
-         * int
-         * uint8_t
-         * float
+         * @tparam T the type your want the data to be read as.
          *
          * @note blocking.
          * @return a byte vector.
