@@ -68,44 +68,12 @@ namespace bluetooth {
          *
          * @param byte vector of your data.
          */
-        void write_with_response(const std::vector<std::byte> &data);
+        template<typename T>
+        void write_with_response(T data);
 
-        /**
-         * Write float to characteristic with response.
-         * If the write_without_response fails and verbose mode is on,
-         * the console will print an error and the program will continue running.
-         *
-         * @param data int you want to send.
-         */
-        void write_with_response(float data);
+        template<typename T>
+        void write_with_response(const std::vector<T> &data);
 
-        /**
-         * Write integer to characteristic with response.
-         * If the write_without_response fails and verbose mode is on,
-         * the console will print an error and the program will continue running.
-         *
-         * @param data int you want to send.
-         */
-        void write_with_response(int data);
-
-
-        /**
-         * Write uint8_t to characteristic with response.
-         * If the write_without_response fails and verbose mode is on,
-         * the console will print an error and the program will continue running.
-         *
-         * @param data uint8_t you want to send
-         */
-        void write_with_response(uint8_t data);
-
-        /**
-         * Write string to characteristic with response.
-         * If the write_without_response fails and verbose mode is on,
-         * the console will print an error and the program will continue running.
-         *
-         * @param data string you want to send
-         */
-        void write_with_response(const std::string &data);
 
         /**
          * Enable notifications from the characteristic and set callback function to do something

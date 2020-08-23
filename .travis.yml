@@ -5,6 +5,7 @@ branches:
     - gh-pages
     - master
     - macos
+    - characteristic_method_templating
 
 matrix:
   include:

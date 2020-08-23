@@ -83,24 +83,24 @@ namespace bluetooth {
             }
         }
 
-        void write_with_response(const std::vector<std::byte> &data) {
-            bt->write_with_response(data, service_uuid, char_uuid);
+        template<typename T>
+        void write_with_response(T data) {
+            if constexpr(std::is_same_v<T, int>) {
+                bt->write_with_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, uint8_t>) {
+                bt->write_with_response(detail::conversion::uint8_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, float>) {
+                bt->write_with_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, std::string>) {
+                bt->write_with_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
+            }
         }
 
-        void write_with_response(float data) {
-            bt->write_with_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_with_response(int data) {
-            bt->write_with_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_with_response(uint8_t data) {
-            bt->write_with_response(std::vector<std::byte>{(std::byte) data}, service_uuid, char_uuid);
-        }
-
-        void write_with_response(const std::string &data) {
-            bt->write_with_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
+        template<typename T>
+        void write_with_response(const std::vector<T> &data) {
+            if constexpr(std::is_same_v<T, std::byte>) {
+                bt->write_with_response(data, service_uuid, char_uuid);
+            }
         }
 
         void notify(const std::function<void(std::vector<std::byte>)> &callback) {
@@ -144,25 +144,16 @@ namespace bluetooth {
         cImpl->write_without_response<T>(data);
     }
 
-    void Characteristic::write_with_response(const std::vector<std::byte> &data) {
-        cImpl->write_with_response(data);
+    template<typename T>
+    void Characteristic::write_with_response(T data) {
+        cImpl->write_with_response<T>(data);
     }
 
-    void Characteristic::write_with_response(float data) {
-        cImpl->write_with_response(data);
+    template<typename T>
+    void Characteristic::write_with_response(const std::vector<T> &data) {
+        cImpl->write_with_response<T>(data);
     }
 
-    void Characteristic::write_with_response(int data) {
-        cImpl->write_with_response(data);
-    }
-
-    void Characteristic::write_with_response(uint8_t data) {
-        cImpl->write_with_response(data);
-    }
-
-    void Characteristic::write_with_response(const std::string &data) {
-        cImpl->write_with_response(data);
-    }
 
     void Characteristic::notify(const std::function<void(std::vector<std::byte>)> &callback) {
         cImpl->notify(callback);
@@ -191,6 +182,17 @@ namespace bluetooth {
     template void Characteristic::write_without_response<std::string>(std::string data);
 
     template void Characteristic::write_without_response<std::byte>(const std::vector<std::byte> &data);
+
+    //write_with_response methods
+    template void Characteristic::write_with_response<uint8_t>(uint8_t data);
+
+    template void Characteristic::write_with_response<int>(int data);
+
+    template void Characteristic::write_with_response<float>(float data);
+
+    template void Characteristic::write_with_response<std::string>(std::string data);
+
+    template void Characteristic::write_with_response<std::byte>(const std::vector<std::byte> &data);
 
 //    template
 //    class Getter<uint8_t>;
