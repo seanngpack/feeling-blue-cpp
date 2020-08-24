@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 set(CMAKE_CXX_STANDARD 17)
 
 project(feeling-blue
-        VERSION 1.0
+        VERSION 1.02
         DESCRIPTION "mylib description")
 
 include(GNUInstallDirs)
@@ -31,7 +31,7 @@ set(macOS_PUBLIC_HEADERS
         )
 
 set(macOS_PRIVATE_HEADERS
-
+        ./include/detail/conversions.h
         )
 
 # --------------------------------------------------------------------------------

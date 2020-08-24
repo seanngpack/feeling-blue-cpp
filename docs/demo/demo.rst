@@ -148,20 +148,22 @@ Reading characteristic value
 ============================
 
 Let's get some data! To read the value of your characteristic, call the ``read()`` method. This method blocks
-the calling thread until the data has been read from your characteristic and assigned to your variable.
+the calling thread until the data has been read from your characteristic and assigned to your variable. The read method
+is templated and supports multiple types described in the :ref:`supported-template-types`.
 
 .. code:: c++
 
-    std::vector<std::byte> data = characteristic->read();
+    std::vector<std::byte> data = characteristic->read<std::byte>();
 
-There are additional read methods available to convert the payload into human-readable datatypes. If your device is sending
-four bytes representing an integer, you can it directly as an integer instead of doing the conversion yourself:
+If you want something more human-readable, and you know your device's characteristic is represented in four bytes in
+little-endian order, you just just read your data as an integer:
 
 .. code:: c++
 
-    int data = characteristic->read_int();
+    int data = characteristic->read<int>();
 
-
+By default, you should read in your data into ``std::vector<std::byte>`` unless you know for sure your device is outputting
+convertible types.
 
 
 Writing to characteristic
@@ -169,11 +171,12 @@ Writing to characteristic
 
 There are two main options to write to your device. First we can ``write_without_response()`` which writes to your
 devices asynchronously and does not block your calling thread. If your write fails, you will not get a message
-telling you that it failed. You must provide this method the data as a ``std::vector<std::byte>``
+telling you that it failed. This method is templated and supports multiple types described in the :ref:`supported-template-types`.
 
 .. code:: c++
 
-    characteristic->write_without_response(data);
+    std::vector<std::byte> data = {...};
+    characteristic->write_without_response<std::byte>(data);
 
 
 And if you write with a response, then the method will block your calling thread and wait until your data has been
@@ -181,28 +184,21 @@ successfully written to the device.
 
 .. code:: c++
 
-    rotate_char->write_with_response(data);
+    std::vector<std::byte> data = {...};
+    rotate_char->write_with_response<std::byte>(data);
 
-There are convenience overloaded methods to write to your device if you'd rather send a human-readable datatype rather
-than a vector of bytes. If you use these convenience methods, just make on the other end, your device is configured to handle
-this information. These convenience methods assume little-endian ordering of bytes.
-
-.. code:: c++
-
-    std::string data = "Celcius";
-    switch_units_char->write_with_response(data);
+Like the read() method, you can write to your device using different formats that will end up being converted to byte arrays.
 
 
 Notifying characteristic
 ========================
-
 
 If your device and characteristic supports notifications, then let's use it. First, just double check that your characteristic
 has notification support and that it's enabled. So now when your device sends your computer notifications with a data payload you can capture
 that payload and write your own function to do something with it!
 
 Non-member function event handler
-----------------------------
+---------------------------------
 
 Let's write a callback event handler that takes in a ``std::vector<std::byte>`` and enable notifications, passing the function as a parameter.
 
@@ -220,7 +216,7 @@ IMPORTANT! All event handlers must follow this signature: ``void (std::vector<st
 
 
 Member function event handler
-------------------------
+-----------------------------
 
 member functions are a little trickier to write, but you just have to bind their class to std::function
 and add a placeholder parameter, then pass it like normal.
@@ -249,3 +245,24 @@ Passing member functions is really powerful because you can do things such as up
 
 If you're passing the same function to multiple characteristic notifications, then just make sure your function contents are
 thread-safe, this applies to both member and non-member functions.
+
+.. _supported-template-types:
+
+Supported template types
+========================
+
+Primitive:
+
+- uint8_t
+- int
+- float
+- double
+
+Non Primitive:
+
+- std::string
+- std::vector<std::byte>
+
+
+
+

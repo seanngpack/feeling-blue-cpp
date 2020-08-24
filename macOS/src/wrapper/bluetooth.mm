@@ -1,4 +1,3 @@
-#include "peripheral.h"
 #import "bluetooth.h"
 #import "wrapper.h"
 
@@ -193,7 +192,7 @@ namespace bluetooth {
 }
 
 /*-------------------------------------------------------
-              Objective-C implementation here
+              Trampoline methods
 
 ---------------------------------------------------------*/
 
@@ -320,6 +319,11 @@ belongingToService:(CBUUID *)serviceUUID
     _readCommand = false;
 }
 
+/*-------------------------------------------------------
+              CoreBluetooth stuff below
+
+---------------------------------------------------------*/
+
 - (id)init {
     if (self = [super init]) {
         _centralQueue = dispatch_queue_create("centralManagerQueue", DISPATCH_QUEUE_SERIAL);
@@ -365,6 +369,11 @@ belongingToService:(CBUUID *)serviceUUID
     }
 }
 
+/*-------------------------------------------------------
+              Central Methods
+
+---------------------------------------------------------*/
+
 // call this during scanning when it finds a peripheral_mac
 - (void)centralManager:(CBCentralManager *)central didDiscoverPeripheral:(CBPeripheral *)peripheral advertisementData:(NSDictionary *)advertisementData RSSI:(NSNumber *)RSSI {
     NSString *pName = advertisementData[@"kCBAdvDataLocalName"];
@@ -405,6 +414,7 @@ belongingToService:(CBUUID *)serviceUUID
     NSLog(@"**** PERIPHERAL UPDATED NAME: %@", peripheral);
 }
 
+
 // called if didDiscoverPeripheral fails to connect
 - (void)centralManager:(CBCentralManager *)central didFailToConnectPeripheral:(CBPeripheral *)peripheral error:(NSError *)error {
     NSLog(@"**** CONNECTION FAILED!!!");
@@ -415,6 +425,11 @@ didDisconnectPeripheral:(CBPeripheral *)peripheral
                   error:(NSError *)error {
     NSLog(@"**** DISCONNECTED PERIPHERAL");
 }
+
+/*-------------------------------------------------------
+              Peripheral methods
+
+---------------------------------------------------------*/
 
 // When the specified services are discovered, this is called.
 // Can access the services throup peripheral.services

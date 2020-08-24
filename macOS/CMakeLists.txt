@@ -10,11 +10,14 @@ set(macOS_SRCS
         ../include/peripheral.h
         ../include/central.h
         ../include/service.h
-        src/model/service_impl.cpp ../include/characteristic.h src/model/characteristic_impl.cpp
+        ../include/detail/conversions.h
+        src/model/service_impl.cpp
+        ../include/characteristic.h src/model/characteristic_impl.cpp
         )
 
 
 include_directories(
+        ../include/detail
         include/wrapper
         include/model)
 
