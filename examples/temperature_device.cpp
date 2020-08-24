@@ -62,7 +62,7 @@ int main() {
     std::cout << "the current temperature is: " << current_temp_char->read<float>() << std::endl;
 
     // read the battery level
-    std::vector<std::byte> a = battery_level_char->read<std::byte>();
+    std::vector<std::byte> a = battery_level_char->read<std::vector<std::byte>>();
     std::cout << "printing bytes of battery" <<std::endl;
     for (auto &x: a) {
         std::cout << " " << (int)x;

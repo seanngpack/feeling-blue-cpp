@@ -13,15 +13,13 @@ const char * battery_level_uuid = "19B10001-E8F2-537E-4F6C-D104768A1214";
 const char * temp_units_uuid = "19B10002-E8F2-537E-4F6C-D104768A1214";
 const char * current_temp_uuid = "19B10003-E8F2-537E-4F6C-D104768A1214";
 // create battery characteristic that relays current battery level
-BLECharacteristic battery_level_char(battery_level_uuid, BLERead, 20u);
+BLECharacteristic battery_level_char(battery_level_uuid, BLERead | BLENotify, 20u);
 // create String type characteristic that sets the units of the temperature. Can read or write.
 // This characteristic converts byte data to string. We're using this to demonstrate that you don't have to always
 // deal in bytes with the ArduinoBLE library.
 BLEStringCharacteristic temp_units_char(temp_units_uuid, BLERead | BLEWrite, 20u);
 // create temperature characteristic that has notifications enabled
 BLECharacteristic current_temp_char(current_temp_uuid, BLERead | BLENotify, 20u);
-
-char* default_unit = "fahrenh";
 
 // how often the current_temp_char will update
 const unsigned long interval = 1000; // in ms
@@ -59,8 +57,13 @@ void setup() {
     temp_units_char.setEventHandler(BLERead, tempCharacteristicRead);
 
     // set an initial value for characteristics
-    battery_level_char.setValue((char*)int_to_bytes(100));
-    Serial.println(battery_level_char.valueLength());
+    uint8_t batt_value[4];
+    int_to_bytes(100, batt_value);
+    battery_level_char.writeValue(batt_value, 4);
+    Serial.println(battery_level_char.value()[0]);
+    Serial.println(battery_level_char.value()[1]);
+    Serial.println(battery_level_char.value()[2]);
+    Serial.println(battery_level_char.value()[3]);
     temp_units_char.setValue("fahrenheit");
     current_temp_char.setValue(0);
 
@@ -94,8 +97,10 @@ void updateTemp(BLECharacteristic characteristic) {
         currentTemp = currentTempF;
     }
 
+    uint8_t temp_array[4];
+    float_to_bytes(currentTemp, temp_array);
     // this should trigger a notify
-    characteristic.writeValue(float_to_bytes(currentTemp), sizeof(float));
+    characteristic.writeValue(temp_array, sizeof(float));
 }
 
 /*******************
@@ -139,10 +144,19 @@ void tempCharacteristicRead(BLEDevice central, BLECharacteristic characteristic)
  *
  *******************/
 
-uint8_t *float_to_bytes(float f) {
-    uint8_t *swag = reinterpret_cast<uint8_t*>(&f);;
-    return swag;
+
+/**
+ * Convert 4-byte float to array of uint8_t. Caller manages array memory.
+ */
+uint8_t *float_to_bytes(float f, uint8_t array[]) {
+    uint8_t *temp = reinterpret_cast<uint8_t*>(&f);
+    array[0] = temp[0];
+    array[1] = temp[1];
+    array[2] = temp[2];
+    array[3] = temp[3];
+    return array;
 }
+
 
 float bytes_to_float(const uint8_t* bytes) {
     float f;
@@ -150,11 +164,11 @@ float bytes_to_float(const uint8_t* bytes) {
     return f;
 }
 
-const uint8_t *int_to_bytes(int data) {
-    uint8_t *byte_vector;
-    byte_vector[0] = data & 0xff;
-    byte_vector[1] = (data>> 8) & 0xff;
-    byte_vector[2] = (data>> 16) & 0xff;
-    byte_vector[3] = (data>> 24) & 0xff;
-    return byte_vector;
+// Convert 4 byte long to bytes. Caller manages array memory.
+uint8_t* int_to_bytes(long data, uint8_t array[]) {
+    array[3] = data & 0xff;
+    array[2] = (data>> 8) & 0xff;
+    array[1] = (data>> 16) & 0xff;
+    array[0] = (data>> 24) & 0xff;
+    return array;
 }
