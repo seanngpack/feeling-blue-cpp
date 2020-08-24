@@ -96,7 +96,6 @@ TEST(ConversionTests, TestDoubleZeroReturn) {
     bytes b0 = {};
     bytes b1 = {(byte) 0, (byte) 1};
     bytes b2 = {(byte) 1, (byte) 2, (byte) 3, (byte) 0, (byte) 6};
-    unsigned char *swag = b2.data();
 
     ASSERT_FLOAT_EQ(bytes_to_double(b0), 0);
     ASSERT_FLOAT_EQ(bytes_to_double(b1), 0);
