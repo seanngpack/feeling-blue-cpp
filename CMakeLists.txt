@@ -34,13 +34,6 @@ set(macOS_PRIVATE_HEADERS
         ./include/detail/conversions.h
         )
 
-# --------------------------------------------------------------------------------
-#                          Enable Testing
-# --------------------------------------------------------------------------------
-
-include(CTest)
-enable_testing()
-
 
 # --------------------------------------------------------------------------------
 #                          Subdirectories
@@ -49,8 +42,10 @@ enable_testing()
 add_subdirectory(macOS)
 
 if (BUILD_TESTS)
+    include(CTest)
+    enable_testing()
     message("enabled building tests")
-    add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest-release-1.10.0)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest)
     add_subdirectory(test)
 endif()
 
