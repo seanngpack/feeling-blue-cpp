@@ -1,8 +1,8 @@
 #include "characteristic.h"
 #include "wrapper.h"
+#include "conversions.h"
 #include <string>
 #include <utility>
-#include <iostream>
 
 namespace bluetooth {
 
@@ -13,7 +13,7 @@ namespace bluetooth {
 
         CharacteristicImpl(std::string char_uuid,
                            std::string service_uuid,
-                           std::shared_ptr<wrapper::Wrapper> bt) :
+                           std::shared_ptr<detail::wrapper::Wrapper> bt) :
                 char_uuid(std::move(char_uuid)), service_uuid(std::move(service_uuid)), bt(std::move(bt)) {}
 
         ~CharacteristicImpl() = default;
@@ -22,119 +22,99 @@ namespace bluetooth {
             return char_uuid;
         }
 
-        std::vector<std::byte> read() {
-            return bt->read(service_uuid, char_uuid);
-        }
+        ///@cond INTERNAL
 
-        float read_float() {
-            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            if (data.empty()) {
-                std::clog
-                        << "warning: read returned data of 0 bytes."
-                        << std::endl;
-                return 0;
-            } else if (data.size() > 4) {
-                std::clog
-                        << "warning: read data is greater than four bytes, returning 0"
-                        << std::endl;
-                return 0;
+        /**
+         * Specialized template to return type T.
+         * @tparam T type.
+         */
+        template<typename T>
+        struct Getter {
+            Getter(Characteristic::CharacteristicImpl *impl) : impl(impl) {}
+
+            T get() {
+                if constexpr(std::is_same_v<T, int>) {
+                    return detail::conversion::bytes_to_int(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, uint8_t>) {
+                    return detail::conversion::bytes_to_uint8(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, float>) {
+                    return detail::conversion::bytes_to_float(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, double>) {
+                    return detail::conversion::bytes_to_double(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, std::string>) {
+                    return detail::conversion::bytes_to_string(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                }
             }
-                // do error handling if size < 4
-            else if (data.size() < 4) {
-                std::clog
-                        << "warning: read data is less than four bytes, returning 0"
-                        << std::endl;
-                return 0;
+
+            Characteristic::CharacteristicImpl *impl;
+        };
+
+        /**
+         * Specialized template to return vector<T>.
+         * @tparam T type.
+         */
+        template<typename T>
+        struct Getter<std::vector<T> > {
+            Getter(Characteristic::CharacteristicImpl *impl) : impl(impl) {}
+
+            std::vector<T> get() {
+                if constexpr(std::is_same_v<T, std::byte>) {
+                    return impl->bt->read(impl->service_uuid, impl->char_uuid);
+                }
             }
-            return bytes_to_float(data);
+
+            Characteristic::CharacteristicImpl *impl;
+        };
+        ///@endcond
+
+
+        template<typename T>
+        T read() {
+            return Getter<T>(this).get();
         }
 
-        int read_int() {
-            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            if (data.empty()) {
-                std::clog
-                        << "warning: read returned data of 0 bytes."
-                        << std::endl;
-                return 0;
-            } else if (data.size() > 4) {
-                std::clog
-                        << "warning: read data is greater than four bytes, will only use first four bytes to convert to int."
-                        << std::endl;
+        template<typename T>
+        void write_without_response(T data) {
+            if constexpr(std::is_same_v<T, int>) {
+                bt->write_without_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, uint8_t>) {
+                bt->write_without_response(detail::conversion::uint8_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, float>) {
+                bt->write_without_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, double>) {
+                bt->write_without_response(detail::conversion::double_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, std::string>) {
+                bt->write_without_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
             }
-                // do error handling if size < 4
-            else if (data.size() < 4) {
-                std::clog
-                        << "warning: read data is less than four bytes, will only use first byte to convert to int."
-                        << std::endl;
-                return (int) data[0];
+        }
+
+        template<typename T>
+        void write_without_response(const std::vector<T> &data) {
+            if constexpr(std::is_same_v<T, std::byte>) {
+                bt->write_without_response(data, service_uuid, char_uuid);
             }
-            return bytes_to_int(data);
         }
 
-        uint8_t read_uint8() {
-            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            if (data.empty()) {
-                std::clog
-                        << "warning: read returned data of 0 bytes."
-                        << std::endl;
-                return 0;
+        template<typename T>
+        void write_with_response(T data) {
+            if constexpr(std::is_same_v<T, int>) {
+                bt->write_with_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, uint8_t>) {
+                bt->write_with_response(detail::conversion::uint8_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, float>) {
+                bt->write_with_response(detail::conversion::float_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, double>) {
+                bt->write_with_response(detail::conversion::double_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, std::string>) {
+                bt->write_with_response(detail::conversion::string_to_bytes(data), service_uuid, char_uuid);
             }
-            if (data.size() > 1) {
-                std::clog << "warning: read data is greater than one byte, will only use the last byte as return."
-                          << std::endl;
+        }
+
+        template<typename T>
+        void write_with_response(const std::vector<T> &data) {
+            if constexpr(std::is_same_v<T, std::byte>) {
+                bt->write_with_response(data, service_uuid, char_uuid);
             }
-            return (uint8_t) data[data.size() - 1];
-        }
-
-        std::string read_string() {
-            std::vector<std::byte> data = bt->read(service_uuid, char_uuid);
-            if (data.empty()) {
-                std::clog
-                        << "warning: read returned data of 0 bytes."
-                        << std::endl;
-                return "";
-            }
-            return bytes_to_string(data);
-        }
-
-        void write_without_response(const std::vector<std::byte> &data) {
-            bt->write_without_response(data, service_uuid, char_uuid);
-        }
-
-        void write_without_response(float data) {
-            bt->write_without_response(float_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_without_response(int data) {
-            bt->write_without_response(int_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_without_response(uint8_t data) {
-            bt->write_without_response(std::vector<std::byte>{(std::byte) data}, service_uuid, char_uuid);
-        }
-
-        void write_without_response(const std::string &data) {
-            bt->write_without_response(string_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_with_response(const std::vector<std::byte> &data) {
-            bt->write_with_response(data, service_uuid, char_uuid);
-        }
-
-        void write_with_response(float data) {
-            bt->write_with_response(float_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_with_response(int data) {
-            bt->write_with_response(int_to_bytes(data), service_uuid, char_uuid);
-        }
-
-        void write_with_response(uint8_t data) {
-            bt->write_with_response(std::vector<std::byte>{(std::byte) data}, service_uuid, char_uuid);
-        }
-
-        void write_with_response(const std::string &data) {
-            bt->write_with_response(string_to_bytes(data), service_uuid, char_uuid);
         }
 
         void notify(const std::function<void(std::vector<std::byte>)> &callback) {
@@ -144,63 +124,15 @@ namespace bluetooth {
     private:
         std::string char_uuid;
         std::string service_uuid;
-        std::shared_ptr<wrapper::Wrapper> bt;
+        std::shared_ptr<detail::wrapper::Wrapper> bt;
 
-        std::vector<std::byte> float_to_bytes(float data) {
-            std::vector<std::byte> bytes(sizeof(data));
-            std::memcpy(bytes.data(), &data, sizeof(data));
-            return bytes;
-        }
-
-        /**
-         * Convert integer to bytes in little endian order.
-         * @param data integer to convert.
-         * @return vector of bytes.
-         */
-        std::vector<std::byte> int_to_bytes(int data) {
-            std::vector<std::byte> byte_vector(4);
-            for (int i = 0; i < 4; i++)
-                byte_vector[3 - i] = std::byte((data >> (i * 8)));
-            return byte_vector;
-        }
-
-        /**
-         * Convert string to byte in little endian order.
-         * @param data string to convert.
-         * @return vector of bytes.
-         */
-        std::vector<std::byte> string_to_bytes(const std::string &data) {
-            std::vector<std::byte> byte_vector(data.size());
-            std::transform(data.begin(), data.end(), byte_vector.begin(),
-                           [](char c) { return std::byte(c); });
-            std::cout << std::endl;
-            return byte_vector;
-        }
-
-        int bytes_to_int(const std::vector<std::byte> &bytes) {
-            return int((unsigned char) (bytes[0]) << 24 |
-                       (unsigned char) (bytes[1]) << 16 |
-                       (unsigned char) (bytes[2]) << 8 |
-                       (unsigned char) (bytes[3]));
-        }
-
-        float bytes_to_float(const std::vector<std::byte> &bytes) {
-            float f;
-            memcpy(&f, bytes.data(), sizeof(f));
-            return f;
-        }
-
-        std::string bytes_to_string(const std::vector<std::byte> &bytes) {
-            std::cout << std::endl;
-            return std::string(reinterpret_cast<char const *>(&bytes[0]), bytes.size());
-        }
     };
 
     Characteristic::Characteristic() : cImpl(new CharacteristicImpl()) {}
 
     Characteristic::Characteristic(const std::string &char_uuid,
                                    const std::string &service_uuid,
-                                   std::shared_ptr<wrapper::Wrapper> bt) :
+                                   std::shared_ptr<detail::wrapper::Wrapper> bt) :
             cImpl(new CharacteristicImpl(char_uuid, service_uuid, std::move(bt))) {}
 
     Characteristic::~Characteristic() {
@@ -211,68 +143,76 @@ namespace bluetooth {
         return cImpl->uuid();
     }
 
-    std::vector<std::byte> Characteristic::read() {
-        return cImpl->read();
+    template<typename T>
+    T Characteristic::read() {
+        return cImpl->read<T>();
     }
 
-    float Characteristic::read_float() {
-        return cImpl->read_float();
+    template<typename T>
+    void Characteristic::write_without_response(T data) {
+        cImpl->write_without_response<T>(data);
     }
 
-    int Characteristic::read_int() {
-        return cImpl->read_int();
+    template<typename T>
+    void Characteristic::write_without_response(const std::vector<T> &data) {
+        cImpl->write_without_response<T>(data);
     }
 
-    uint8_t Characteristic::read_uint8() {
-        return cImpl->read_uint8();
+    template<typename T>
+    void Characteristic::write_with_response(T data) {
+        cImpl->write_with_response<T>(data);
     }
 
-    std::string Characteristic::read_string() {
-        return cImpl->read_string();
+    template<typename T>
+    void Characteristic::write_with_response(const std::vector<T> &data) {
+        cImpl->write_with_response<T>(data);
     }
 
-    void Characteristic::write_without_response(const std::vector<std::byte> &data) {
-        cImpl->write_without_response(data);
-    }
-
-    void Characteristic::write_without_response(float data) {
-        cImpl->write_without_response(data);
-    }
-
-    void Characteristic::write_without_response(int data) {
-        cImpl->write_without_response(data);
-    }
-
-    void Characteristic::write_without_response(uint8_t data) {
-        cImpl->write_without_response(data);
-    }
-
-    void Characteristic::write_without_response(const std::string &data) {
-        cImpl->write_without_response(data);
-    }
-
-    void Characteristic::write_with_response(const std::vector<std::byte> &data) {
-        cImpl->write_with_response(data);
-    }
-
-    void Characteristic::write_with_response(float data) {
-        cImpl->write_with_response(data);
-    }
-
-    void Characteristic::write_with_response(int data) {
-        cImpl->write_with_response(data);
-    }
-
-    void Characteristic::write_with_response(uint8_t data) {
-        cImpl->write_with_response(data);
-    }
-
-    void Characteristic::write_with_response(const std::string &data) {
-        cImpl->write_with_response(data);
-    }
 
     void Characteristic::notify(const std::function<void(std::vector<std::byte>)> &callback) {
         cImpl->notify(callback);
     }
 
+    ///@cond INTERNAL
+    // explicit template instantiation, also above statement tells doxygen to ignore these
+    // read methods
+    template int Characteristic::read<int>();
+
+    template uint8_t Characteristic::read<uint8_t>();
+
+    template float Characteristic::read<float>();
+
+    template double Characteristic::read<double>();
+
+    template std::string Characteristic::read<std::string>();
+
+    template std::vector<std::byte> Characteristic::read<std::vector<std::byte>>();
+
+    //write_without_response methods
+    template void Characteristic::write_without_response<uint8_t>(uint8_t data);
+
+    template void Characteristic::write_without_response<int>(int data);
+
+    template void Characteristic::write_without_response<float>(float data);
+
+    template void Characteristic::write_without_response<double>(double data);
+
+    template void Characteristic::write_without_response<std::string>(std::string data);
+
+    template void Characteristic::write_without_response<std::byte>(const std::vector<std::byte> &data);
+
+    //write_with_response methods
+    template void Characteristic::write_with_response<uint8_t>(uint8_t data);
+
+    template void Characteristic::write_with_response<int>(int data);
+
+    template void Characteristic::write_with_response<float>(float data);
+
+    template void Characteristic::write_with_response<double>(double data);
+
+    template void Characteristic::write_with_response<std::string>(std::string data);
+
+    template void Characteristic::write_with_response<std::byte>(const std::vector<std::byte> &data);
+
+    ///@endcond
 }

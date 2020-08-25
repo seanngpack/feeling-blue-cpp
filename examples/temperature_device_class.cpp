@@ -61,15 +61,15 @@ public:
     }
 
     int read_temp() {
-        return current_temp_char->read_int();
+        return current_temp_char->read<int>();
     }
 
     void set_temp_units(const std::string &units) {
-        temp_units_char->write_with_response(units);
+        temp_units_char->write_with_response<std::string>(units);
     }
 
     std::string get_temp_units() {
-        return temp_units_char->read_string();
+        return temp_units_char->read<std::string>();
     }
 
 

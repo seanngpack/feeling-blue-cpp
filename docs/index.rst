@@ -23,8 +23,8 @@
     :maxdepth: 4
     :hidden:
 
-    API/API
     API/central
     API/peripheral
     API/service
     API/characteristic
+    template_types

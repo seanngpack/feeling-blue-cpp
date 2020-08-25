@@ -7,8 +7,10 @@
 
 namespace bluetooth {
 
-    namespace wrapper {
-        class Wrapper;
+    namespace detail {
+        namespace wrapper {
+            class Wrapper;
+        }
     }
 
     class Service;
@@ -19,7 +21,7 @@ namespace bluetooth {
     class Peripheral {
     public:
 
-        Peripheral(const std::string &name, std::shared_ptr<wrapper::Wrapper> bt);
+        Peripheral(const std::string &name, std::shared_ptr<detail::wrapper::Wrapper> bt);
 
         ~Peripheral();
 

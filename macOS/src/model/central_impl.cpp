@@ -2,14 +2,29 @@
 #include "wrapper.h"
 #include "peripheral.h"
 #include <string>
+#include "spdlog/spdlog.h"
 
 namespace bluetooth {
-
 
     struct Central::CentralImpl {
     public:
         CentralImpl()
-                : bt(std::make_shared<wrapper::Wrapper>()) {
+                : bt(std::make_shared<detail::wrapper::Wrapper>()) {
+
+            // weird place to put logging config, but I can't get the preprocessor
+            // macros to work, so let's just add some load to runtime
+            // enables debug logging if set on
+            #if DEBUG_MODE==1
+                //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_DEBUG
+                spdlog::set_level(spdlog::level::debug);
+            #endif
+
+            // disabled all logging if off
+            #if VERBOSE_MODE==0
+                //#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_OFF
+                spdlog::set_level(spdlog::level::off);
+            #endif
+            spdlog::set_pattern("[feeling-blue] [%^%l%$] %v");
         }
 
         ~CentralImpl() = default;
@@ -39,7 +54,7 @@ namespace bluetooth {
         }
 
     private:
-        std::shared_ptr<wrapper::Wrapper> bt;
+        std::shared_ptr<detail::wrapper::Wrapper> bt;
         std::shared_ptr<Peripheral> periph;
     };
 

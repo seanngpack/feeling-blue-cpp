@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 set(CMAKE_CXX_STANDARD 17)
 
 project(feeling-blue
-        VERSION 1.0
+        VERSION 1.02
         DESCRIPTION "mylib description")
 
 include(GNUInstallDirs)
@@ -18,6 +18,11 @@ option(BUILD_DOCUMENTATION "Create the API documentation" OFF)
 option(BUILD_TESTS "Build the tests" OFF)
 option(VERBOSE_MODE "NSLog what your bluetooth device is doing" ON)
 
+# --------------------------------------------------------------------------------
+#                          Include directories
+# --------------------------------------------------------------------------------
+
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # --------------------------------------------------------------------------------
 #                          Public headers API
@@ -31,15 +36,8 @@ set(macOS_PUBLIC_HEADERS
         )
 
 set(macOS_PRIVATE_HEADERS
-
+        ./include/detail/conversions.h
         )
-
-# --------------------------------------------------------------------------------
-#                          Enable Testing
-# --------------------------------------------------------------------------------
-
-include(CTest)
-enable_testing()
 
 
 # --------------------------------------------------------------------------------
@@ -49,8 +47,10 @@ enable_testing()
 add_subdirectory(macOS)
 
 if (BUILD_TESTS)
+    include(CTest)
+    enable_testing()
     message("enabled building tests")
-    add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest-release-1.10.0)
+    add_subdirectory(${PROJECT_SOURCE_DIR}/external/googletest)
     add_subdirectory(test)
 endif()
 

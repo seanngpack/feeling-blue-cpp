@@ -7,8 +7,10 @@
 
 namespace bluetooth {
 
-    namespace wrapper {
-        class Wrapper;
+    namespace detail {
+        namespace wrapper {
+            class Wrapper;
+        }
     }
 
     class Service;
@@ -23,7 +25,7 @@ namespace bluetooth {
 
         Characteristic(const std::string &char_uuid,
                        const std::string &service_uuid,
-                       std::shared_ptr<wrapper::Wrapper> bt);
+                       std::shared_ptr<detail::wrapper::Wrapper> bt);
 
         ~Characteristic();
 
@@ -31,140 +33,59 @@ namespace bluetooth {
 
         /**
          * Read the characteristic.
+         * Compatible template types are listed at `supported template types` section.
          *
-         * @note blocking.
+         * Recommended default usage to return a vector of bytes:
+         * `std::vector<std::byte> bytes = some_char->read<std::vector<std::byte>>();`
+         *
+         * You can also return an int if you know your characteristic value is a 4-byte integer in little-endian order:
+         * `int x = some_char->read<int>();`
+         * @tparam T the type your want the data to be read as.
+         *
          * @return a byte vector.
          */
-        std::vector<std::byte> read();
+        template<typename T>
+        T read();
 
-        /**
-         * Read the characteristic. Convert the byte response to float32 assuming little endian order.
-         * If your device sends more than four bytes, then it will use display a warning and use
-         * the leftmost four bytes to convert to an int.
-         *
-         * @note blocking.
-         * @return byte response as an integer.
-         */
-        float read_float();
-
-        /**
-         * Read the characteristic. Convert the byte response to integer assuming little endian order.
-         * If your device sends more than four bytes, then it will use display a warning and use
-         * the leftmost four bytes (little endian order) to convert to an int.
-         *
-         * @note blocking.
-         * @return byte response as an integer.
-         */
-        int read_int();
-
-        /**
-         * Read the characteristic. Convert the byte response to uint8_t.
-         * If your device sends more than one byte of data then it will display a warning
-         * use the leftmost byte (little endian order) for the return.
-         *
-         * @note blocking.
-         * @return byte response as uint8_t.
-         */
-        uint8_t read_uint8();
-
-        /**
-         * Read the characteristic. Convert the byte response to string assuming little endian order.
-         *
-         * @note blocking.
-         * @return byte response as string.
-         */
-        std::string read_string();
 
         /**
          * Write to characteristic using a vector of bytes. Will not print error if write fails.
          * You can transmit more data with this method than write_with_response().
+         * Compatible template types are listed at `supported template types` section.
+         *
+         * examples:
+         * `std::vector<std::byte> data = {...};`
+         * `some_char->write_without_response<std::byte>(data);`
+         * `some_char->write_without_response<int>(1);`
          *
          * @note asynchronous.
          * @param data byte vector of your data.
          */
-        void write_without_response(const std::vector<std::byte> &data);
+        template<typename T>
+        void write_without_response(T data);
 
-        /**
-         * Write float32 to characteristic in little endian order. Will not print error if write fails.
-         * You can transmit more data with this method than write_with_response().
-         *
-         * @note asynchronous.
-         * @param data int you want to send.
-         */
-        void write_without_response(float data);
+        template<typename T>
+        void write_without_response(const std::vector<T> &data);
 
-        /**
-         * Write integer to characteristic in little endian order. Will not print error if write fails.
-         * You can transmit more data with this method than write_with_response().
-         *
-         * @note asynchronous.
-         * @param data int you want to send.
-         */
-        void write_without_response(int data);
-
-
-        /**
-         * Write uint8_t to characteristic. Will not print error if write fails.
-         * You can transmit more data with this method than write_with_response().
-         *
-         * @note asynchronous.
-         * @param data uint8_t you want to send.
-         */
-        void write_without_response(uint8_t data);
-
-        /**
-         * Write string to characteristic in little endian order. Will not print error if write fails.
-         * You can transmit more data with this method than write_with_response().
-         *
-         * @note asynchronous.
-         * @param data string you want to write.
-         */
-        void write_without_response(const std::string &data);
 
         /**
          * Write to characteristic with response. If the write_without_response fails and verbose mode is on,
          * the console will print an error and the program will continue running.
+         * Compatible template types are listed at `supported template types` section.
          *
-         * @param byte vector of your data.
-         */
-        void write_with_response(const std::vector<std::byte> &data);
-
-        /**
-         * Write float to characteristic with response.
-         * If the write_without_response fails and verbose mode is on,
-         * the console will print an error and the program will continue running.
+         * examples:
+         * `std::vector<std::byte> data = {...};`
+         * `some_char->write_with_response<std::byte>(data);`
+         * `some_char->write_with_response<int>(1);`
          *
-         * @param data int you want to send.
+         * @param data byte vector of your data.
          */
-        void write_with_response(float data);
+        template<typename T>
+        void write_with_response(T data);
 
-        /**
-         * Write integer to characteristic with response.
-         * If the write_without_response fails and verbose mode is on,
-         * the console will print an error and the program will continue running.
-         *
-         * @param data int you want to send.
-         */
-        void write_with_response(int data);
+        template<typename T>
+        void write_with_response(const std::vector<T> &data);
 
-
-        /**
-         * Write uint8_t to characteristic with response.
-         * If the write_without_response fails and verbose mode is on,
-         * the console will print an error and the program will continue running.
-         *
-         * @param data uint8_t you want to send
-         */
-        void write_with_response(uint8_t data);
-
-        /**
-         * Write string to characteristic with response.
-         * If the write_without_response fails and verbose mode is on,
-         * the console will print an error and the program will continue running.
-         *
-         * @param data string you want to send
-         */
-        void write_with_response(const std::string &data);
 
         /**
          * Enable notifications from the characteristic and set callback function to do something
@@ -181,6 +102,7 @@ namespace bluetooth {
         struct CharacteristicImpl;
         CharacteristicImpl *cImpl;
     };
+
 }
 
 #endif //FEELING_BLUE_CHARACTERISTIC_H

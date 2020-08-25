@@ -5,6 +5,7 @@ branches:
     - gh-pages
     - master
     - macos
+    - logging-support
 
 matrix:
   include:

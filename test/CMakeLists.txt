@@ -9,6 +9,7 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/macOS/include/wrapper
         ${PROJECT_SOURCE_DIR}/macOS/src
         ${PROJECT_SOURCE_DIR}/include
+        ${PROJECT_SOURCE_DIR}/include/detail
         ${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR}
         ${gmock_SOURCE_DIR}/include ${gmock_SOURCE_DIR})
 

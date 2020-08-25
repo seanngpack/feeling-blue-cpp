@@ -10,13 +10,18 @@ set(macOS_SRCS
         ../include/peripheral.h
         ../include/central.h
         ../include/service.h
-        src/model/service_impl.cpp ../include/characteristic.h src/model/characteristic_impl.cpp
+        ../include/detail/conversions.h
+        src/model/service_impl.cpp
+        ../include/characteristic.h src/model/characteristic_impl.cpp
         )
 
 
 include_directories(
+        ../external
+        ../include/detail
         include/wrapper
-        include/model)
+        include/model
+)
 
 add_library(feeling-blue SHARED ${macOS_SRCS})
 

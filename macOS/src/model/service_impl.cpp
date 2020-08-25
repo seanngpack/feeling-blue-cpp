@@ -8,7 +8,7 @@ namespace bluetooth {
 
     struct Service::ServiceImpl {
     public:
-        ServiceImpl(std::string service_uuid, std::shared_ptr<wrapper::Wrapper> bt)
+        ServiceImpl(std::string service_uuid, std::shared_ptr<detail::wrapper::Wrapper> bt)
                 : service_uuid(std::move(service_uuid)), bt(std::move(bt)) {}
 
 
@@ -42,11 +42,11 @@ namespace bluetooth {
     private:
         std::string service_uuid;
         std::vector<std::shared_ptr<Characteristic>> characteristics;
-        std::shared_ptr<wrapper::Wrapper> bt;
+        std::shared_ptr<detail::wrapper::Wrapper> bt;
     };
 
     Service::Service(const std::string &uuid,
-                     std::shared_ptr<wrapper::Wrapper> bt) :
+                     std::shared_ptr<detail::wrapper::Wrapper> bt) :
             sImpl(new ServiceImpl(uuid, std::move(bt))) {}
 
     Service::~Service() {
