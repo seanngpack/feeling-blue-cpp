@@ -5,7 +5,7 @@ branches:
     - gh-pages
     - master
     - macos
-    - characteristic_method_templating
+    - logging-support
 
 matrix:
   include:

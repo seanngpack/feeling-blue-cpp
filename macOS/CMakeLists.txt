@@ -17,9 +17,11 @@ set(macOS_SRCS
 
 
 include_directories(
+        ../external
         ../include/detail
         include/wrapper
-        include/model)
+        include/model
+)
 
 add_library(feeling-blue SHARED ${macOS_SRCS})
 
