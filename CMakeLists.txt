@@ -18,6 +18,10 @@ option(BUILD_DOCUMENTATION "Create the API documentation" OFF)
 option(BUILD_TESTS "Build the tests" OFF)
 option(VERBOSE_MODE "NSLog what your bluetooth device is doing" ON)
 
+# --------------------------------------------------------------------------------
+#                          Logging
+# --------------------------------------------------------------------------------
+
 
 # --------------------------------------------------------------------------------
 #                          Public headers API

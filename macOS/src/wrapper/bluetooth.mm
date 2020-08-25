@@ -1,5 +1,6 @@
 #import "bluetooth.h"
 #import "wrapper.h"
+#include "spdlog/spdlog.h"
 
 #include <iostream>
 #include <vector>
@@ -109,6 +110,7 @@ namespace bluetooth {
                 }];
                 dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
                 if ([impl->wrapped getCharFromService:CBChar belongingToService:CBService] == nil) {
+
                     NSLog(@"**** WARNING COULD NOT CONNECT TO CHARACTERISTIC: %@", char_s);
                     return false;
                 }

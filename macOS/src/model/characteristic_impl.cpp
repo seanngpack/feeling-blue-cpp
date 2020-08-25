@@ -3,7 +3,6 @@
 #include "conversions.h"
 #include <string>
 #include <utility>
-#include <iostream>
 
 namespace bluetooth {
 

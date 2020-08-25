@@ -2,6 +2,7 @@
 #include "wrapper.h"
 #include "peripheral.h"
 #include <string>
+#include "spdlog/spdlog.h"
 
 namespace bluetooth {
 
@@ -10,6 +11,8 @@ namespace bluetooth {
     public:
         CentralImpl()
                 : bt(std::make_shared<detail::wrapper::Wrapper>()) {
+            spdlog::set_level(spdlog::level::debug);
+            spdlog::set_pattern("[feeling-blue] [%^%l%$] %v");
         }
 
         ~CentralImpl() = default;
