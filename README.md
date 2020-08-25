@@ -107,7 +107,6 @@ int main() {
 
 ## Upcoming features:
 - methods to get status of peripherals, characteristics, etc
-- better error logging
 - Windows support
 
 ## Help & bug reports

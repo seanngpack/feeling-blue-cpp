@@ -33,10 +33,15 @@ namespace bluetooth {
 
         /**
          * Read the characteristic.
+         * Compatible template types are listed at `supported template types` section.
          *
+         * Recommended default usage to return a vector of bytes:
+         * `std::vector<std::byte> bytes = some_char->read<std::vector<std::byte>>();`
+         *
+         * You can also return an int if you know your characteristic value is a 4-byte integer in little-endian order:
+         * `int x = some_char->read<int>();`
          * @tparam T the type your want the data to be read as.
          *
-         * @note blocking.
          * @return a byte vector.
          */
         template<typename T>
@@ -46,6 +51,12 @@ namespace bluetooth {
         /**
          * Write to characteristic using a vector of bytes. Will not print error if write fails.
          * You can transmit more data with this method than write_with_response().
+         * Compatible template types are listed at `supported template types` section.
+         *
+         * examples:
+         * `std::vector<std::byte> data = {...};`
+         * `some_char->write_without_response<std::byte>(data);`
+         * `some_char->write_without_response<int>(1);`
          *
          * @note asynchronous.
          * @param data byte vector of your data.
@@ -60,8 +71,14 @@ namespace bluetooth {
         /**
          * Write to characteristic with response. If the write_without_response fails and verbose mode is on,
          * the console will print an error and the program will continue running.
+         * Compatible template types are listed at `supported template types` section.
          *
-         * @param byte vector of your data.
+         * examples:
+         * `std::vector<std::byte> data = {...};`
+         * `some_char->write_with_response<std::byte>(data);`
+         * `some_char->write_with_response<int>(1);`
+         *
+         * @param data byte vector of your data.
          */
         template<typename T>
         void write_with_response(T data);

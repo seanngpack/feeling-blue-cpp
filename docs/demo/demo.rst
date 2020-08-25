@@ -248,20 +248,7 @@ thread-safe, this applies to both member and non-member functions.
 
 .. _supported-template-types:
 
-Supported template types
-========================
-
-Primitive:
-
-- uint8_t
-- int
-- float
-- double
-
-Non Primitive:
-
-- std::string
-- std::vector<std::byte>
+.. include:: ../template_types.rst
 
 
 

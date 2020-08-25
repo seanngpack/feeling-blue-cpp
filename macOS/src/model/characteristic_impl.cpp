@@ -67,11 +67,7 @@ namespace bluetooth {
         };
         ///@endcond
 
-        /**
-         * Creates instance of specialized template to return either T or vector<T>.
-         * @tparam T type.
-         * @return T or vector<T>
-         */
+
         template<typename T>
         T read() {
             return Getter<T>(this).get();
