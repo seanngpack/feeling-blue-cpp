@@ -5,6 +5,7 @@
 #include <string>
 #include <memory>
 
+
 namespace bluetooth {
     class Peripheral;
 

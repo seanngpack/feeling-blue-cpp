@@ -19,9 +19,10 @@ option(BUILD_TESTS "Build the tests" OFF)
 option(VERBOSE_MODE "NSLog what your bluetooth device is doing" ON)
 
 # --------------------------------------------------------------------------------
-#                          Logging
+#                          Include directories
 # --------------------------------------------------------------------------------
 
+include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # --------------------------------------------------------------------------------
 #                          Public headers API
