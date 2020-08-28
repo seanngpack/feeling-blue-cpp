@@ -4,23 +4,25 @@ set(CMAKE_CXX_STANDARD 17)
 
 # set the source files!
 set(macOS_SRCS
-        src/wrapper/bluetooth.mm
-        src/model/peripheral_impl.cpp src/model/central_impl.cpp
-        ../include/feeling-blue.h
-        ../include/peripheral.h
-        ../include/central.h
-        ../include/service.h
-        ../include/detail/conversions.h
-        src/model/service_impl.cpp
-        ../include/characteristic.h src/model/characteristic_impl.cpp
+        wrapper/wrapper.h
+        wrapper/bluetooth.mm
+        model/peripheral_impl.cpp model/central_impl.cpp
+        model/characteristic_impl.cpp
+        model/service_impl.cpp
+        ${PROJECT_SOURCE_DIR}/include/feeling-blue.h
+        ${PROJECT_SOURCE_DIR}/include/peripheral.h
+        ${PROJECT_SOURCE_DIR}/include/central.h
+        ${PROJECT_SOURCE_DIR}/include/service.h
+        ${PROJECT_SOURCE_DIR}/include/detail/conversions.h
+        ${PROJECT_SOURCE_DIR}/include/characteristic.h
         )
 
 
 include_directories(
-        ../external
-        ../include/detail
-        include/wrapper
-        include/model
+        ${PROJECT_SOURCE_DIR}/external
+        ${PROJECT_SOURCE_DIR}/include/detail
+        wrapper
+        wrapper
 )
 
 add_library(feeling-blue SHARED ${macOS_SRCS})

@@ -88,7 +88,7 @@ int main() {
 
     current_temp_char->set_notify(print_temp); // will call print_temp() whenever device notifies
     
-    std::string units = units_char.read<std::string>();
+    std::string units = units_char->read<std::string>();
     std::cout << "the current temperature unit is: " << units << std::endl
     units_char->write_without_response<std::string>("kelvin"); // set new temperature unit to device
     units = units_char->read<std::string>();

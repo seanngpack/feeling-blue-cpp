@@ -44,7 +44,7 @@ set(macOS_PRIVATE_HEADERS
 #                          Subdirectories
 # --------------------------------------------------------------------------------
 
-add_subdirectory(macOS)
+add_subdirectory(src)
 
 if (BUILD_TESTS)
     include(CTest)
