@@ -182,7 +182,7 @@ namespace bluetooth {
     ///@cond INTERNAL
     // explicit template instantiation, also above statement tells doxygen to ignore these
     // read methods
-    template int Characteristic::read<short>();
+    template short Characteristic::read<short>();
 
     template int Characteristic::read<int>();
 
