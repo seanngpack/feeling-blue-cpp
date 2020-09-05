@@ -33,7 +33,9 @@ namespace bluetooth {
             Getter(Characteristic::CharacteristicImpl *impl) : impl(impl) {}
 
             T get() {
-                if constexpr(std::is_same_v<T, int>) {
+                if constexpr(std::is_same_v<T, short>) {
+                    return detail::conversion::bytes_to_short(impl->bt->read(impl->service_uuid, impl->char_uuid));
+                } else if constexpr(std::is_same_v<T, int>) {
                     return detail::conversion::bytes_to_int(impl->bt->read(impl->service_uuid, impl->char_uuid));
                 } else if constexpr(std::is_same_v<T, uint8_t>) {
                     return detail::conversion::bytes_to_uint8(impl->bt->read(impl->service_uuid, impl->char_uuid));
@@ -75,7 +77,9 @@ namespace bluetooth {
 
         template<typename T>
         void write_without_response(T data) {
-            if constexpr(std::is_same_v<T, int>) {
+            if constexpr(std::is_same_v<T, short>) {
+                bt->write_without_response(detail::conversion::short_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, int>) {
                 bt->write_without_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
             } else if constexpr(std::is_same_v<T, uint8_t>) {
                 bt->write_without_response(detail::conversion::uint8_to_bytes(data), service_uuid, char_uuid);
@@ -97,7 +101,9 @@ namespace bluetooth {
 
         template<typename T>
         void write_with_response(T data) {
-            if constexpr(std::is_same_v<T, int>) {
+            if constexpr(std::is_same_v<T, short>) {
+                bt->write_with_response(detail::conversion::short_to_bytes(data), service_uuid, char_uuid);
+            } else if constexpr(std::is_same_v<T, int>) {
                 bt->write_with_response(detail::conversion::int_to_bytes(data), service_uuid, char_uuid);
             } else if constexpr(std::is_same_v<T, uint8_t>) {
                 bt->write_with_response(detail::conversion::uint8_to_bytes(data), service_uuid, char_uuid);
@@ -176,6 +182,8 @@ namespace bluetooth {
     ///@cond INTERNAL
     // explicit template instantiation, also above statement tells doxygen to ignore these
     // read methods
+    template short Characteristic::read<short>();
+
     template int Characteristic::read<int>();
 
     template uint8_t Characteristic::read<uint8_t>();
@@ -191,6 +199,8 @@ namespace bluetooth {
     //write_without_response methods
     template void Characteristic::write_without_response<uint8_t>(uint8_t data);
 
+    template void Characteristic::write_without_response<short>(short data);
+
     template void Characteristic::write_without_response<int>(int data);
 
     template void Characteristic::write_without_response<float>(float data);
@@ -203,6 +213,8 @@ namespace bluetooth {
 
     //write_with_response methods
     template void Characteristic::write_with_response<uint8_t>(uint8_t data);
+
+    template void Characteristic::write_with_response<short>(short data);
 
     template void Characteristic::write_with_response<int>(int data);
 

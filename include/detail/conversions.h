@@ -18,6 +18,7 @@ namespace bluetooth {
 
             /**
              * Convert uint8_t to vector of byte.
+             *
              * @param data uint8_t to convert.
              * @return vector of byte.
              */
@@ -26,7 +27,20 @@ namespace bluetooth {
             }
 
             /**
+             * Convert 2-byte short to bytes in little endian order.
+             *
+             * @param data integer to convert.
+             * @return vector of bytes.
+             */
+            std::vector<std::byte> short_to_bytes(short data) {
+                std::vector<std::byte> bytes(sizeof(data));
+                memcpy(bytes.data(), &data, sizeof(data));
+                return bytes;
+            }
+
+            /**
              * Convert integer to bytes in little endian order.
+             *
              * @param data integer to convert.
              * @return vector of bytes.
              */
@@ -87,6 +101,21 @@ namespace bluetooth {
             uint8_t bytes_to_uint8(const std::vector<std::byte> &bytes) {
                 if (bytes.size() == 1) {
                     return (uint8_t) bytes[0];
+                }
+                return 0;
+            }
+
+            /**
+             * Convert vector of bytes to signed 2-byte signed short. Assumes little endian order.
+             * If bytes is not 2, then return 0.
+             *
+             * @param bytes vector of bytes to convert.
+             * @return integer.
+             */
+            short bytes_to_short(const std::vector<std::byte> &bytes) {
+                if (bytes.size() == 2) {
+                    short s = (((unsigned char)bytes[1] << 8) | (unsigned char)bytes[0]);
+                    return s;
                 }
                 return 0;
             }

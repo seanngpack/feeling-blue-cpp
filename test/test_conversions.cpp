@@ -26,6 +26,21 @@ TEST(ConversionTests, TestUint8ZeroReturn) {
     ASSERT_EQ(bytes_to_uint8(b1), 0);
 }
 
+// test short conversions
+TEST(ConversionTests, TestShort) {
+    short s0 = 0;
+    short s1 = -100;
+    short s2 = 12398;
+
+    bytes s0_bytes = short_to_bytes(s0);
+    bytes s1_bytes = short_to_bytes(s1);
+    bytes s2_bytes = short_to_bytes(s2);
+
+    ASSERT_EQ(bytes_to_short(s0_bytes), s0);
+    ASSERT_EQ(bytes_to_short(s1_bytes), s1);
+    ASSERT_EQ(bytes_to_short(s2_bytes), s2);
+}
+
 // Test int conversions.
 TEST(ConversionTests, TestInt) {
     int i0 = 0;
