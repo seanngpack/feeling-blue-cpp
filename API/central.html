@@ -1,0 +1,304 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Central &mdash; feeling-blue 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Peripheral" href="peripheral.html" />
+    <link rel="prev" title="How to use and examples!" href="../demo/demo.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> feeling-blue
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Installation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage and examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo/demo.html">How to use and examples!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#read-this-before-starting">Read this before starting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#connecting-to-your-device">Connecting to your device</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#central-initialization">Central initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#search-for-peripheral">Search for peripheral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#search-for-services">Search for services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#search-for-characteristics">Search for characteristics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#code">Code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#connecting-to-multiple-devices">Connecting to multiple devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#reading-characteristic-value">Reading characteristic value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#writing-to-characteristic">Writing to characteristic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#notifying-characteristic">Notifying characteristic</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#non-member-function-event-handler">Non-member function event handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#member-function-event-handler">Member function event handler</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#supported-template-types">Supported Template Types</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Central</a></li>
+<li class="toctree-l1"><a class="reference internal" href="peripheral.html">Peripheral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="service.html">Service</a></li>
+<li class="toctree-l1"><a class="reference internal" href="characteristic.html">Characteristic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../template_types.html">Supported Template Types</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">feeling-blue</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Central</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/API/central.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="central">
+<h1>Central<a class="headerlink" href="#central" title="Permalink to this headline">¶</a></h1>
+<p>The central represents your computer. The central is used to start up bluetooth on your computer
+and also look for peripherals to connect to and manage one once connected. You can only connect
+one peripheral per central. If you want to have multiple peripherals, just spawn more instances
+of central.</p>
+<dl class="cpp class">
+<dt id="_CPPv4N9bluetooth7CentralE">
+<span id="_CPPv3N9bluetooth7CentralE"></span><span id="_CPPv2N9bluetooth7CentralE"></span><span id="bluetooth::Central"></span><span class="target" id="classbluetooth_1_1_central"></span><em class="property">class </em><code class="sig-prename descclassname">bluetooth<code class="sig-prename descclassname">::</code></code><code class="sig-name descname">Central</code><a class="headerlink" href="#_CPPv4N9bluetooth7CentralE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Represents a central manager. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4N9bluetooth7Central15start_bluetoothEv">
+<span id="_CPPv3N9bluetooth7Central15start_bluetoothEv"></span><span id="_CPPv2N9bluetooth7Central15start_bluetoothEv"></span><span id="bluetooth::Central::start_bluetooth"></span><span class="target" id="classbluetooth_1_1_central_1a633f4def229be7d4ad1799bcaebc4fa0"></span>void <code class="sig-name descname">start_bluetooth</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9bluetooth7Central15start_bluetoothEv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Start bluetooth on your computer. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N9bluetooth7Central15find_peripheralERKNSt6vectorINSt6stringEEE">
+<span id="_CPPv3N9bluetooth7Central15find_peripheralERKNSt6vectorINSt6stringEEE"></span><span id="_CPPv2N9bluetooth7Central15find_peripheralERKNSt6vectorINSt6stringEEE"></span><span id="bluetooth::Central::find_peripheral__std::vector:ss:CR"></span><span class="target" id="classbluetooth_1_1_central_1aedb226bfbf1230b757adbdceaf01b024"></span>std::shared_ptr&lt;<a class="reference internal" href="peripheral.html#_CPPv4N9bluetooth10PeripheralE" title="bluetooth::Peripheral">Peripheral</a>&gt; <code class="sig-name descname">find_peripheral</code><span class="sig-paren">(</span><em class="property">const</em> std::vector&lt;std::string&gt; &amp;<em>uuids</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9bluetooth7Central15find_peripheralERKNSt6vectorINSt6stringEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Find and connect to the peripheral_mac given the service UUIDs advertised by the peripheral_mac. If the peripheral is not found, return nullptr.</p>
+<p><dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">uuids</span></code>: uuids advertised by the peripheral. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N9bluetooth7Central15find_peripheralERKNSt6stringE">
+<span id="_CPPv3N9bluetooth7Central15find_peripheralERKNSt6stringE"></span><span id="_CPPv2N9bluetooth7Central15find_peripheralERKNSt6stringE"></span><span id="bluetooth::Central::find_peripheral__ssCR"></span><span class="target" id="classbluetooth_1_1_central_1a2ba68f6c70a93901c86065a6058f30d0"></span>std::shared_ptr&lt;<a class="reference internal" href="peripheral.html#_CPPv4N9bluetooth10PeripheralE" title="bluetooth::Peripheral">Peripheral</a>&gt; <code class="sig-name descname">find_peripheral</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>name</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9bluetooth7Central15find_peripheralERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Find and connect to a peripheral_mac given the name of it. If the peripheral is not found, return nullptr.</p>
+<p><dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">name</span></code>: the name advertised by the peripheral_mac. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N9bluetooth7Central10peripheralERKNSt6stringE">
+<span id="_CPPv3N9bluetooth7Central10peripheralERKNSt6stringE"></span><span id="_CPPv2N9bluetooth7Central10peripheralERKNSt6stringE"></span><span id="bluetooth::Central::peripheral__ssCR"></span><span class="target" id="classbluetooth_1_1_central_1a89a4863346575d3b803efe4cf3a143e3"></span>std::shared_ptr&lt;<a class="reference internal" href="peripheral.html#_CPPv4N9bluetooth10PeripheralE" title="bluetooth::Peripheral">Peripheral</a>&gt; <code class="sig-name descname">peripheral</code><span class="sig-paren">(</span><em class="property">const</em> std::string &amp;<em>uuid</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9bluetooth7Central10peripheralERKNSt6stringE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Return the discovered peripheral. If the peripheral hasn’t been discovered and connected yet then return nullptr. <dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>the peripheral or nullptr. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">uuid</span></code>: uuid of the peripheral. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="peripheral.html" class="btn btn-neutral float-right" title="Peripheral" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../demo/demo.html" class="btn btn-neutral float-left" title="How to use and examples!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, sean ng pack
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

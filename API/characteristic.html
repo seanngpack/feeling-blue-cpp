@@ -1,0 +1,318 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Characteristic &mdash; feeling-blue 1.0 documentation</title>
+  
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+
+  
+  
+  
+  
+
+  
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Supported Template Types" href="../template_types.html" />
+    <link rel="prev" title="Service" href="service.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home" alt="Documentation Home"> feeling-blue
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">Installation</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installing.html">Installation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Usage and examples</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo/demo.html">How to use and examples!</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#read-this-before-starting">Read this before starting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#connecting-to-your-device">Connecting to your device</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#central-initialization">Central initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#search-for-peripheral">Search for peripheral</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#search-for-services">Search for services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#search-for-characteristics">Search for characteristics</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#code">Code</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#connecting-to-multiple-devices">Connecting to multiple devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#reading-characteristic-value">Reading characteristic value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#writing-to-characteristic">Writing to characteristic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#notifying-characteristic">Notifying characteristic</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#non-member-function-event-handler">Non-member function event handler</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../demo/demo.html#member-function-event-handler">Member function event handler</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../demo/demo.html#supported-template-types">Supported Template Types</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption"><span class="caption-text">API Documentation</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="central.html">Central</a></li>
+<li class="toctree-l1"><a class="reference internal" href="peripheral.html">Peripheral</a></li>
+<li class="toctree-l1"><a class="reference internal" href="service.html">Service</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Characteristic</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../template_types.html">Supported Template Types</a></li>
+</ul>
+
+            
+          
+        </div>
+        
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">feeling-blue</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html" class="icon icon-home"></a> &raquo;</li>
+        
+      <li>Characteristic</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/API/characteristic.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="characteristic">
+<h1>Characteristic<a class="headerlink" href="#characteristic" title="Permalink to this headline">¶</a></h1>
+<p>A characteristic holds a value. This value is represented by a <code class="docutils literal notranslate"><span class="pre">std::vector&lt;std::byte&gt;</span></code> byte vector.
+A characteristic can also be set with properties to read, write, and notify. feeling-blue provides
+the tools to read, write, and be notified from characteristics.</p>
+<dl class="cpp class">
+<dt id="_CPPv4N9bluetooth14CharacteristicE">
+<span id="_CPPv3N9bluetooth14CharacteristicE"></span><span id="_CPPv2N9bluetooth14CharacteristicE"></span><span id="bluetooth::Characteristic"></span><span class="target" id="classbluetooth_1_1_characteristic"></span><em class="property">class </em><code class="sig-prename descclassname">bluetooth<code class="sig-prename descclassname">::</code></code><code class="sig-name descname">Characteristic</code><a class="headerlink" href="#_CPPv4N9bluetooth14CharacteristicE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Represents a characteristic. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric">Public Functions</p>
+<dl class="cpp function">
+<dt id="_CPPv4I0EN9bluetooth14Characteristic4readE1Tv">
+<span id="_CPPv3I0EN9bluetooth14Characteristic4readEv"></span><span id="_CPPv2I0EN9bluetooth14Characteristic4readEv"></span>template&lt;typename <code class="sig-name descname">T</code>&gt;<br /><span class="target" id="classbluetooth_1_1_characteristic_1a2e7a891653abf08c1f2a60be2bf7f106"></span><a class="reference internal" href="#_CPPv4I0EN9bluetooth14Characteristic4readE1Tv" title="bluetooth::Characteristic::read::T">T</a> <code class="sig-name descname">read</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN9bluetooth14Characteristic4readE1Tv" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Read the characteristic. Compatible template types are listed at <code class="docutils literal notranslate"><span class="pre">supported</span> <span class="pre">template</span> <span class="pre">types</span></code> section.</p>
+<p>Recommended default usage to return a vector of bytes: <code class="docutils literal notranslate"><span class="pre">std::vector&lt;std::byte&gt;</span> <span class="pre">bytes</span> <span class="pre">=</span> <span class="pre">some_char-&gt;read&lt;std::vector&lt;std::byte&gt;&gt;();</span></code></p>
+<p>You can also return an int if you know your characteristic value is a 4-byte integer in little-endian order: <code class="docutils literal notranslate"><span class="pre">int</span> <span class="pre">x</span> <span class="pre">=</span> <span class="pre">some_char-&gt;read&lt;int&gt;();</span></code> <dl class="simple">
+<dt><strong>Return</strong></dt><dd><p>a byte vector. </p>
+</dd>
+<dt><strong>Template Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">T</span></code>: the type your want the data to be read as.</p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4I0EN9bluetooth14Characteristic22write_without_responseEv1T">
+<span id="_CPPv3I0EN9bluetooth14Characteristic22write_without_responseE1T"></span><span id="_CPPv2I0EN9bluetooth14Characteristic22write_without_responseE1T"></span>template&lt;typename <code class="sig-name descname">T</code>&gt;<br /><span class="target" id="classbluetooth_1_1_characteristic_1acf5a7b71a3f408fdc5d05837e26c7e88"></span>void <code class="sig-name descname">write_without_response</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0EN9bluetooth14Characteristic22write_without_responseEv1T" title="bluetooth::Characteristic::write_without_response::T">T</a> <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN9bluetooth14Characteristic22write_without_responseEv1T" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write to characteristic using a vector of bytes. Will not print error if write fails. You can transmit more data with this method than <a class="reference internal" href="#classbluetooth_1_1_characteristic_1a82981bb878d03e81b884b5209f89f133"><span class="std std-ref">write_with_response()</span></a>. Compatible template types are listed at <code class="docutils literal notranslate"><span class="pre">supported</span> <span class="pre">template</span> <span class="pre">types</span></code> section.</p>
+<p>examples: <code class="docutils literal notranslate"><span class="pre">std::vector&lt;std::byte&gt;</span> <span class="pre">data</span> <span class="pre">=</span> <span class="pre">{...};</span></code> <code class="docutils literal notranslate"><span class="pre">some_char-&gt;write_without_response&lt;std::byte&gt;(data);</span></code> <code class="docutils literal notranslate"><span class="pre">some_char-&gt;write_without_response&lt;int&gt;(1);</span></code></p>
+<p><dl class="simple">
+<dt><strong>Note</strong></dt><dd><p>asynchronous. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: byte vector of your data. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4I0EN9bluetooth14Characteristic19write_with_responseEv1T">
+<span id="_CPPv3I0EN9bluetooth14Characteristic19write_with_responseE1T"></span><span id="_CPPv2I0EN9bluetooth14Characteristic19write_with_responseE1T"></span>template&lt;typename <code class="sig-name descname">T</code>&gt;<br /><span class="target" id="classbluetooth_1_1_characteristic_1a82981bb878d03e81b884b5209f89f133"></span>void <code class="sig-name descname">write_with_response</code><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv4I0EN9bluetooth14Characteristic19write_with_responseEv1T" title="bluetooth::Characteristic::write_with_response::T">T</a> <em>data</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4I0EN9bluetooth14Characteristic19write_with_responseEv1T" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Write to characteristic with response. If the write_without_response fails and verbose mode is on, the console will print an error and the program will continue running. Compatible template types are listed at <code class="docutils literal notranslate"><span class="pre">supported</span> <span class="pre">template</span> <span class="pre">types</span></code> section.</p>
+<p>examples: <code class="docutils literal notranslate"><span class="pre">std::vector&lt;std::byte&gt;</span> <span class="pre">data</span> <span class="pre">=</span> <span class="pre">{...};</span></code> <code class="docutils literal notranslate"><span class="pre">some_char-&gt;write_with_response&lt;std::byte&gt;(data);</span></code> <code class="docutils literal notranslate"><span class="pre">some_char-&gt;write_with_response&lt;int&gt;(1);</span></code></p>
+<p><dl class="simple">
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">data</span></code>: byte vector of your data. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt id="_CPPv4N9bluetooth14Characteristic6notifyERKNSt8functionIFvNSt6vectorINSt4byteEEEEEE">
+<span id="_CPPv3N9bluetooth14Characteristic6notifyERKNSt8functionIFvNSt6vectorINSt4byteEEEEEE"></span><span id="_CPPv2N9bluetooth14Characteristic6notifyERKNSt8functionIFvNSt6vectorINSt4byteEEEEEE"></span><span class="target" id="classbluetooth_1_1_characteristic_1ab2f235567b8b02ad1fbf823c8046a980"></span>void <code class="sig-name descname">notify</code><span class="sig-paren">(</span><em class="property">const</em> std::function&lt;void<span class="sig-paren">(</span>std::vector&lt;std::byte&gt;<span class="sig-paren">)</span>&gt; &amp;<em>callback</em><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv4N9bluetooth14Characteristic6notifyERKNSt8functionIFvNSt6vectorINSt4byteEEEEEE" title="Permalink to this definition">¶</a><br /></dt>
+<dd><p>Enable notifications from the characteristic and set callback function to do something with the data when the device notifies.</p>
+<p><dl class="simple">
+<dt><strong>Note</strong></dt><dd><p>this method returns when the callback is successfully set. Your callback is asynchronously called whenever a notification is triggered. </p>
+</dd>
+<dt><strong>Parameters</strong></dt><dd><ul class="breatheparameterlist simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">callback</span></code>: function to do something with notification data. </p></li>
+</ul>
+</dd>
+</dl>
+</p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../template_types.html" class="btn btn-neutral float-right" title="Supported Template Types" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="service.html" class="btn btn-neutral float-left" title="Service" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        
+        &copy; Copyright 2020, sean ng pack
+
+    </p>
+  </div>
+    
+    
+    
+    Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a
+    
+    <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a>
+    
+    provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
