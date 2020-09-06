@@ -212,7 +212,7 @@ IMPORTANT! All event handlers must follow this signature: ``void (std::vector<st
         }
     }
 
-    characteristic->set_notify(print_data);
+    characteristic->notify(print_data);
 
 
 Member function event handler
@@ -223,7 +223,7 @@ and add a placeholder parameter, then pass it like normal.
 
 .. code:: c++
 
-    class A {
+    class ExampleClass {
     public:
         void print_data(std::vector<std::byte> data) {
             for (auto const &b : data) {
@@ -231,9 +231,9 @@ and add a placeholder parameter, then pass it like normal.
             }
         }
 
-        void set_notify(std::shared_ptr<bluetooth::Characteristic> c) {
+        void notify(std::shared_ptr<bluetooth::Characteristic> c) {
             using namespace std::placeholders;
-            std::function<void(std::vector<std::byte>)> binded_print_data = std::bind(&A::print_data, this, std::placeholders::_1);
+            std::function<void(std::vector<std::byte>)> binded_print_data = std::bind(&ExampleClass::print_data, this, std::placeholders::_1);
             characteristic->notify(binded_print_data);
         }
 

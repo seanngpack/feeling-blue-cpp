@@ -7,6 +7,7 @@ Primitive:
 - int
 - float
 - double
+- short
 
 Non Primitive:
 

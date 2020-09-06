@@ -86,7 +86,7 @@ int main() {
     std::shared_ptr<bluetooth::Characteristic> current_temp_char = service->find_characteristic("someUUID");
     std::shared_ptr<bluetooth::Characteristic> units_char = service->find_characteristic("someUUID");
 
-    current_temp_char->set_notify(print_temp); // will call print_temp() whenever device notifies
+    current_temp_char->notify(print_temp); // will call print_temp() whenever device notifies
     
     std::string units = units_char->read<std::string>();
     std::cout << "the current temperature unit is: " << units << std::endl
