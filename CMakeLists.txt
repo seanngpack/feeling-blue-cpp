@@ -25,7 +25,7 @@ option(VERBOSE_MODE "NSLog what your bluetooth device is doing" ON)
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
 # --------------------------------------------------------------------------------
-#                          Public headers API
+#                          Mac Public headers API
 # --------------------------------------------------------------------------------
 set(macOS_PUBLIC_HEADERS
         ./include/feeling-blue.h
@@ -39,6 +39,21 @@ set(macOS_PRIVATE_HEADERS
         ./include/detail/conversions.h
         )
 
+# --------------------------------------------------------------------------------
+#                          Windows Public headers API
+# --------------------------------------------------------------------------------
+set(win_PUBLIC_HEADERS
+        ./include/feeling-blue.h
+        ./include/central.h
+        ./include/peripheral.h
+        ./include/service.h
+        ./include/characteristic.h
+        /include/pch.h
+        )
+
+set(win_PRIVATE_HEADERS
+        ./include/detail/conversions.h
+        )
 
 # --------------------------------------------------------------------------------
 #                          Subdirectories
@@ -63,11 +78,23 @@ target_include_directories(${PROJECT_NAME} PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>)
 
-set_target_properties(${PROJECT_NAME}
-        PROPERTIES
-        PUBLIC_HEADER "${macOS_PUBLIC_HEADERS}"
-        PRIVATE_HEADER "${macOS_PRIVATE_HEADERS}"
-        )
+if (WIN32)
+    set_target_properties(${PROJECT_NAME}
+            PROPERTIES
+            PUBLIC_HEADER "${win_PUBLIC_HEADERS}"
+            PRIVATE_HEADER "${win_PRIVATE_HEADERS}"
+            )
+endif (WIN32)
+
+if(APPLE)
+    set_target_properties(${PROJECT_NAME}
+            PROPERTIES
+            PUBLIC_HEADER "${macOS_PUBLIC_HEADERS}"
+            PRIVATE_HEADER "${macOS_PRIVATE_HEADERS}"
+            )
+endif()
+
+
 
 # --------------------------------------------------------------------------------
 #                          Doxygen Subdirectory
@@ -78,6 +105,7 @@ add_subdirectory(docs)
 # --------------------------------------------------------------------------------
 #                          Install library
 # --------------------------------------------------------------------------------
+
 install(TARGETS ${PROJECT_NAME}
         EXPORT feeling-blueConfig
         LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

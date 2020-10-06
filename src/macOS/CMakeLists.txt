@@ -22,7 +22,6 @@ include_directories(
         ${PROJECT_SOURCE_DIR}/external
         ${PROJECT_SOURCE_DIR}/include/detail
         wrapper
-        wrapper
 )
 
 add_library(feeling-blue SHARED ${macOS_SRCS})
