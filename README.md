@@ -26,6 +26,11 @@ the nuisances of bluetoothLE.
 
 ## Features
 
+| Features          | MacOS | Windows  |
+|-------------------|-------|----------|
+| BluetoothLE       | X     | upcoming |
+| Bluetooth Classic |       |          |
+
 * Blocking & non-blocking API. Calls to find services, characteristics, etc block the calling thread until the process is complete.
 * Supports connecting to multiple bluetooth devices.
 * User-defined event handlers for device notifications.
