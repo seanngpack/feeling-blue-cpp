@@ -114,6 +114,11 @@ int main() {
 - methods to get status of peripherals, characteristics, etc
 - Windows support
 
+## Windows support
+Windows support is currently on hold as the bluetooth API requires low-energy devices to be paired to the OS before
+services can be detected. I do not have any bluetooth prototyping boards that support pairing, so I either have to 
+get one or wait until Microsoft updates their API to allow finding services of non-paired devices.  
+
 ## Help & bug reports
 
 Just open a new [issue](https://github.com/seanngpack/feeling-blue-cpp/issues)!
